@@ -59,6 +59,23 @@ class AuditPublicRepoTests(unittest.TestCase):
             result = AUDITOR.audit(repo, None)
             self.assertTrue(result["ok"])
 
+    def test_detects_checkout_credential_config_until_removed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            init_repo(repo)
+            runner_home = "/" + "home" + "/runner/work/"
+            key = f"includeIf.gitdir:{runner_home}repo/.git.path"
+            git(repo, "config", key, runner_home + "_temp/git-credentials-fixture.config")
+
+            result = AUDITOR.audit(repo, None)
+            self.assertTrue(any(
+                finding["scope"] == "config" and finding["reason"] == "concrete_home_path"
+                for finding in result["findings"]
+            ))
+
+            git(repo, "config", "--unset", key)
+            self.assertTrue(AUDITOR.audit(repo, None)["ok"])
+
     def test_rejects_deleted_history_and_current_untracked_path(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)

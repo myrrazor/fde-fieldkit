@@ -60,6 +60,7 @@ def test_ci_checks_privacy_distributions_and_verified_secret_scanner() -> None:
     """CI must check public history and distributed files, not just application tests."""
     workflow = _workflow("ci.yml")
     assert "fetch-depth: 0" in workflow
+    assert "persist-credentials: false" in workflow.split("  secrets:", 1)[0]
     assert "bash scripts/check-public-privacy.sh" in workflow
     assert "python scripts/check_release_artifacts.py dist" in workflow
     assert "sha256sum --check" in workflow
