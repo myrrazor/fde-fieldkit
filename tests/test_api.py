@@ -8,6 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from click import unstyle
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
@@ -488,12 +489,22 @@ def test_unexpected_errors_do_not_leak(
     assert "customer secret" not in response.text
 
 
-def test_serve_help_exposes_only_loopback_safe_options() -> None:
+@pytest.mark.parametrize("force_color", [False, True])
+def test_serve_help_exposes_only_loopback_safe_options(
+    monkeypatch: pytest.MonkeyPatch, force_color: bool
+) -> None:
+    if force_color:
+        monkeypatch.setenv("TERM", "xterm-256color")
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        monkeypatch.delenv("NO_COLOR", raising=False)
     result = CliRunner().invoke(cli_app, ["serve", "--help"])
+    output = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "--host" not in result.output
-    assert "--port" in result.output
+    if force_color:
+        assert "\x1b[" in result.output
+    assert "--host" not in output
+    assert "--port" in output
 
 
 def test_serve_always_binds_loopback(monkeypatch: pytest.MonkeyPatch) -> None:
