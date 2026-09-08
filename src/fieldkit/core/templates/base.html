@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title | default("Fieldkit report") }}</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; color: #202124; }
+      body { margin: 0; background: #f5f5f3; }
+      main { max-width: 960px; margin: 0 auto; padding: 2rem; background: #fff; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: .55rem; border-bottom: 1px solid #ddd; text-align: left; }
+      code, pre { font-family: ui-monospace, monospace; }
+    </style>
+  </head>
+  <body>
+    <main>{% block content %}{% endblock %}</main>
+  </body>
+</html>

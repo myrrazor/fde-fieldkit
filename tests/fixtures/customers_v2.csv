@@ -1,0 +1,153 @@
+customer_id,first_name,last_name,email,phone,credit_card,ip_address,signup_date,plan,mrr,seats,churned,notes,region
+CUST-0001,Shelby,Joyce,shelbyjoyce1@example.com,(993) 540-6286,4635166185664053,163.60.235.64,2023-12-29,starter,499.96,408.0,false,Understand report number rule simple four play growth yet hot recent seven tell.,NA
+CUST-0002,Sally,Floyd,sallyfloyd2@example.com,(738) 833-9458,4690033143795092,96.221.117.141,2024-05-20,starter,130.38,398.0,false,,EMEA
+CUST-0003,Mario,Glenn,marioglenn3@example.com,(251) 964-8104,4708785894412025,91.40.98.113,2022-01-06,starter,240.10,427.0,false,Body star human assume recognize give idea soon son professional.,APAC
+CUST-0004,Clayton,Massey,claytonmassey4@example.com,(243) 640-4710,4756135943327694,120.129.81.57,2021-11-04,starter,157.18,432.0,false,Organization leave whatever somebody finish real trip lead enter cut.,NA
+CUST-0005,Christy,Savage,christysavage5@example.com,(240) 230-8846,4485653479662944,206.121.197.209,2022-02-03,starter,580.67,44.0,false,Point wide wide similar authority while.,EMEA
+CUST-0006,Adrian,Erickson,adrianerickson6@example.com,(808) 598-2286,4637134073585499,37.78.22.165,2021-06-25,starter,484.45,255.0,false,Approach admit culture bit cultural see yourself notice actually view four occur director.,APAC
+CUST-0007,Angel,Hunter,angelhunter7@example.com,(950) 830-8010,4232330776450655,213.52.86.21,2021-10-31,starter,202.69,8.0,false,Simply new position summer degree window.,NA
+CUST-0008,Stacey,Eaton,staceyeaton8@example.com,(763) 857-6630,4063658773111258,80.193.14.1,2022-02-01,starter,103.80,468.0,true,,EMEA
+CUST-0009,Collin,Rivas,collinrivas9@example.com,(207) 624-4905,4509010569667204,138.94.97.19,2024-02-01,pro,340.01,97.0,true,,APAC
+CUST-0010,Maureen,Johns,maureenjohns10@example.com,(817) 282-3661,4068841540755053,160.169.110.27,2023-12-08,enterprise,385.61,14.0,true,Money continue production second region on wind agency mission my pressure usually.,NA
+CUST-0011,Cynthia,Lam,cynthialam11@example.com,(859) 241-7111,4598978831795502,48.74.55.59,2023-12-19,enterprise,180.16,210.0,true,Sometimes popular energy remember way tough firm bad keep music education approach change.,EMEA
+CUST-0012,Hector,Johnston,hectorjohnston12@example.com,(582) 833-3536,4481474213222000,25.121.180.32,2024-09-19,pro,532.74,103.0,true,Paper thing use involve scientist choose plant girl attention good.,APAC
+CUST-0013,Kristine,Gallagher,kristinegallagher13@example.com,(613) 292-3270,4380314854540462,93.174.45.165,2024-06-26,enterprise,378.18,389.0,false,Enough degree carry hot involve education develop yard free person soon whatever upon.,NA
+CUST-0014,Madeline,Valdez,madelinevaldez14@example.com,(551) 373-9852,4719386438799691,126.65.200.97,2021-03-12,enterprise,213.73,199.0,true,Responsibility perform pick always music court join shake.,EMEA
+CUST-0015,Darren,Bowman,darrenbowman15@example.com,(736) 456-1736,4256281286568042,34.197.198.160,2022-11-09,enterprise,36.32,235.0,true,Fire I grow true throughout oil whole herself perhaps every second history.,APAC
+CUST-0016,Edwin,Cooper,edwincooper16@example.com,(925) 227-0907,4890952953494546,167.202.173.183,2024-03-14,free,126.12,17.0,false,Leave able beat use man standard traditional.,NA
+CUST-0017,Eduardo,Mejia,eduardomejia17@example.com,(439) 204-8481,4995472108457045,156.113.244.101,2023-05-18,free,158.03,180.0,true,Also wall ok crime know project feeling.,EMEA
+CUST-0018,Andre,Michael,andremichael18@example.com,(648) 388-8541,4769890378274499,52.241.157.217,2022-04-21,pro,218.89,277.0,false,So defense movement up oil bill task wear media opportunity popular political.,APAC
+CUST-0019,Rachael,Hood,rachaelhood19@example.com,(311) 831-6390,4335427351741080,39.109.117.50,2023-12-16,enterprise,186.37,404.0,false,Fast chance letter ball their run major leader return compare cover down.,NA
+CUST-0020,Patricia,Stephenson,patriciastephenson20@example.com,(235) 217-2274,4058789031858252,148.138.160.139,2023-04-23,pro,1351.66,132.0,true,,EMEA
+CUST-0021,Gwendolyn,Bates,gwendolynbates21@example.com,(483) 286-2067,4182541248646064,188.98.141.128,2021-08-23,pro,26.54,353.0,false,Positive represent son leave source pull sell agent.,APAC
+CUST-0022,Cassidy,Ellis,cassidyellis22@example.com,(736) 540-8122,4647928450995710,79.72.158.215,2024-06-25,pro,24.00,395.0,true,Good picture size ball address federal process create range blood city.,NA
+CUST-0023,Samuel,Navarro,samuelnavarro23@example.com,(557) 530-8766,4738579632354324,184.153.245.170,2024-02-20,pro,1976.41,338.0,true,Officer early trial arrive dinner small foreign necessary list create available.,EMEA
+CUST-0024,Riley,Golden,rileygolden24@example.com,(988) 323-5364,4183738562333092,147.179.95.148,2022-08-29,pro,294.59,405.0,false,Guess oil agree view quickly weight arrive.,APAC
+CUST-0025,Gabriel,Odonnell,gabrielodonnell25@example.com,(237) 667-4507,4432749680756659,131.35.254.234,2022-09-17,enterprise,45.08,136.0,true,Value suddenly wind when miss true choose truth suddenly increase main although professional.,NA
+CUST-0026,Jocelyn,Erickson,jocelynerickson26@example.com,(311) 739-1556,4767535481573905,11.66.49.91,2023-11-10,free,127.64,300.0,false,Series argue service approach seven song.,EMEA
+CUST-0027,Kristy,Baldwin,kristybaldwin27@example.com,(467) 213-3813,4401763588653857,61.38.93.60,2024-07-07,pro,343.92,277.0,true,,APAC
+CUST-0028,Lydia,Fisher,lydiafisher28@example.com,(400) 450-6716,4138339554375104,27.210.227.22,2023-04-21,enterprise,84.82,327.0,true,Instead list activity whose table couple interesting because nearly mission space individual those.,NA
+CUST-0029,Kristi,Conrad,kristiconrad29@example.com,(771) 666-6691,4035359072341242,223.73.223.68,2021-08-18,pro,992.92,254.0,false,What may join interesting wear national figure.,EMEA
+CUST-0030,Brad,Beltran,bradbeltran30@example.com,(584) 237-3770,4823473804577092,164.205.224.194,2021-07-03,pro,1036.92,363.0,true,,APAC
+CUST-0031,Robert,Hahn,roberthahn31@example.com,(662) 478-4508,4383301384445236,124.251.69.21,2022-08-13,free,238.96,53.0,true,Example you theory happen yet agency guess option trial democratic.,NA
+CUST-0032,Frances,Gibbs,francesgibbs32@example.com,(712) 205-6944,4063658484537023,195.73.164.114,2021-04-22,enterprise,608.10,116.0,true,Agree wear I more without song a popular question wide return bar.,EMEA
+CUST-0033,Darin,Flowers,darinflowers33@example.com,(584) 550-9195,4937669462359250,79.108.153.52,2021-08-30,pro,215.65,70.0,false,Others pass no what become word purpose sign seat allow.,APAC
+CUST-0034,Tina,Collier,tinacollier34@example.com,(980) 443-3344,4264353263616373,173.83.235.16,2023-07-29,free,158.39,12.0,false,Blue soon impact career production enter machine.,NA
+CUST-0035,Seth,Andrade,sethandrade35@example.com,(804) 548-2081,4549479554094959,140.143.249.160,2023-06-15,enterprise,452.09,363.0,true,,EMEA
+CUST-0036,Savannah,Wheeler,savannahwheeler36@example.com,(445) 309-3916,4695293404547054,68.34.95.205,2023-03-07,pro,46.15,147.0,true,Health democratic station there environmental must.,APAC
+CUST-0037,Pedro,Merritt,pedromerritt37@example.com,(745) 280-5027,4196086270203529,66.14.229.75,2022-06-12,free,68.12,280.0,true,,NA
+CUST-0038,Sue,Sherman,suesherman38@example.com,(743) 916-2327,4504146113165918,213.163.106.207,2022-07-01,pro,166.90,321.0,true,,EMEA
+CUST-0039,Gina,Ochoa,ginaochoa39@example.com,(270) 242-7912,4423007945999833,48.95.70.5,2023-04-02,free,110.40,422.0,true,Purpose exactly either rule shake themselves certain.,APAC
+CUST-0040,Jerome,Hamilton,jeromehamilton40@example.com,(434) 448-2615,4633250925349621,200.214.214.209,2023-11-07,pro,263.83,56.0,true,,NA
+CUST-0041,Shane,Santiago,shanesantiago41@example.com,(693) 963-6898,4210163110943879,82.98.48.7,2024-02-07,free,268.22,66.0,false,Charge produce area skin buy current as middle.,EMEA
+CUST-0042,Cristian,Perry,cristianperry42@example.com,(879) 540-9478,4229601724422144,139.45.156.43,2023-06-19,pro,84.20,488.0,true,Modern type room idea current continue strategy require wall morning product arm turn.,APAC
+CUST-0043,Carmen,Ferrell,carmenferrell43@example.com,(926) 447-4780,4145090015457798,177.170.181.191,2024-02-24,enterprise,166.64,470.0,false,Fast first food fact analysis inside future.,NA
+CUST-0044,Wyatt,Dixon,wyattdixon44@example.com,(972) 278-1901,4805759784309866,222.252.154.13,2024-04-30,free,224.70,164.0,false,Politics must open movie alone follow strategy.,EMEA
+CUST-0045,Chloe,Bullock,chloebullock45@example.com,(245) 751-2405,4868333752716637,21.183.146.53,2021-10-14,enterprise,288.09,490.0,false,Into though poor note college heart military.,APAC
+CUST-0046,Joe,Bright,joebright46@example.com,(213) 971-6085,4637350078654011,67.16.197.112,2024-04-16,enterprise,82.97,476.0,false,,NA
+CUST-0047,Jodi,Braun,jodibraun47@example.com,(530) 695-1488,4811844845740457,14.242.92.172,2022-10-04,free,43.59,321.0,true,Key once there movie say debate.,EMEA
+CUST-0048,Jamie,Barton,jamiebarton48@example.com,(878) 330-5791,4161644137546638,59.226.196.87,2023-07-18,enterprise,198.42,62.0,true,Majority party imagine laugh respond campaign her hold baby former edge nothing.,APAC
+CUST-0049,Patrick,Wong,patrickwong49@example.com,(273) 465-8004,4221127121751701,190.56.54.103,2021-08-27,pro,58.70,23.0,true,Economy beyond control girl include memory pretty mean recognize usually protect necessary.,NA
+CUST-0050,Angelica,Cameron,angelicacameron50@example.com,(398) 938-3180,4620024372592172,138.241.235.137,2021-10-15,enterprise,103.32,11.0,false,,EMEA
+CUST-0051,Jeanette,Knapp,jeanetteknapp51@example.com,(268) 712-5968,4101554958048221,27.54.129.26,2024-11-04,pro,459.20,129.0,false,Behavior risk perhaps leader air artist number similar discuss.,APAC
+CUST-0052,Geoffrey,Dickson,geoffreydickson52@example.com,(868) 257-2091,4750916233008805,137.4.219.52,2023-07-20,free,445.09,176.0,false,Remain same water area perform animal.,NA
+CUST-0053,Colin,Marshall,colinmarshall53@example.com,(443) 520-9812,4548556689194068,203.236.72.165,2023-04-01,enterprise,346.01,259.0,false,,EMEA
+CUST-0054,Angie,Atkins,angieatkins54@example.com,(827) 576-8192,4039848025285494,71.36.95.239,2024-10-08,free,78.22,495.0,true,Past occur their simple pattern gas father represent visit true whole house.,APAC
+CUST-0055,Jack,Contreras,jackcontreras55@example.com,(342) 863-6883,4797042410700711,132.238.210.90,2022-06-27,enterprise,20.25,289.0,false,Research all pass term travel join human language plan do.,NA
+CUST-0056,Derrick,Hogan,derrickhogan56@example.com,(590) 529-8486,4269001667962522,37.197.175.143,2021-08-29,pro,105.14,461.0,false,Contain entire organization future later attorney movement energy just police nothing modern.,EMEA
+CUST-0057,Jacob,Chang,jacobchang57@example.com,(778) 869-0280,4911831796762324,27.124.19.110,2024-10-18,enterprise,593.75,392.0,false,Book any add discussion peace oil executive just miss ago prove.,APAC
+CUST-0058,Cory,Salazar,corysalazar58@example.com,(477) 281-0162,4242942016001706,209.160.253.50,2024-07-04,enterprise,446.84,123.0,true,Public identify network along doctor stop start lot rule cost.,NA
+CUST-0059,Gina,Ramos,ginaramos59@example.com,(488) 729-3599,4726029179802859,162.226.131.151,2022-11-26,enterprise,87.57,34.0,true,Father clear likely teacher suffer music opportunity need indicate.,EMEA
+CUST-0060,Brent,Preston,brentpreston60@example.com,(841) 356-6444,4171074282213099,219.107.172.56,2021-04-16,enterprise,312.06,425.0,true,Certainly race yard pattern gas suggest.,APAC
+CUST-0061,Cristian,Sutton,cristiansutton61@example.com,(795) 389-8387,4823136991767863,186.66.8.18,2022-07-25,free,291.31,391.0,true,Very dinner enter physical treat suffer blue find picture nice born real top.,NA
+CUST-0062,John,Petersen,johnpetersen62@example.com,(655) 220-2224,4454104049496949,22.36.246.31,2023-01-18,enterprise,38.65,436.0,true,,EMEA
+CUST-0063,Melody,Schneider,melodyschneider63@example.com,(770) 695-2162,4235428739640748,144.222.186.241,2022-11-17,free,224.80,134.0,true,,APAC
+CUST-0064,Harold,Haas,haroldhaas64@example.com,(770) 603-9295,4099685655074633,39.194.44.223,2024-06-07,free,53.45,289.0,false,Media job prepare race store believe sure whose.,NA
+CUST-0065,Rebecca,Garrett,rebeccagarrett65@example.com,(980) 334-2613,4962943642158322,61.211.7.110,2021-05-03,enterprise,212.15,494.0,false,Catch dinner rock group throughout major.,EMEA
+CUST-0066,Robert,Davenport,robertdavenport66@example.com,(947) 322-4533,4400397003681028,102.16.248.48,2021-12-28,enterprise,47.62,143.0,false,Anyone attack might strategy car young Mrs with even music word either bit.,APAC
+CUST-0067,Joanne,Wang,joannewang67@example.com,(569) 300-2139,4514135147144260,156.168.168.204,2024-07-10,pro,131.52,220.0,true,,NA
+CUST-0068,Dylan,Daniel,dylandaniel68@example.com,(697) 923-8837,4627156381741698,86.128.125.171,2022-10-15,enterprise,174.28,420.0,true,Boy American we yet relationship say be protect dinner.,EMEA
+CUST-0069,Jessica,Wise,jessicawise69@example.com,(879) 274-3469,4314176460988760,206.21.146.54,2022-07-28,free,163.07,311.0,true,Benefit cell return environment away pick who impact.,APAC
+CUST-0070,Cory,Singh,corysingh70@example.com,(552) 953-5449,4603598076263959,62.121.121.198,2023-07-23,free,97.15,484.0,false,Agency realize cover treat marriage reach staff town read bring newspaper.,NA
+CUST-0071,Kara,Garrett,karagarrett71@example.com,(248) 975-6095,4142046855859900,48.200.43.123,2024-09-06,pro,619.21,326.0,false,Election standard firm model truth many stand strategy can second just power.,EMEA
+CUST-0072,Jodi,Johnson,jodijohnson72@example.com,(461) 325-3687,4910304507530720,207.79.48.95,2024-08-06,pro,301.98,167.0,true,Capital expert skin policy particularly magazine baby natural center financial father vote college.,APAC
+CUST-0073,Dustin,Garcia,dustingarcia73@example.com,(612) 433-5070,4348595881946448,215.29.143.148,2024-11-01,free,267.24,331.0,false,Her nice continue place drop teach movement address he.,NA
+CUST-0074,Dustin,Chambers,dustinchambers74@example.com,(619) 421-2345,4144984457724205,160.91.102.95,2022-01-04,pro,118.22,292.0,true,,EMEA
+CUST-0075,Tammie,Robinson,tammierobinson75@example.com,(224) 930-1123,4176022338270741,216.37.240.147,2021-03-14,free,60.79,83.0,false,Team policy free personal one discuss sea wife.,APAC
+CUST-0076,George,Horton,georgehorton76@example.com,(423) 814-4863,4822830332099470,217.219.86.57,2023-11-25,free,67.48,105.0,true,,NA
+CUST-0077,Debra,Ochoa,debraochoa77@example.com,(360) 412-5761,4748667137229865,187.198.179.119,2021-05-03,pro,128.53,486.0,true,Themselves century federal next lose if since either fast.,EMEA
+CUST-0078,Zachary,Coleman,zacharycoleman78@example.com,(982) 323-8998,4402046624482229,70.117.254.240,2024-10-20,enterprise,218.91,483.0,true,,APAC
+CUST-0079,Sherry,Holder,sherryholder79@example.com,(732) 986-8935,4341808786585154,104.92.246.186,2022-03-04,pro,120.98,265.0,true,Agent military side thought respond pick before understand meet wind.,NA
+CUST-0080,Julia,Boone,juliaboone80@example.com,(291) 844-8402,4030217266663091,51.36.70.2,2024-12-03,free,227.80,234.0,false,Couple yourself take health commercial defense again offer go thank office so.,EMEA
+CUST-0081,Alexandria,Dickson,alexandriadickson81@example.com,(414) 634-3932,4231944327208601,61.232.147.69,2021-03-21,free,66.24,58.0,true,Technology report book of however already every industry soon purpose.,APAC
+CUST-0082,Brenda,Mcmillan,brendamcmillan82@example.com,(846) 820-5293,4085726397284712,102.130.234.28,2022-05-03,free,145.85,495.0,true,List performance million last fund imagine resource.,NA
+CUST-0083,Samuel,Barry,samuelbarry83@example.com,(459) 979-7143,4656618575023617,158.212.227.47,2021-04-07,free,250.98,24.0,true,Generation plant market rest beyond garden general development individual trial.,EMEA
+CUST-0084,Sonia,Sosa,soniasosa84@example.com,(515) 455-9147,4952375434410763,213.2.31.18,2022-10-30,enterprise,22.72,428.0,false,Prevent be budget deep stage huge there similar your television early skin.,APAC
+CUST-0085,Brooke,Rivers,brookerivers85@example.com,(651) 950-7455,4210555227164101,17.59.1.217,2023-03-24,enterprise,81.89,175.0,false,Beat lose participant study ability best data PM might phone memory if name.,NA
+CUST-0086,Geoffrey,Blair,geoffreyblair86@example.com,(271) 648-4669,4498407350612279,84.201.197.169,2022-04-08,free,414.61,430.0,false,Compare end discussion international woman after week two itself go play improve friend.,EMEA
+CUST-0087,Holly,Molina,hollymolina87@example.com,(519) 916-0600,4476614176881881,144.38.248.121,2021-05-20,enterprise,254.72,129.0,true,,APAC
+CUST-0088,Ernest,Shaw,ernestshaw88@example.com,(822) 386-3555,4747131469564226,122.249.9.26,2023-05-13,enterprise,168.06,33.0,true,,NA
+CUST-0089,Vernon,Munoz,vernonmunoz89@example.com,(768) 379-0946,4701352777721225,68.87.123.196,2024-10-11,enterprise,359.31,418.0,true,Focus avoid these do music mouth whole wife wall candidate church then cultural.,EMEA
+CUST-0090,Beverly,Summers,beverlysummers90@example.com,(218) 249-4028,4624120483367367,210.150.100.6,2022-08-17,free,377.88,138.0,true,School defense true question hit during develop two per score field.,APAC
+CUST-0091,Diamond,Marshall,diamondmarshall91@example.com,(477) 987-5138,4097039318271545,169.82.194.64,2023-12-03,pro,233.78,200.0,true,Food beat also assume in knowledge point PM memory born pick them.,NA
+CUST-0092,Vickie,Cruz,vickiecruz92@example.com,(256) 966-7759,4264267639059482,139.167.217.117,2021-09-04,enterprise,205.85,94.0,true,Road personal next impact everybody prove describe fire garden relationship.,EMEA
+CUST-0093,Joel,Shannon,joelshannon93@example.com,(380) 231-3726,4257470156037548,23.126.136.245,2021-12-06,pro,144.49,364.0,false,Long detail economic surface feel stop.,APAC
+CUST-0094,Lorraine,Irwin,lorraineirwin94@example.com,(901) 719-0410,4512276173674887,148.185.89.238,2023-03-31,free,495.03,378.0,true,,NA
+CUST-0095,Tanya,Wiley,tanyawiley95@example.com,(576) 745-6239,4309417595880473,59.24.126.198,2022-12-02,free,106.94,483.0,true,Join important group through become situation throw.,EMEA
+CUST-0096,Karen,Schwartz,karenschwartz96@example.com,(530) 990-5801,4197535490395449,200.100.75.216,2021-04-18,pro,147.63,114.0,false,Some address heart discover clear end near.,APAC
+CUST-0097,Molly,Macias,mollymacias97@example.com,(591) 327-5492,4478427233691682,72.213.14.17,2022-12-27,free,335.21,94.0,false,Range during specific deep anything simply fine remain.,NA
+CUST-0098,Virginia,Lester,virginialester98@example.com,(482) 823-5955,4869739940276244,121.122.90.109,2022-12-04,pro,1604.48,266.0,true,Ahead over just floor benefit sort explain away exist stock evening picture.,EMEA
+CUST-0099,Eddie,Bright,eddiebright99@example.com,(798) 868-4545,4249268207636768,51.67.250.38,2021-03-25,pro,607.83,304.0,false,Piece hold data money couple property along will early.,APAC
+CUST-0100,Judith,Osborne,judithosborne100@example.com,(685) 294-2177,4026750904558824,23.16.150.196,2024-05-05,enterprise,99.06,119.0,false,Trial else election condition reality research structure cut never man them ball.,NA
+CUST-0101,Jillian,Olsen,jillianolsen101@example.com,(860) 553-0848,4292224844137112,37.227.235.34,2021-09-30,free,89.08,195.0,true,,EMEA
+CUST-0102,Micheal,Fry,michealfry102@example.com,(932) 638-7205,4200369203279020,200.253.90.97,2024-03-14,pro,1803.12,35.0,true,Big letter type idea soon may training.,APAC
+CUST-0103,Gail,Oconnor,gailoconnor103@example.com,(936) 556-8069,4972331768190774,202.4.255.212,2022-11-08,free,1089.94,464.0,true,,NA
+CUST-0104,Caitlyn,Carlson,caitlyncarlson104@example.com,(615) 668-2454,4547427316642054,134.68.226.173,2022-08-14,pro,43.26,267.0,true,Arrive once hold difficult into practice else movie five leg computer.,EMEA
+CUST-0105,Evelyn,Gentry,evelyngentry105@example.com,(824) 905-3566,4491337091001911,188.21.208.110,2021-07-20,free,1981.63,103.0,false,Senior century know difficult work national brother allow scene case the soon.,APAC
+CUST-0106,Roger,Sullivan,rogersullivan106@example.com,(705) 279-0987,4564157399978434,147.15.255.101,2022-05-28,enterprise,42.56,137.0,false,,NA
+CUST-0107,Jeanne,Moreno,jeannemoreno107@example.com,(426) 875-5224,4496051702522349,178.167.20.133,2021-07-03,free,1971.83,471.0,true,,EMEA
+CUST-0108,Kyle,Cherry,kylecherry108@example.com,(322) 968-8113,4559193274520790,221.151.144.134,2021-07-17,free,137.73,459.0,true,Girl understand order public weight it international painting figure world draw training future.,APAC
+CUST-0109,Joseph,Baxter,josephbaxter109@example.com,(258) 763-7853,4021028384725022,70.88.45.244,2022-01-18,free,128.20,468.0,true,,NA
+CUST-0110,Kristy,Reynolds,kristyreynolds110@example.com,(336) 510-3856,4193224462852786,71.253.63.139,2023-09-15,pro,261.92,1.0,true,Yeah environment year feel future politics firm.,EMEA
+CUST-0111,Claire,Vega,clairevega111@example.com,(878) 927-7366,4620396323968929,124.229.44.91,2024-06-13,enterprise,158.36,48.0,false,Visit issue attorney while two draw prevent every idea degree team determine.,APAC
+CUST-0112,Kristopher,Aguirre,kristopheraguirre112@example.com,(596) 638-3849,4644448920900508,208.188.254.191,2022-01-15,enterprise,1323.25,230.0,false,Yet describe should at decade step plant.,NA
+CUST-0113,Adrian,Cook,adriancook113@example.com,(637) 653-4477,4627977377755701,223.159.93.34,2023-08-15,free,310.95,271.0,false,Artist according pass join side power tree camera through establish consider.,EMEA
+CUST-0114,Darlene,Lambert,darlenelambert114@example.com,(992) 481-2379,4357336451747462,24.187.136.35,2022-12-04,free,799.67,228.0,true,Win camera minute summer official school product reveal manage sound some good enough.,APAC
+CUST-0115,Cristina,Mullen,cristinamullen115@example.com,(294) 324-6878,4683617530206330,205.221.185.115,2024-11-05,pro,724.74,69.0,true,,NA
+CUST-0116,Ernest,Sexton,ernestsexton116@example.com,(367) 502-6215,4467173154572633,158.205.232.33,2024-04-13,pro,63.78,299.0,true,,EMEA
+CUST-0117,Nicole,Petty,nicolepetty117@example.com,(294) 540-0257,4787953504139446,202.114.128.143,2022-06-06,enterprise,769.76,405.0,false,,APAC
+CUST-0118,Charlene,Orozco,charleneorozco118@example.com,(394) 527-3550,4198893359066653,20.146.142.161,2021-06-19,pro,64.49,337.0,false,Practice who particularly girl exactly maintain perform case describe certain need total drive.,NA
+CUST-0119,Miguel,Dillon,migueldillon119@example.com,(856) 470-8431,4222294929622085,196.209.135.177,2021-11-23,free,229.59,427.0,false,Finish tough forget of woman whether safe too simple.,EMEA
+CUST-0120,Amanda,Holloway,amandaholloway120@example.com,(958) 472-8370,4535900150208301,80.139.52.239,2023-06-29,free,129.57,404.0,true,Feeling goal suffer also whatever attack.,APAC
+CUST-0121,Earl,Davis,earldavis121@example.com,(212) 754-8619,4558187179684157,40.103.120.82,2021-03-05,free,218.88,115.0,false,Song expert drive election democratic quickly order mouth.,NA
+CUST-0122,Brandi,Salinas,brandisalinas122@example.com,(627) 571-0607,4317915799729768,107.128.133.166,2022-12-24,pro,238.75,281.0,true,Appear create itself street seat pay among quality structure.,EMEA
+CUST-0123,Sandy,Snow,sandysnow123@example.com,(800) 424-5680,4790739497503994,116.240.159.149,2022-04-29,pro,75.61,483.0,true,Lay this security quite analysis goal Democrat.,APAC
+CUST-0124,Walter,Mcclain,waltermcclain124@example.com,(844) 668-7277,4997735478743717,125.161.199.162,2023-04-03,enterprise,479.76,256.0,true,Factor nation moment modern what play environment share style forget body.,NA
+CUST-0125,Benjamin,Schneider,benjaminschneider125@example.com,(554) 276-7064,4948195514307268,86.125.120.179,2023-07-15,free,320.29,169.0,false,,EMEA
+CUST-0126,Evan,Erickson,evanerickson126@example.com,(549) 794-9496,4128891186746658,75.216.189.132,2022-12-05,enterprise,123.23,413.0,false,Likely concern most whose center get guess every.,APAC
+CUST-0127,Andre,Reilly,andrereilly127@example.com,(771) 605-6281,4410936594707037,115.24.179.117,2022-07-05,enterprise,473.51,39.0,true,So few because what base fly.,NA
+CUST-0128,Allen,Hardin,allenhardin128@example.com,(246) 723-8895,4561075943005137,163.252.255.158,2021-09-14,free,62.06,426.0,false,So skill south maybe decade lay billion.,EMEA
+CUST-0129,Joy,Costa,joycosta129@example.com,(376) 803-2551,4162150312633117,88.189.70.121,2023-03-06,pro,20.00,500.0,false,Husband company despite relate attention some about write amount by course analysis.,APAC
+CUST-0130,Tristan,Dixon,tristandixon130@example.com,(583) 311-9838,4577735079555351,141.61.253.131,2024-01-18,enterprise,133.83,373.0,false,,NA
+CUST-0131,Todd,Carpenter,toddcarpenter131@example.com,(444) 407-7744,4482419425502391,198.189.246.74,2021-11-04,pro,20.00,196.0,true,North garden parent party them certain catch body drive bit party majority.,EMEA
+CUST-0132,Jorge,Hull,jorgehull132@example.com,(718) 369-0617,4337474359424390,189.8.76.157,2022-03-01,pro,119.13,361.0,true,Week tough city artist probably heart culture.,APAC
+CUST-0133,Annette,Sparks,annettesparks133@example.com,(853) 496-0437,4655084798654871,165.5.196.211,2023-05-29,free,300.00,487.0,false,,NA
+CUST-0134,Maria,Dougherty,mariadougherty134@example.com,(969) 263-0321,4775946090423632,176.154.22.173,2024-03-26,enterprise,808.23,417.0,false,Five safe office yard resource point understand.,EMEA
+CUST-0135,Kaitlin,Martin,kaitlinmartin135@example.com,(779) 577-2194,4155017469119522,150.103.162.168,2022-07-05,free,151.25,232.0,true,People yeah school technology painting miss spring blue third.,APAC
+CUST-0136,Alice,Foster,alicefoster136@example.com,(337) 239-6922,4346402242104993,88.94.237.160,2021-01-28,free,241.40,72.0,true,Network best science there second inside field surface store.,NA
+CUST-0137,Alicia,Quinn,aliciaquinn137@example.com,(255) 555-3472,4131982501323250,172.225.69.39,2024-08-04,free,511.03,260.0,true,,EMEA
+CUST-0138,Ralph,Frost,ralphfrost138@example.com,(409) 559-2974,4974274184337579,105.204.4.220,2023-06-27,pro,23.64,328.0,false,Available dark situation within arm family.,APAC
+CUST-0139,Kristen,Barber,kristenbarber139@example.com,(700) 705-0354,4103302669637082,140.179.214.61,2023-10-19,free,248.77,168.0,false,Material soon court seat agree campaign ask keep market suggest sure activity.,NA
+CUST-0140,Gabriella,Mccann,gabriellamccann140@example.com,(588) 424-8286,4169191987397938,201.132.53.207,2021-11-03,pro,84.27,91.0,false,,EMEA
+CUST-0151,Kara,Stafford,karastafford151@example.com,(798) 669-8869,4134321348207516,201.202.149.104,2023-12-30,free,404.87,24.0,true,,NA
+CUST-0152,Kristie,Vazquez,kristievazquez152@example.com,(494) 986-5503,4702812845124206,183.128.204.18,2021-05-23,pro,267.56,89.0,true,Yet continue send vote amount down player deep dinner girl those race war.,EMEA
+CUST-0153,Mario,Humphrey,mariohumphrey153@example.com,(205) 698-3190,4540344674607669,59.208.152.235,2021-07-02,enterprise,257.50,214.0,true,,APAC
+CUST-0154,Paula,Kline,paulakline154@example.com,(557) 768-6265,4054943528705112,210.74.170.5,2023-08-14,enterprise,355.39,220.0,false,Nice finish actually detail history radio hit local finish property rise.,NA
+CUST-0155,Willie,Kaufman,williekaufman155@example.com,(525) 689-3146,4528383551257822,169.136.174.143,2024-06-14,enterprise,126.85,79.0,true,Well smile machine before course affect best building establish.,EMEA
+CUST-0156,Savannah,Ortega,savannahortega156@example.com,(397) 686-3916,4821280363519718,213.125.208.133,2022-06-22,enterprise,56.63,211.0,true,Piece eight ground rule everything appear else actually several.,APAC
+CUST-0157,Samantha,Perez,samanthaperez157@example.com,(942) 211-7704,4218336600637860,64.189.173.109,2024-01-03,enterprise,63.42,390.0,true,News stop protect phone bit job value ball president nation customer then.,NA
+CUST-0158,Bianca,Soto,biancasoto158@example.com,(599) 790-4829,4722490869208217,19.84.220.253,2021-06-24,free,913.85,81.0,true,Situation never music whatever use sea who.,EMEA
+CUST-0159,Kristy,Cameron,kristycameron159@example.com,(758) 206-6739,4129937643333918,117.203.25.50,2021-08-19,enterprise,1125.21,65.0,true,Republican plant everything wear expert seat run.,APAC
+CUST-0160,Bridget,Brown,bridgetbrown160@example.com,(789) 296-8549,4007452586201384,130.132.195.243,2024-10-21,pro,749.58,497.0,false,Statement every I whole window whose kind front build situation establish control.,NA
+CUST-0161,Mandy,Hill,mandyhill161@example.com,(339) 955-4422,4445453293975344,133.162.130.192,2021-09-26,free,21.33,341.0,true,Property way else throw general trade water record miss clear box card.,EMEA
+CUST-0162,Austin,Klein,austinklein162@example.com,(939) 590-9970,4069891040824635,46.28.232.94,2023-12-21,pro,155.11,56.0,false,Church task happy list reduce on quickly.,APAC

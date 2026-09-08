@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>debrief docs — log now, report Friday</title>
+    <meta
+      name="description"
+      content="How to use fieldkit debrief: log wins, blockers, decisions, notes, and next steps as they happen, then render a stakeholder-ready weekly status."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/debrief.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="debrief docs — log now, report Friday">
+    <meta
+      property="og:description"
+      content="Turn a tagged engagement log into a stakeholder-ready weekly status."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/debrief.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="debrief docs — FDE Tools">
+    <meta name="twitter:description" content="Turn a tagged engagement log into a stakeholder-ready weekly status.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to debrief docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" data-active-section="true">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 05 Report</p>
+      <h1>debrief</h1>
+      <p class="docs-page__dek">
+        debrief is a ten-second log for the moment something happens: a win, a
+        blocker, a decision. On Friday, one command turns the week's entries into a
+        status report that reads like you spent an hour on it.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>When to reach for it</strong>
+          It is Friday at 4pm, the status email is due, and the week is a blur. If
+          you logged as you went, the report writes itself. Entries live in a local
+          SQLite file at <code>~/.fieldkit/debrief.db</code>, nowhere else.
+        </p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>
+        Every entry is one line of text plus a tag: <code>win</code>,
+        <code>blocker</code>, <code>decision</code>, <code>note</code> (in progress),
+        or <code>next</code>. The report groups the week's entries under
+        stakeholder-friendly headings (Wins, Decisions, In Progress, Blockers &amp;
+        Asks, Next Steps) and prints markdown by default, or writes files with the
+        output flags. Weeks are ISO weeks, like <code>2026-W32</code>.
+      </p>
+
+      <h2>Install and run</h2>
+      <p>
+        Already running the <code>fieldkit</code> core? The tool is one
+        <a href="plugins.html">plugin add</a> away:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool, then render this week</span>
+          <button class="copy-button" type="button" data-copy-target="debrief-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="debrief-docs-install">fieldkit plugin add debrief
+fieldkit debrief report</code></pre>
+      </div>
+      <p>
+        Working from the <code>fde-fieldkit</code> repo instead? You need
+        <a href="https://docs.astral.sh/uv/">uv</a>; one <code>uv sync</code> installs
+        the core and every tool editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="debrief-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="debrief-docs-dev">uv sync
+uv run fieldkit debrief report</code></pre>
+      </div>
+
+      <h2>Every flag</h2>
+
+      <h3>debrief add</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>TEXT</code></td>
+              <td>required</td>
+              <td>The note to log, quoted. Keep it one sentence; future you will thank you.</td>
+            </tr>
+            <tr>
+              <td><code>--tag TAG</code></td>
+              <td>required</td>
+              <td>One of: win, blocker, decision, note, next. Case-insensitive.</td>
+            </tr>
+            <tr>
+              <td><code>--db PATH</code></td>
+              <td>~/.fieldkit/debrief.db</td>
+              <td>Use a different database, for example one per engagement.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>debrief list</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--week YYYY-WNN</code></td>
+              <td>all entries</td>
+              <td>Only show one ISO week, like 2026-W32.</td>
+            </tr>
+            <tr>
+              <td><code>--tag TAG</code></td>
+              <td>all tags</td>
+              <td>Only show one category, like blocker.</td>
+            </tr>
+            <tr>
+              <td><code>--db PATH</code></td>
+              <td>~/.fieldkit/debrief.db</td>
+              <td>Read from a different database.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>debrief report</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--week YYYY-WNN</code></td>
+              <td>current week</td>
+              <td>Render a specific ISO week instead of this one.</td>
+            </tr>
+            <tr>
+              <td><code>-o, --output PATH</code></td>
+              <td>print to terminal</td>
+              <td>Write the markdown report to a file.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Write an HTML version, for the audience that lives in email.</td>
+            </tr>
+            <tr>
+              <td><code>--db PATH</code></td>
+              <td>~/.fieldkit/debrief.db</td>
+              <td>Read from a different database.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>debrief delete</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>ENTRY_ID</code></td>
+              <td>required</td>
+              <td>The entry id to delete. Ids are printed by add and list.</td>
+            </tr>
+            <tr>
+              <td><code>--db PATH</code></td>
+              <td>~/.fieldkit/debrief.db</td>
+              <td>Delete from a different database.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Worked examples</h2>
+
+      <h3>1. Log as the week happens</h3>
+      <p>
+        Each add prints its entry id and tag, so you know it landed. This is the
+        whole habit: one line at the moment it happens.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Commands</span>
+          <button class="copy-button" type="button" data-copy-target="debrief-ex1">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="debrief-ex1">uv run fieldkit debrief add "shipped ingestion pipeline to prod" --tag win
+uv run fieldkit debrief add "waiting on VPN access for staging" --tag blocker</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>1 win
+2 blocker</code></pre>
+      </div>
+
+      <h3>2. Render the Friday status</h3>
+      <p>
+        The default report covers the current ISO week and prints markdown you can
+        paste straight into an email or a doc.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="debrief-ex2">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="debrief-ex2">uv run fieldkit debrief report</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code># Weekly Status
+
+**2026-W32 · Aug 3 – Aug 9, 2026**
+
+## Wins
+
+- shipped ingestion pipeline to prod
+
+## Blockers &amp; Asks
+
+- waiting on VPN access for staging
+
+## Next Steps
+
+Nothing logged.</code></pre>
+      </div>
+
+      <h3>3. Check open blockers, or send HTML</h3>
+      <p>
+        <code>list --tag blocker</code> is a quick standup answer. For stakeholders
+        who prefer a formatted page over markdown, render the same week as HTML.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Commands</span>
+          <button class="copy-button" type="button" data-copy-target="debrief-ex3">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="debrief-ex3">uv run fieldkit debrief list --tag blocker
+uv run fieldkit debrief report --week 2026-W32 --html status.html</code></pre>
+      </div>
+
+      <h2>Next steps</h2>
+      <p>
+        The report is only as good as the log, so wire the add command into your
+        muscle memory. When the status needs evidence attached, the HTML reports from
+        <a href="xray.html">xray</a> and <a href="datadiff.html">datadiff</a> travel
+        well alongside it.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

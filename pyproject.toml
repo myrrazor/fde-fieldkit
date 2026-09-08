@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldkit"
+version = "0.2.0"
+readme = "README.md"
+authors = [{ name = "FDE Fieldkit contributors" }]
+license = "MIT"
+license-files = ["LICENSE", "licenses/Faker-MIT.txt"]
+description = "The FDE toolkit — one install, field tools as plugins"
+requires-python = ">=3.12"
+dependencies = [
+    # core carries table IO + PII scanning (pandas/openpyxl) and the report env;
+    # tool-specific deps live in each plugin's own pyproject
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "typer>=0.12",
+    "rich>=13",
+    "jinja2>=3.1",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "python-multipart>=0.0.9",
+]
+
+[project.urls]
+Homepage = "https://fde-tools.vercel.app"
+Documentation = "https://fde-tools.vercel.app/docs/"
+Repository = "https://github.com/myrrazor/fde-fieldkit"
+Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
+Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+fieldkit = "fieldkit.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+    # a dev checkout gets every tool; end users pick theirs via `fieldkit plugin add`
+    "fieldkit-xray",
+    "fieldkit-scrub",
+    "fieldkit-mimic",
+    "fieldkit-datadiff",
+    "fieldkit-debrief",
+    "fieldkit-tell",
+    "fieldkit-netwatch",
+]
+
+[tool.uv.workspace]
+members = ["plugins/*"]
+
+[tool.uv.sources]
+fieldkit-xray = { workspace = true }
+fieldkit-scrub = { workspace = true }
+fieldkit-mimic = { workspace = true }
+fieldkit-datadiff = { workspace = true }
+fieldkit-debrief = { workspace = true }
+fieldkit-tell = { workspace = true }
+fieldkit-netwatch = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldkit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "plugins"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

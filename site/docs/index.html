@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FDE Tools docs — the toolkit and all seven tools</title>
+    <meta
+      name="description"
+      content="Plain-language docs for the fieldkit toolkit: the plugin manager, what each tool does, every flag with defaults, and worked examples with abridged real output."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/index.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="FDE Tools docs — the toolkit and all seven tools">
+    <meta
+      property="og:description"
+      content="What each fieldkit tool does, every flag, and worked examples."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/index.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FDE Tools docs">
+    <meta name="twitter:description" content="What each fieldkit tool does, every flag, and worked examples.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" aria-current="page">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker">Docs / one page per tool</p>
+      <h1>Docs</h1>
+      <p class="docs-page__dek">
+        Each page explains one tool in plain words, then gets precise: how to install
+        and run it, every flag with its default, and worked examples with real output.
+        Everything runs from the same <code>fieldkit</code> CLI, and every tool
+        arrives through the same plugin manager.
+      </p>
+
+      <ul class="docs-list">
+        <li>
+          <a href="plugins.html">
+            <h2 class="docs-list__name">plugins</h2>
+            <p>Start here: one core install, then add, remove, and update tools; where installs come from.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="xray.html">
+            <h2 class="docs-list__name">xray</h2>
+            <p>Profile schema, types, nulls, stats, outliers, and PII flags for an unfamiliar file.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="scrub.html">
+            <h2 class="docs-list__name">scrub</h2>
+            <p>Replace detected PII with deterministic realistic fakes so files stay joinable.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="mimic.html">
+            <h2 class="docs-list__name">mimic</h2>
+            <p>Learn an editable YAML spec from real data, then generate seeded synthetic rows.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="datadiff.html">
+            <h2 class="docs-list__name">datadiff</h2>
+            <p>Compare two dumps for schema changes, keyed row changes, and value drift.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="debrief.html">
+            <h2 class="docs-list__name">debrief</h2>
+            <p>Log wins and blockers as they happen, then render a stakeholder-ready weekly status.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="tell.html">
+            <h2 class="docs-list__name">tell</h2>
+            <p>Inspect drafts for stylometric tells, then strip deterministic slop patterns.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="netwatch.html">
+            <h2 class="docs-list__name">netwatch</h2>
+            <p>Launch or attach agents, inspect destination evidence, and manage next-run policy from a local control room.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      </ul>
+
+      <h2>Good to know before you start</h2>
+      <p>
+        The toolkit is one small <code>fieldkit</code> core plus the tools you add:
+        <code>fieldkit plugin add xray</code> puts a tool on the machine, and the
+        <a href="plugins.html">plugins page</a> covers removal, updates, install
+        sources, and writing your own. From a repo checkout, <code>uv sync</code>
+        installs the core and all seven tools editable, which is why the examples in
+        these docs use <code>uv run fieldkit &lt;tool&gt;</code>.
+      </p>
+      <p>
+        If you would rather point and click, <code>fieldkit serve</code> starts a
+        local web hub at <code>http://127.0.0.1:8765</code>. File tools provide their
+        drag-and-drop workbenches, and netwatch opens its local control room. Tools you
+        have not added sit dimmed with their <code>plugin add</code> command on the card.
+      </p>
+      <p>
+        AWCP, the eighth block on the home page, is a concept preview without a docs page.
+        It is a v0.1 executable specification that runs from its own source checkout today
+        and ships as a fieldkit plugin when it lands. This site labels it that way on purpose.
+      </p>
+      <div class="docs-callout">
+        <p>
+          <strong>About the sample output</strong>
+          Every output snippet in these docs comes from running the printed command against
+          the repository's <code>examples/</code> files. Snippets are abridged: trimmed for
+          width and length, never invented. The netwatch product screenshot uses generated
+          sample evidence and is labelled separately; it does not depict customer traffic
+          or claim usage metrics.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

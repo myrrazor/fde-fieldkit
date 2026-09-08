@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .summary { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0 1.5rem; }
+  .summary span { padding: .45rem .7rem; border: 1px solid #ddd; border-radius: .25rem; }
+  .added { color: #067647; }
+  .removed { color: #b42318; }
+  .warnings { padding: .75rem 1rem; background: #fff4d6; }
+  .samples { font-size: .85rem; }
+  .samples td { vertical-align: top; }
+  .number { text-align: right; font-variant-numeric: tabular-nums; }
+  .muted { color: #666; }
+  section { margin-top: 2rem; }
+  @media print {
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    tr { break-inside: avoid; }
+  }
+</style>
+
+<h1>datadiff</h1>
+<p><code>{{ result.source_a }}</code> → <code>{{ result.source_b }}</code></p>
+<div class="summary" aria-label="Diff summary">
+  <span><strong>old rows</strong> {{ "{:,}".format(result.rows_a) }}</span>
+  <span><strong>new rows</strong> {{ "{:,}".format(result.rows_b) }}</span>
+  {% if result.rows %}
+  <span class="added"><strong>added</strong> {{ result.rows.added }}</span>
+  <span class="removed"><strong>removed</strong> {{ result.rows.removed }}</span>
+  <span><strong>changed</strong> {{ result.rows.changed }}</span>
+  {% endif %}
+</div>
+
+{% if result.warnings %}
+<ul class="warnings">
+  {% for warning in result.warnings %}<li>{{ warning }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<section>
+  <h2>Schema</h2>
+  <table>
+    <thead><tr><th>change</th><th>column</th><th>old</th><th>new</th></tr></thead>
+    <tbody>
+      {% for column in result.schema.added_columns %}
+      <tr><td class="added">added</td><td><strong>{{ column }}</strong></td><td>—</td><td>present</td></tr>
+      {% endfor %}
+      {% for column in result.schema.removed_columns %}
+      <tr><td class="removed">removed</td><td><strong>{{ column }}</strong></td><td>present</td><td>—</td></tr>
+      {% endfor %}
+      {% for column, old, new in result.schema.type_changes %}
+      <tr><td>type</td><td><strong>{{ column }}</strong></td><td>{{ old }}</td><td>{{ new }}</td></tr>
+      {% endfor %}
+      {% for column, old, new in result.schema.nullability_changes %}
+      <tr><td>nulls</td><td><strong>{{ column }}</strong></td><td>{{ "%.1f" | format(old) }}%</td><td>{{ "%.1f" | format(new) }}%</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Rows</h2>
+  {% if result.rows %}
+  <p>Key: <code>{{ result.rows.key_columns | join(", ") }}</code></p>
+  <table>
+    <thead><tr><th class="added">added</th><th class="removed">removed</th><th>changed</th><th>unchanged</th></tr></thead>
+    <tbody><tr><td>{{ result.rows.added }}</td><td>{{ result.rows.removed }}</td><td>{{ result.rows.changed }}</td><td>{{ result.rows.unchanged }}</td></tr></tbody>
+  </table>
+
+  <h3>Changed by column</h3>
+  <table>
+    <thead><tr><th>column</th><th>changed cells</th></tr></thead>
+    <tbody>
+      {% for column, count in result.rows.changed_by_column.items() %}
+      <tr><td><strong>{{ column }}</strong></td><td>{{ count }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Row-level diff skipped.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Drift</h2>
+  <table>
+    <thead><tr><th>column</th><th>kind</th><th>details</th></tr></thead>
+    <tbody>
+      {% for column, drift in result.drift.categorical.items() %}
+      <tr>
+        <td><strong>{{ column }}</strong></td>
+        <td>categorical</td>
+        <td>new: {{ drift.new | join(", ") or (drift.new_count ~ " value(s)") }}; vanished: {{ drift.vanished | join(", ") or (drift.vanished_count ~ " value(s)") }}</td>
+      </tr>
+      {% endfor %}
+      {% for column, drift in result.drift.numeric.items() %}
+      <tr>
+        <td><strong>{{ column }}</strong></td>
+        <td>numeric</td>
+        <td>mean Δ {{ "%+.4g" | format(drift.mean_delta) }}; std Δ {{ "%+.4g" | format(drift.std_delta) }}; mean {{ "%+.2f" | format(drift.mean_pct_change) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% if result.rows %}
+<section>
+  <h2>Samples</h2>
+  {% for kind in ["added", "removed"] %}
+    {% set samples = result.rows.samples[kind] %}
+    {% if samples %}
+    <h3 class="{{ kind }}">{{ kind | capitalize }}</h3>
+    <table class="samples">
+      <thead><tr>{% for column in samples[0].keys() %}<th>{{ column }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for sample in samples %}
+        <tr>{% for value in sample.values() %}<td>{{ value if value is not none else "—" }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  {% endfor %}
+
+  {% if result.rows.samples.changed %}
+  <h3>Changed</h3>
+  <table class="samples">
+    <thead><tr><th>key</th><th>column</th><th>change</th></tr></thead>
+    <tbody>
+      {% for sample in result.rows.samples.changed %}
+      <tr>
+        <td>{% for column, value in sample.key.items() %}{% if not loop.first %}, {% endif %}<strong>{{ column }}</strong>=<code>{{ value }}</code>{% endfor %}</td>
+        <td>{{ sample.col }}</td>
+        <td><code>{{ sample.old if sample.old is not none else "—" }}</code> → <code>{{ sample.new if sample.new is not none else "—" }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

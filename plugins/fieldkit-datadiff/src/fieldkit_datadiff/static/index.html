@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datadiff — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">fieldkit</a>
+      <span class="sep">/</span>
+      <span class="tool-name">datadiff</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>processed locally — nothing leaves this machine</span>
+      <span><code>fieldkit datadiff OLD NEW</code></span>
+    </p>
+
+    <h1 class="page-title">What changed between these two dumps?</h1>
+    <p class="page-sub">
+      Schema changes, row-level adds, removals and edits, and value drift — matched on
+      a key column it detects for you (or one you pick).
+    </p>
+
+    <section>
+      <div class="drop-row">
+        <div>
+          <p class="label-eng">old / before</p>
+          <div class="drop" id="drop-a" tabindex="0" role="button" aria-label="choose the old file">
+            <input type="file" accept=".csv,.tsv,.xlsx,.json,.jsonl,.ndjson">
+            <strong>Drop the old file</strong>
+            <p class="hint">or click to browse</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear old file">×</button></span>
+        </div>
+        <div>
+          <p class="label-eng">new / after</p>
+          <div class="drop" id="drop-b" tabindex="0" role="button" aria-label="choose the new file">
+            <input type="file" accept=".csv,.tsv,.xlsx,.json,.jsonl,.ndjson">
+            <strong>Drop the new file</strong>
+            <p class="hint">or click to browse</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear new file">×</button></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="field">
+          <label for="keys">key column(s) — blank to auto-detect</label>
+          <input type="text" id="keys" placeholder="e.g. customer_id" size="28">
+        </div>
+        <button class="btn btn-primary" id="go" disabled>Diff them</button>
+      </div>
+    </section>
+
+    <section id="result" aria-live="polite"></section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

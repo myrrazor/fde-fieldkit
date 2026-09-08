@@ -1,0 +1,1121 @@
+{
+  "schema_version": "1.0",
+  "instructions": "Ask only questions whose answers cannot be established from the target repository or prior confirmed answers. Re-evaluate conditions after every answer.",
+  "questions": [
+    {
+      "id": "project-name",
+      "section": "engagement",
+      "answer_path": "engagement.project_name",
+      "prompt": "What should this blueprint and the resulting system be called?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "engagement-mode",
+      "section": "engagement",
+      "answer_path": "engagement.mode",
+      "prompt": "Is this greenfield work, an integration into an existing product, a migration, or an assessment-only engagement?",
+      "type": "choice",
+      "choices": ["greenfield", "existing", "migration", "assessment"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "repository-path",
+      "section": "engagement",
+      "answer_path": "engagement.repository_path",
+      "prompt": "What repository or module will receive the implementation?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"],
+      "when": {"path": "engagement.mode", "one_of": ["existing", "migration"]}
+    },
+    {
+      "id": "migration-source",
+      "section": "engagement",
+      "answer_path": "engagement.migration_source",
+      "prompt": "What existing system, provider, or data path is being replaced, and what must be preserved?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"],
+      "when": {"path": "engagement.mode", "equals": "migration"}
+    },
+    {
+      "id": "business-outcome",
+      "section": "engagement",
+      "answer_path": "engagement.business_outcome",
+      "prompt": "What observable customer or operator outcome must this work create?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "acceptance-owner",
+      "section": "engagement",
+      "answer_path": "engagement.acceptance_owner",
+      "prompt": "Who can accept the result, and who owns unresolved product or security decisions?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "users-and-operators",
+      "section": "engagement",
+      "answer_path": "engagement.actors",
+      "prompt": "Which end users, customer admins, support staff, engineers, and automated actors will use or operate it?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "capabilities",
+      "section": "scope",
+      "answer_path": "capabilities",
+      "prompt": "Which FDE capability packs should this blueprint include?",
+      "type": "multi_choice",
+      "choices": [
+        "multi-tenant-saas",
+        "enterprise-sso",
+        "connector-pack",
+        "secure-rag",
+        "customer-health",
+        "webhook-engine",
+        "one-click-deployment",
+        "pii-redaction",
+        "incident-response",
+        "usage-metering",
+        "onboarding-automation",
+        "deployment-case-study"
+      ],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "explicit-non-goals",
+      "section": "scope",
+      "answer_path": "engagement.non_goals",
+      "prompt": "What adjacent capabilities must explicitly remain out of scope?",
+      "type": "multi_text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "primary-language",
+      "section": "application",
+      "answer_path": "application.primary_language",
+      "prompt": "What is the primary implementation language?",
+      "type": "choice",
+      "choices": ["typescript", "python", "go", "java", "dotnet", "ruby", "rust", "other"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "other-language",
+      "section": "application",
+      "answer_path": "application.other_language",
+      "prompt": "Which language should the generic adapter target?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"],
+      "when": {"path": "application.primary_language", "equals": "other"}
+    },
+    {
+      "id": "framework",
+      "section": "application",
+      "answer_path": "application.framework",
+      "prompt": "Which existing or desired application framework should host the capability?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "package-manager",
+      "section": "application",
+      "answer_path": "application.package_manager",
+      "prompt": "Which package and lockfile workflow is authoritative in the target repository?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "architecture-style",
+      "section": "application",
+      "answer_path": "application.architecture_style",
+      "prompt": "Is the target a modular monolith, service, serverless application, worker system, CLI/desktop app, or another architecture?",
+      "type": "choice",
+      "choices": ["modular-monolith", "service", "serverless", "worker-system", "cli-desktop", "hybrid", "other"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "authoritative-database",
+      "section": "data",
+      "answer_path": "data.primary_store",
+      "prompt": "Which datastore is authoritative for application state?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "existing-queue",
+      "section": "data",
+      "answer_path": "data.queue",
+      "prompt": "Which queue, event bus, stream, or durable workflow runtime already exists, if any?",
+      "type": "text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "data-classes",
+      "section": "data",
+      "answer_path": "data.classifications",
+      "prompt": "Which data classes will flow through the system?",
+      "type": "multi_choice",
+      "choices": ["public", "internal", "confidential", "pii", "phi", "pci", "credentials", "customer-content", "regulated-other"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "data-residency",
+      "section": "data",
+      "answer_path": "data.residency",
+      "prompt": "What geographic residency, sovereignty, or customer-controlled storage requirements apply?",
+      "type": "multi_text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "retention-deletion",
+      "section": "data",
+      "answer_path": "data.lifecycle_policy",
+      "prompt": "What retention, legal hold, export, correction, and deletion rules apply to source and derived data?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "deployment-model",
+      "section": "deployment",
+      "answer_path": "deployment.model",
+      "prompt": "Where must the result run?",
+      "type": "multi_choice",
+      "choices": ["vendor-cloud", "customer-cloud", "customer-on-prem", "edge", "air-gapped", "developer-laptop"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "deployment-platform",
+      "section": "deployment",
+      "answer_path": "deployment.platform",
+      "prompt": "Which cloud, PaaS, cluster, serverless, or host platform is already approved?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "environment-promotion",
+      "section": "deployment",
+      "answer_path": "deployment.environments",
+      "prompt": "Which environments and promotion gates must exist before production?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "network-boundary",
+      "section": "deployment",
+      "answer_path": "deployment.network_boundary",
+      "prompt": "What ingress, egress, private-network, proxy, allowlist, mTLS, or no-internet constraints apply?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "secret-system",
+      "section": "security",
+      "answer_path": "security.secret_system",
+      "prompt": "Which secret manager, workload identity, or customer key-management system is authoritative?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "compliance-obligations",
+      "section": "security",
+      "answer_path": "security.compliance",
+      "prompt": "Which contractual, regulatory, or internal control frameworks affect the design or evidence package?",
+      "type": "multi_text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "availability-objective",
+      "section": "reliability",
+      "answer_path": "reliability.availability_objective",
+      "prompt": "What availability objective is contractually or operationally required, and where is it measured?",
+      "type": "text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "recovery-objectives",
+      "section": "reliability",
+      "answer_path": "reliability.recovery_objectives",
+      "prompt": "What recovery-time and recovery-point requirements are authoritative?",
+      "type": "text",
+      "required": false,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "observability-backend",
+      "section": "operations",
+      "answer_path": "operations.observability_backend",
+      "prompt": "Which logs, metrics, traces, error tracking, and alerting systems must receive telemetry?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "support-model",
+      "section": "operations",
+      "answer_path": "operations.support_model",
+      "prompt": "Who is on call, who can access customer environments, and how are changes approved during support?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "source-reuse-policy",
+      "section": "provenance",
+      "answer_path": "provenance.reuse_policy",
+      "prompt": "May the implementation use only APIs and documentation, adapt permissively licensed code, or also include approved copyleft components?",
+      "type": "choice",
+      "choices": ["reference-only", "permissive-oss", "approved-copyleft", "owner-review-required"],
+      "required": true,
+      "applies_to": ["*"]
+    },
+    {
+      "id": "dependency-approval",
+      "section": "provenance",
+      "answer_path": "provenance.dependency_approval",
+      "prompt": "Who approves new services, libraries, licenses, data subprocessors, and recurring cost?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["*"]
+    },
+
+    {
+      "id": "tenant-definition",
+      "section": "tenancy",
+      "answer_path": "tenancy.tenant_definition",
+      "prompt": "What is a tenant in this product: organization, workspace, account, customer deployment, or another boundary?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "enterprise-sso", "secure-rag", "customer-health", "usage-metering"]
+    },
+    {
+      "id": "tenant-isolation",
+      "section": "tenancy",
+      "answer_path": "tenancy.isolation_model",
+      "prompt": "Should tenants share schemas with row policies, use separate schemas/databases, use separate deployments, or combine those models?",
+      "type": "choice",
+      "choices": ["shared-row-policy", "schema-per-tenant", "database-per-tenant", "deployment-per-tenant", "hybrid"],
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "secure-rag", "customer-health", "usage-metering"]
+    },
+    {
+      "id": "tenant-resolution",
+      "section": "tenancy",
+      "answer_path": "tenancy.resolution",
+      "prompt": "Which trusted claim or server-side mapping resolves a request, job, file, cache entry, and vector query to a tenant?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "secure-rag", "customer-health", "usage-metering"]
+    },
+    {
+      "id": "role-model",
+      "section": "tenancy",
+      "answer_path": "tenancy.roles",
+      "prompt": "Which roles and permissions exist, and which actions require resource ownership in addition to a role?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "enterprise-sso", "secure-rag", "customer-health", "incident-response"]
+    },
+    {
+      "id": "support-access",
+      "section": "tenancy",
+      "answer_path": "tenancy.support_access",
+      "prompt": "Can vendor support enter a tenant context; if so, what approval, expiry, reason, and audit controls apply?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "customer-health", "incident-response"]
+    },
+    {
+      "id": "tenant-lifecycle",
+      "section": "tenancy",
+      "answer_path": "tenancy.lifecycle",
+      "prompt": "How are tenants created, suspended, exported, restored, merged, and deleted across every store?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["multi-tenant-saas", "secure-rag", "customer-health", "usage-metering"]
+    },
+
+    {
+      "id": "sso-protocols",
+      "section": "identity",
+      "answer_path": "identity.protocols",
+      "prompt": "Which identity protocols must be supported?",
+      "type": "multi_choice",
+      "choices": ["saml", "oidc", "oauth2", "scim-2.0", "passwordless", "local-break-glass"],
+      "required": true,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "identity-delivery",
+      "section": "identity",
+      "answer_path": "identity.delivery_model",
+      "prompt": "Should identity use a managed broker, an existing IdP integration, or a self-hosted identity service?",
+      "type": "choice",
+      "choices": ["managed-broker", "direct-idp", "self-hosted", "existing-application-auth"],
+      "required": true,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "identity-products",
+      "section": "identity",
+      "answer_path": "identity.candidate_products",
+      "prompt": "Which identity products are approved or already contracted?",
+      "type": "multi_choice",
+      "choices": ["workos", "auth0", "okta", "microsoft-entra", "keycloak", "ory-hydra", "authentik", "supertokens", "logto", "zitadel", "other"],
+      "required": false,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "connection-discovery",
+      "section": "identity",
+      "answer_path": "identity.connection_discovery",
+      "prompt": "How will a user select or discover the correct organization and SSO connection without trusting email domain as authorization?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "jit-policy",
+      "section": "identity",
+      "answer_path": "identity.jit_policy",
+      "prompt": "May SSO create users or memberships just in time, and how are initial roles assigned?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "scim-scope",
+      "section": "identity",
+      "answer_path": "identity.scim_scope",
+      "prompt": "If SCIM is enabled, must it provision users, groups, memberships, custom attributes, or all of them?",
+      "type": "multi_choice",
+      "choices": ["users", "groups", "memberships", "enterprise-user-extension", "custom-schema"],
+      "required": true,
+      "applies_to": ["enterprise-sso"],
+      "when": {"path": "identity.protocols", "contains": "scim-2.0"}
+    },
+    {
+      "id": "deprovision-behavior",
+      "section": "identity",
+      "answer_path": "identity.deprovision_behavior",
+      "prompt": "What should happen to sessions, assignments, owned resources, API tokens, and audit records when a user is deprovisioned?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["enterprise-sso"]
+    },
+    {
+      "id": "account-linking",
+      "section": "identity",
+      "answer_path": "identity.account_linking",
+      "prompt": "How are existing local accounts linked to SSO identities, and who can resolve collisions?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["enterprise-sso"],
+      "when": {"path": "engagement.mode", "one_of": ["existing", "migration"]}
+    },
+
+    {
+      "id": "connector-providers",
+      "section": "connectors",
+      "answer_path": "connectors.providers",
+      "prompt": "Which external products or APIs must be connected?",
+      "type": "multi_choice",
+      "choices": ["slack", "microsoft-graph", "google-apis", "github-apps", "salesforce", "hubspot", "jira", "servicenow", "zendesk", "stripe", "shopify", "linear", "snowflake", "other"],
+      "required": true,
+      "applies_to": ["connector-pack", "customer-health", "incident-response", "onboarding-automation"]
+    },
+    {
+      "id": "connector-direction",
+      "section": "connectors",
+      "answer_path": "connectors.direction",
+      "prompt": "For each provider, is the flow read, write, bidirectional sync, webhook/event intake, outbound action, or a combination?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-auth",
+      "section": "connectors",
+      "answer_path": "connectors.auth_methods",
+      "prompt": "Which provider authentication modes must be supported?",
+      "type": "multi_choice",
+      "choices": ["oauth-authorization-code", "oauth-pkce", "client-credentials", "service-account", "api-key", "hmac", "basic", "mtls", "key-pair-jwt", "workload-identity"],
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-ownership",
+      "section": "connectors",
+      "answer_path": "connectors.connection_owner",
+      "prompt": "Is each connection owned by a user, tenant, customer deployment, or system service account?",
+      "type": "choice",
+      "choices": ["user", "tenant", "customer-deployment", "service-account", "mixed"],
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-build-model",
+      "section": "connectors",
+      "answer_path": "connectors.build_model",
+      "prompt": "Should connectors be direct SDK/API adapters, declarative definitions, a unified API, an embedded integration platform, or a hybrid?",
+      "type": "choice",
+      "choices": ["direct-adapters", "declarative-definitions", "unified-api", "embedded-platform", "hybrid"],
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-platforms",
+      "section": "connectors",
+      "answer_path": "connectors.candidate_platforms",
+      "prompt": "Which connector platforms may be evaluated?",
+      "type": "multi_choice",
+      "choices": ["nango", "airbyte", "meltano-singer-sdk", "composio", "merge", "paragon", "pipedream", "none"],
+      "required": false,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-objects",
+      "section": "connectors",
+      "answer_path": "connectors.objects",
+      "prompt": "Which provider objects, fields, filters, actions, and relationships are actually required?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-normalization",
+      "section": "connectors",
+      "answer_path": "connectors.normalization",
+      "prompt": "Should the product preserve provider-native schemas, normalize to one domain model, or expose both?",
+      "type": "choice",
+      "choices": ["provider-native", "normalized", "both"],
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "sync-cadence",
+      "section": "connectors",
+      "answer_path": "connectors.sync_cadence",
+      "prompt": "Which flows are request-time, scheduled, incremental, backfilled, streaming, or webhook-triggered?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "provider-rate-limits",
+      "section": "connectors",
+      "answer_path": "connectors.rate_limits",
+      "prompt": "Which provider quotas, concurrency limits, cost limits, and customer-specific limits are authoritative?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "schema-drift",
+      "section": "connectors",
+      "answer_path": "connectors.schema_drift_policy",
+      "prompt": "How should unknown fields, removed fields, API version changes, and provider deprecations be detected and handled?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+    {
+      "id": "connector-test-access",
+      "section": "connectors",
+      "answer_path": "connectors.test_access",
+      "prompt": "Which sandbox, developer tenant, recorded fixture, or customer-approved test account can prove the integration?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["connector-pack"]
+    },
+
+    {
+      "id": "rag-sources",
+      "section": "rag",
+      "answer_path": "rag.sources",
+      "prompt": "Which repositories, drives, tickets, databases, messages, or document systems feed retrieval?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-permissions",
+      "section": "rag",
+      "answer_path": "rag.permission_sources",
+      "prompt": "Where do document and folder permissions come from, and how quickly must permission changes revoke retrieval?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-isolation",
+      "section": "rag",
+      "answer_path": "rag.isolation_model",
+      "prompt": "Should vector data isolate tenants by namespace, payload filter, shard, collection, index, database, or deployment?",
+      "type": "choice",
+      "choices": ["namespace", "payload-filter", "shard", "collection", "index", "database", "deployment", "hybrid"],
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-store",
+      "section": "rag",
+      "answer_path": "rag.vector_store",
+      "prompt": "Which vector or search system is approved or already present?",
+      "type": "multi_choice",
+      "choices": ["pgvector", "qdrant", "pinecone", "weaviate", "milvus", "opensearch", "azure-ai-search", "other"],
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-model-egress",
+      "section": "rag",
+      "answer_path": "rag.model_egress",
+      "prompt": "Which embedding and generation providers may receive which data classes, in which regions, under which retention policy?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-ingestion",
+      "section": "rag",
+      "answer_path": "rag.ingestion_policy",
+      "prompt": "How are parsing, chunking, OCR, redaction, metadata, versioning, tombstones, and re-indexing handled?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-citations",
+      "section": "rag",
+      "answer_path": "rag.citation_contract",
+      "prompt": "What must a citation contain, and may an answer be returned when no permitted source supports it?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+    {
+      "id": "rag-evaluation",
+      "section": "rag",
+      "answer_path": "rag.evaluation_set",
+      "prompt": "Which representative questions, expected sources, forbidden sources, and adversarial documents form the retrieval evaluation set?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["secure-rag"]
+    },
+
+    {
+      "id": "health-sources",
+      "section": "customer-health",
+      "answer_path": "customer_health.sources",
+      "prompt": "Which product, support, CRM, billing, reliability, implementation, and relationship sources contribute signals?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+    {
+      "id": "health-dimensions",
+      "section": "customer-health",
+      "answer_path": "customer_health.dimensions",
+      "prompt": "Which health dimensions matter, and what evidence can improve or degrade each dimension?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+    {
+      "id": "health-score-policy",
+      "section": "customer-health",
+      "answer_path": "customer_health.score_policy",
+      "prompt": "Is the output a rules score, weighted index, statistical model, qualitative status, or a combination?",
+      "type": "choice",
+      "choices": ["rules", "weighted-index", "statistical", "qualitative", "hybrid"],
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+    {
+      "id": "health-staleness",
+      "section": "customer-health",
+      "answer_path": "customer_health.staleness_policy",
+      "prompt": "When does each source become stale, and how should missing or stale data affect confidence?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+    {
+      "id": "health-actions",
+      "section": "customer-health",
+      "answer_path": "customer_health.actions",
+      "prompt": "Which actions may the system suggest, queue, draft, or execute for risks and opportunities?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+    {
+      "id": "health-audience",
+      "section": "customer-health",
+      "answer_path": "customer_health.audience",
+      "prompt": "Which roles may see commercial, support, product, and executive health details?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["customer-health"]
+    },
+
+    {
+      "id": "webhook-direction",
+      "section": "webhooks",
+      "answer_path": "webhooks.direction",
+      "prompt": "Will the engine receive provider events, send customer webhooks, or do both?",
+      "type": "choice",
+      "choices": ["receive", "send", "both"],
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-protocols",
+      "section": "webhooks",
+      "answer_path": "webhooks.protocols",
+      "prompt": "Which provider signature schemes or standards must be implemented?",
+      "type": "multi_choice",
+      "choices": ["standard-webhooks", "svix-compatible", "stripe", "github", "slack", "linear", "provider-specific", "custom-hmac", "mtls"],
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-ack-deadline",
+      "section": "webhooks",
+      "answer_path": "webhooks.ack_deadlines",
+      "prompt": "What acknowledgement deadline and retry behavior does each sender impose?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-durability",
+      "section": "webhooks",
+      "answer_path": "webhooks.durable_acceptance",
+      "prompt": "Where is a delivery durably recorded before acknowledgement?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-idempotency",
+      "section": "webhooks",
+      "answer_path": "webhooks.idempotency_key",
+      "prompt": "Which stable event or delivery identifier prevents duplicate side effects?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-ordering",
+      "section": "webhooks",
+      "answer_path": "webhooks.ordering",
+      "prompt": "Which events require ordering, and what key defines that ordering domain?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-replay-window",
+      "section": "webhooks",
+      "answer_path": "webhooks.replay_policy",
+      "prompt": "What timestamp tolerance and replay retention are required by provider contracts or risk policy?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+    {
+      "id": "webhook-recovery",
+      "section": "webhooks",
+      "answer_path": "webhooks.recovery_controls",
+      "prompt": "Who may inspect, quarantine, retry, replay, skip, or purge a failed delivery?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["webhook-engine"]
+    },
+
+    {
+      "id": "deployment-packaging",
+      "section": "deployment-pack",
+      "answer_path": "deployment.packaging",
+      "prompt": "Should the deployable unit be containers, Helm charts, serverless functions, machine packages, binaries, or a hybrid?",
+      "type": "multi_choice",
+      "choices": ["containers", "helm", "serverless", "machine-packages", "binaries", "hybrid"],
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "iac-choice",
+      "section": "deployment-pack",
+      "answer_path": "deployment.iac",
+      "prompt": "Which infrastructure-as-code system is approved?",
+      "type": "multi_choice",
+      "choices": ["opentofu", "terraform", "pulumi", "cloudformation", "aws-cdk", "bicep", "deployment-manager", "helm-only", "manual-runbook"],
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "state-backend",
+      "section": "deployment-pack",
+      "answer_path": "deployment.state_backend",
+      "prompt": "Where will infrastructure state live, and how are locking, encryption, backup, and access controlled?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "customer-prerequisites",
+      "section": "deployment-pack",
+      "answer_path": "deployment.customer_prerequisites",
+      "prompt": "Which accounts, DNS records, certificates, networks, quotas, identities, or approvals must the customer supply?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "upgrade-strategy",
+      "section": "deployment-pack",
+      "answer_path": "deployment.upgrade_strategy",
+      "prompt": "How are application, infrastructure, schema, and configuration upgrades ordered and rolled back?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "backup-restore",
+      "section": "deployment-pack",
+      "answer_path": "deployment.backup_restore",
+      "prompt": "Which stores require backup, how are backups encrypted, and what restore proof is required?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["one-click-deployment"]
+    },
+    {
+      "id": "airgap-supply",
+      "section": "deployment-pack",
+      "answer_path": "deployment.airgap_supply_chain",
+      "prompt": "How will images, packages, models, charts, signatures, SBOMs, and updates enter the air-gapped environment?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["one-click-deployment"],
+      "when": {"path": "deployment.model", "contains": "air-gapped"}
+    },
+
+    {
+      "id": "pii-inputs",
+      "section": "privacy",
+      "answer_path": "privacy.inputs",
+      "prompt": "Which structured tables, free text, logs, images, PDFs, office documents, audio transcripts, or code need inspection?",
+      "type": "multi_choice",
+      "choices": ["tables", "text", "logs", "images", "pdf", "office-documents", "transcripts", "source-code"],
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+    {
+      "id": "pii-entity-policy",
+      "section": "privacy",
+      "answer_path": "privacy.entity_policy",
+      "prompt": "Which sensitive entity classes, countries, industries, and customer-specific identifiers must be detected?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+    {
+      "id": "pii-engine",
+      "section": "privacy",
+      "answer_path": "privacy.engines",
+      "prompt": "Which local or managed detection engines may process the data?",
+      "type": "multi_choice",
+      "choices": ["fieldkit-scrub", "presidio", "google-sensitive-data-protection", "aws-comprehend", "azure-language-pii", "custom-rules", "other"],
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+    {
+      "id": "pii-transform",
+      "section": "privacy",
+      "answer_path": "privacy.transforms",
+      "prompt": "Which classes should be removed, masked, tokenized, deterministically pseudonymized, encrypted, or left for review?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+    {
+      "id": "pii-reversibility",
+      "section": "privacy",
+      "answer_path": "privacy.reversibility",
+      "prompt": "Must any transformation be reversible, and who controls the mapping or decryption key?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+    {
+      "id": "pii-evaluation",
+      "section": "privacy",
+      "answer_path": "privacy.evaluation_corpus",
+      "prompt": "What representative, synthetic, and adversarial corpus can measure missed detections and false positives?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["pii-redaction"]
+    },
+
+    {
+      "id": "incident-sources",
+      "section": "incident-response",
+      "answer_path": "incident.sources",
+      "prompt": "Which telemetry, customer, security, deployment, and third-party status sources can open or enrich an incident?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+    {
+      "id": "incident-system",
+      "section": "incident-response",
+      "answer_path": "incident.systems",
+      "prompt": "Which on-call, error tracking, chat, ticketing, status-page, and postmortem products must be integrated?",
+      "type": "multi_choice",
+      "choices": ["pagerduty", "sentry", "slack", "microsoft-teams", "jira", "linear", "servicenow", "rootly", "incident-io", "statuspage", "other"],
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+    {
+      "id": "incident-severity",
+      "section": "incident-response",
+      "answer_path": "incident.severity_policy",
+      "prompt": "What customer impact, security impact, data risk, and duration rules determine severity?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+    {
+      "id": "incident-dedup",
+      "section": "incident-response",
+      "answer_path": "incident.deduplication",
+      "prompt": "Which stable service, environment, tenant, fingerprint, and time-window attributes group alerts into one incident?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+    {
+      "id": "incident-automation",
+      "section": "incident-response",
+      "answer_path": "incident.automation_policy",
+      "prompt": "Which diagnostic or remediation actions may run automatically, require approval, or remain manual?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+    {
+      "id": "incident-communications",
+      "section": "incident-response",
+      "answer_path": "incident.communication_policy",
+      "prompt": "Who receives internal and customer communications, who approves them, and which data may not leave the incident system?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["incident-response"]
+    },
+
+    {
+      "id": "meter-events",
+      "section": "metering",
+      "answer_path": "metering.events",
+      "prompt": "Which immutable product events represent billable or entitlement-relevant usage?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "meter-producers",
+      "section": "metering",
+      "answer_path": "metering.trusted_producers",
+      "prompt": "Which authenticated services may emit usage, and how is customer or tenant subject identity resolved?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "meter-aggregation",
+      "section": "metering",
+      "answer_path": "metering.aggregations",
+      "prompt": "Which sums, counts, maxima, unique counts, durations, tiers, dimensions, credits, or commitments define each meter?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "meter-late-events",
+      "section": "metering",
+      "answer_path": "metering.late_event_policy",
+      "prompt": "How are duplicates, late events, corrections, refunds, replays, clock skew, and event-version changes reconciled?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "billing-products",
+      "section": "metering",
+      "answer_path": "metering.candidate_products",
+      "prompt": "Which billing and metering products may be used?",
+      "type": "multi_choice",
+      "choices": ["stripe-billing", "openmeter", "lago", "kill-bill", "metronome", "orb", "custom-ledger", "other"],
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "entitlement-boundary",
+      "section": "metering",
+      "answer_path": "metering.entitlement_boundary",
+      "prompt": "Where are entitlements enforced, and which offline or degraded behavior is allowed?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+    {
+      "id": "billing-reconciliation",
+      "section": "metering",
+      "answer_path": "metering.reconciliation",
+      "prompt": "What source-to-meter-to-invoice reconciliation must finance and customers be able to reproduce?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["usage-metering"]
+    },
+
+    {
+      "id": "onboarding-milestones",
+      "section": "onboarding",
+      "answer_path": "onboarding.milestones",
+      "prompt": "Which milestones define signed, access-ready, data-ready, configured, validated, trained, launched, and handed off?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+    {
+      "id": "onboarding-owners",
+      "section": "onboarding",
+      "answer_path": "onboarding.owners",
+      "prompt": "Which tasks belong to the customer, FDE, product team, security, legal, or automation?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+    {
+      "id": "onboarding-evidence",
+      "section": "onboarding",
+      "answer_path": "onboarding.evidence",
+      "prompt": "What evidence must accompany each completed prerequisite or readiness claim?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+    {
+      "id": "onboarding-runtime",
+      "section": "onboarding",
+      "answer_path": "onboarding.runtime",
+      "prompt": "Should workflow state use the application database, Temporal, Kestra, Prefect, Dagster, n8n, Windmill, or another approved runtime?",
+      "type": "multi_choice",
+      "choices": ["application-database", "temporal", "kestra", "prefect", "dagster", "n8n", "windmill", "other"],
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+    {
+      "id": "onboarding-escalation",
+      "section": "onboarding",
+      "answer_path": "onboarding.escalation",
+      "prompt": "What blocking conditions, ownership gaps, deadlines, or dependency states trigger escalation, and to whom?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+    {
+      "id": "onboarding-template-versioning",
+      "section": "onboarding",
+      "answer_path": "onboarding.template_versioning",
+      "prompt": "How do template changes affect already active customer onboarding instances?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["onboarding-automation"]
+    },
+
+    {
+      "id": "case-study-audience",
+      "section": "case-study",
+      "answer_path": "case_study.audience",
+      "prompt": "Who is the case study for: hiring managers, prospects, technical evaluators, existing customers, or internal leadership?",
+      "type": "multi_choice",
+      "choices": ["hiring", "prospects", "technical-evaluators", "customers", "internal-leadership", "public-portfolio"],
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    },
+    {
+      "id": "case-study-claims",
+      "section": "case-study",
+      "answer_path": "case_study.claims",
+      "prompt": "Which outcomes, capabilities, timelines, scale, or reliability claims are candidates for publication?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    },
+    {
+      "id": "case-study-evidence",
+      "section": "case-study",
+      "answer_path": "case_study.evidence_sources",
+      "prompt": "Which test logs, dashboards, deployment records, before-and-after measurements, decisions, and customer approvals support those claims?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    },
+    {
+      "id": "case-study-redactions",
+      "section": "case-study",
+      "answer_path": "case_study.redactions",
+      "prompt": "Which customer names, topology, identifiers, metrics, screenshots, security details, or data classes must be anonymized or omitted?",
+      "type": "multi_text",
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    },
+    {
+      "id": "case-study-approval",
+      "section": "case-study",
+      "answer_path": "case_study.approval",
+      "prompt": "Who approves publication, and what form of approval must be retained?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    },
+    {
+      "id": "case-study-reproduction",
+      "section": "case-study",
+      "answer_path": "case_study.reproduction_scope",
+      "prompt": "Which setup and verification steps may be made reproducible publicly, and which require a private evidence bundle?",
+      "type": "text",
+      "required": true,
+      "applies_to": ["deployment-case-study"]
+    }
+  ]
+}

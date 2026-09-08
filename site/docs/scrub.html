@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>scrub docs — replace PII with realistic fakes</title>
+    <meta
+      name="description"
+      content="How to use fieldkit scrub: replace emails, phones, SSNs, cards, IPs, names, and secrets with deterministic realistic fakes so files stay joinable."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/scrub.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="scrub docs — replace PII with realistic fakes">
+    <meta
+      property="og:description"
+      content="Deterministic pseudonymization that keeps joins working across files."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/scrub.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="scrub docs — FDE Tools">
+    <meta name="twitter:description" content="Deterministic pseudonymization that keeps joins working across files.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to scrub docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" data-active-section="true">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 02 Sanitize</p>
+      <h1>scrub</h1>
+      <p class="docs-page__dek">
+        scrub makes a copy of a file with the personal data swapped for realistic
+        fakes. The same real value always becomes the same fake value, so two scrubbed
+        files still join on the same keys, and a scrubbed demo still behaves like the
+        original.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>When to reach for it</strong>
+          You need to share a customer file with a teammate, a vendor, or an AI tool,
+          and the file has emails, phone numbers, or worse in it. scrub gives you a
+          shape-preserving copy with recognized PII replaced. Inspect it before sharing;
+          detection can miss sensitive values.
+        </p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>
+        scrub detects seven kinds of PII: <code>email</code>, <code>phone</code>,
+        <code>ssn</code>, <code>credit_card</code>, <code>ip</code>, <code>name</code>,
+        and <code>secret</code>. Each detected value is replaced with a fake of the
+        same kind. Replacements are keyed by a private salt stored at
+        <code>~/.fieldkit/salt</code>, which is what makes them deterministic across
+        runs and across files.
+      </p>
+      <p>
+        Tabular files (.csv, .tsv, .xlsx, .json, .jsonl, .ndjson) are scrubbed
+        column-aware. Anything else, or anything run with <code>--text</code>, is
+        scrubbed line by line, which is the mode you want for logs. scrub always
+        writes to a new file and refuses to overwrite its input.
+      </p>
+      <p>
+        Sparse recognized matches are replaced even when a whole column does not cross
+        the PII-confidence threshold. A recognized selected value left after replacement
+        stops the run. Detection is not a guarantee, so inspect the output before sharing it.
+        The web workbench supports <code>.log</code> and <code>.txt</code> text mode too.
+      </p>
+
+      <h2>Install and run</h2>
+      <p>
+        Already running the <code>fieldkit</code> core? The tool is one
+        <a href="plugins.html">plugin add</a> away:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool, then scrub a file</span>
+          <button class="copy-button" type="button" data-copy-target="scrub-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="scrub-docs-install">fieldkit plugin add scrub
+fieldkit scrub customers.csv -o customers_safe.csv</code></pre>
+      </div>
+      <p>
+        Working from the <code>fde-fieldkit</code> repo instead? You need
+        <a href="https://docs.astral.sh/uv/">uv</a>; one <code>uv sync</code> installs
+        the core and every tool editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="scrub-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="scrub-docs-dev">uv sync
+uv run fieldkit scrub examples/customers.csv -o customers_safe.csv</code></pre>
+      </div>
+
+      <h2>Every flag</h2>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FILE</code></td>
+              <td>required</td>
+              <td>The file to scrub. Tabular formats are scrubbed by column; everything else by line.</td>
+            </tr>
+            <tr>
+              <td><code>-o, --output PATH</code></td>
+              <td>required</td>
+              <td>Where to write the scrubbed copy. scrub never overwrites in place.</td>
+            </tr>
+            <tr>
+              <td><code>--kinds LIST</code></td>
+              <td>all seven</td>
+              <td>Limit to a comma-separated subset: email, phone, ssn, credit_card, ip, name, secret.</td>
+            </tr>
+            <tr>
+              <td><code>--salt-file PATH</code></td>
+              <td>~/.fieldkit/salt</td>
+              <td>Salt that keeps pseudonyms stable. Share it between machines to keep joins consistent.</td>
+            </tr>
+            <tr>
+              <td><code>--mapping PATH</code></td>
+              <td>off</td>
+              <td>Write the original-to-fake map as JSON. The map is as sensitive as the original data.</td>
+            </tr>
+            <tr>
+              <td><code>--text</code></td>
+              <td>off</td>
+              <td>Force line mode. Matches exact bytes; equivalent spellings are not normalized.</td>
+            </tr>
+            <tr>
+              <td><code>--help</code></td>
+              <td></td>
+              <td>Show usage and exit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Worked examples</h2>
+
+      <h3>1. Scrub a customer CSV</h3>
+      <p>
+        The summary shows exactly what was replaced and where, so you can sanity-check
+        the result before sending it anywhere.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="scrub-ex1">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="scrub-ex1">uv run fieldkit scrub examples/customers.csv -o customers_safe.csv</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>     Replacements
+┃ Kind        ┃ Count ┃
+│ email       │   150 │
+│ phone       │   150 │
+│ ssn         │   150 │
+│ credit_card │   150 │
+│ ip          │   150 │
+│ name        │   300 │
+
+              By column
+┃ Column      ┃ Kind        ┃ Count ┃
+│ first_name  │ name        │   150 │
+│ email       │ email       │   150 │
+(five more rows)</code></pre>
+      </div>
+
+      <h3>2. Scrub an application log</h3>
+      <p>
+        Logs are not tables, so use <code>--text</code>. Every line keeps its shape;
+        only the detected PII inside it changes.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="scrub-ex2">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="scrub-ex2">uv run fieldkit scrub examples/app.log -o app_safe.log --text</code></pre>
+      </div>
+
+      <h3>3. Scope it, and keep a reversible map</h3>
+      <p>
+        Only worried about emails and phone numbers? Scope with <code>--kinds</code>.
+        If you may need to reverse the scrub later, write a mapping file, then guard
+        that file like the original data, because that is what it is.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="scrub-ex3">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="scrub-ex3">uv run fieldkit scrub examples/customers.csv -o customers_safe.csv \
+  --kinds email,phone --mapping customers.mapping.json</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>warning: the mapping file is as sensitive as the original data
+     Replacements
+┃ Kind  ┃ Count ┃
+│ email │   150 │
+│ phone │   150 │</code></pre>
+      </div>
+
+      <h2>Next steps</h2>
+      <p>
+        Not sure what is in the file to begin with? <a href="xray.html">xray</a> flags
+        the PII columns first. If even scrubbed real data is too real, generate fully
+        synthetic rows with <a href="mimic.html">mimic</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

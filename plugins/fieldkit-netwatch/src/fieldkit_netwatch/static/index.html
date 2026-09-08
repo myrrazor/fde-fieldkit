@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'self'"
+  >
+  <meta name="referrer" content="no-referrer">
+  <title>netwatch control room — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+  <style>
+    :root {
+      --nw-rail: #211f1b;
+      --nw-rail-muted: #bcb6aa;
+      --nw-rail-line: #454039;
+      --nw-paper: #f7f4ed;
+      --nw-selection: #f3e7dc;
+    }
+    body { background: var(--nw-paper); }
+    button, input, select, textarea { font: inherit; }
+    .nw-skip {
+      position: fixed; left: 12px; top: -60px; z-index: 20;
+      background: var(--surface); color: var(--ink); padding: 8px 12px;
+      border: 2px solid var(--accent);
+    }
+    .nw-skip:focus { top: 12px; }
+    .nw-topbar {
+      min-height: 58px; display: flex; align-items: center; gap: 12px;
+      padding: 0 22px; color: #fff; background: var(--nw-rail);
+      border-bottom: 1px solid var(--nw-rail-line);
+    }
+    .nw-brand { color: #fff; font: 700 14px var(--mono); text-decoration: none; }
+    .nw-slash { color: #6f695f; }
+    .nw-product { font-weight: 650; }
+    .nw-local {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+      color: var(--nw-rail-muted); font-size: 12.5px;
+    }
+    .nw-local::before { content: ""; width: 7px; height: 7px; background: #72b17b; border-radius: 50%; }
+    .nw-layout { min-height: calc(100vh - 58px); display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+    .nw-rail {
+      position: sticky; top: 0; align-self: start; min-height: calc(100vh - 58px);
+      padding: 22px 14px; color: #fff; background: var(--nw-rail);
+      border-right: 1px solid var(--nw-rail-line);
+    }
+    .nw-coverage-mini { margin: 0 8px 20px; padding-bottom: 18px; border-bottom: 1px solid var(--nw-rail-line); }
+    .nw-coverage-mini strong { display: block; margin-bottom: 5px; font: 650 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .nw-coverage-mini p { margin: 0; color: var(--nw-rail-muted); font-size: 12px; line-height: 1.45; }
+    .nw-nav { display: grid; gap: 3px; }
+    .nw-nav button {
+      position: relative; width: 100%; min-height: 39px; padding: 8px 10px 8px 25px;
+      color: var(--nw-rail-muted); background: transparent; border: 0; border-radius: 4px;
+      text-align: left; cursor: pointer;
+    }
+    .nw-nav button::before { content: ""; position: absolute; left: 9px; top: 50%; width: 6px; height: 1px; background: #746d62; }
+    .nw-nav button:hover { color: #fff; background: #2b2823; }
+    .nw-nav button[aria-current="page"] { color: #fff; background: #34302a; }
+    .nw-nav button[aria-current="page"]::before { height: 14px; top: calc(50% - 7px); background: #dd7b55; }
+    .nw-storage { margin: 24px 8px 0; padding-top: 16px; border-top: 1px solid var(--nw-rail-line); color: #8f897f; font-size: 11px; overflow-wrap: anywhere; }
+    .nw-main { min-width: 0; padding: 0 28px 72px; }
+    .nw-main:focus { outline: none; }
+    .nw-commandbar {
+      position: sticky; top: 0; z-index: 8; display: grid;
+      grid-template-columns: minmax(230px, 1fr) auto auto; align-items: end; gap: 10px;
+      margin-inline: -28px; padding: 13px 28px; background: var(--nw-paper);
+      border-bottom: 1px solid var(--border);
+    }
+    .nw-field { display: grid; gap: 4px; }
+    .nw-field label, .nw-field > span {
+      color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: .04em;
+    }
+    .nw-field input, .nw-field select, .nw-field textarea {
+      width: 100%; min-height: 38px; padding: 7px 10px; color: var(--ink);
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .nw-field textarea { min-height: 74px; resize: vertical; font-family: var(--mono); font-size: 12.5px; }
+    .nw-commandbar select { min-height: 38px; }
+    .nw-freshness { min-width: 92px; color: var(--muted); font: 12px var(--mono); text-align: right; }
+    .nw-view { padding-top: 30px; }
+    .nw-view[hidden] { display: none; }
+    .nw-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    .nw-heading h1 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.08; letter-spacing: -.025em; }
+    .nw-heading p { max-width: 60ch; margin: 7px 0 0; color: var(--muted); }
+    .nw-eyebrow { margin: 0 0 7px !important; color: var(--accent) !important; font: 650 11px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    .nw-heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .nw-btn {
+      min-height: 38px; padding: 7px 13px; border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--ink); background: var(--surface); font-weight: 650; cursor: pointer;
+    }
+    .nw-btn:hover { border-color: var(--ink); }
+    .nw-btn:disabled { opacity: .48; cursor: not-allowed; }
+    .nw-btn-primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .nw-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .nw-btn-danger { color: var(--danger); }
+    .nw-btn-small { min-height: 30px; padding: 4px 8px; font-size: 12px; }
+    .nw-control-state {
+      display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: 14px; align-items: center;
+      margin-bottom: 20px; padding: 10px 0; border-block: 1px solid var(--ink); font-size: 12.5px;
+    }
+    .nw-control-state strong { font-family: var(--mono); }
+    .nw-control-state p { margin: 0; color: var(--muted); }
+    .nw-control-state button { white-space: nowrap; }
+    .nw-stats {
+      display: grid; grid-template-columns: repeat(6, minmax(95px, 1fr));
+      border-block: 1px solid var(--border); margin-bottom: 28px;
+    }
+    .nw-stat { min-width: 0; padding: 13px 14px 13px 0; }
+    .nw-stat + .nw-stat { padding-left: 14px; border-left: 1px solid var(--border); }
+    .nw-stat strong { display: block; font: 650 24px/1.15 var(--mono); font-variant-numeric: tabular-nums; }
+    .nw-stat span { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; }
+    .nw-grid-2 { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 22px; }
+    .nw-section { min-width: 0; margin-top: 24px; }
+    .nw-section:first-child { margin-top: 0; }
+    .nw-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1.5px solid var(--ink); }
+    .nw-section-head h2 { margin: 0; font-size: 15px; }
+    .nw-section-head span { color: var(--muted); font-size: 11.5px; }
+    .nw-ledger { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .nw-ledger th { padding: 7px 12px 7px 0; color: var(--muted); font-size: 10.5px; letter-spacing: .055em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+    .nw-ledger td { padding: 8px 12px 8px 0; border-top: 1px solid var(--border); vertical-align: top; }
+    .nw-ledger .num { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+    .nw-ledger .mono { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+    .nw-ledger .row-actions { text-align: right; white-space: nowrap; }
+    .nw-tablewrap { width: 100%; overflow-x: auto; }
+    .path-list { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .nw-source-mark { display: inline-flex; align-items: center; gap: 7px; }
+    .nw-source-mark::before { content: ""; width: 12px; height: 3px; background: var(--accent); }
+    .nw-status { font-weight: 700; }
+    .nw-status.allowed, .nw-status.observed, .nw-status.complete { color: var(--success); }
+    .nw-status.blocked, .nw-status.failed, .nw-status.unsupported { color: var(--danger); }
+    .nw-status.would_block, .nw-status.interrupted { color: var(--warn); }
+    .nw-status.running, .nw-status.starting { color: var(--info); }
+    .nw-empty, .nw-loading, .nw-error { margin: 0; padding: 18px 0; color: var(--muted); }
+    .nw-error { color: var(--danger); }
+    .nw-panel { padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .nw-panel h2, .nw-panel h3 { margin-top: 0; }
+    .nw-panel-note { margin: -5px 0 16px; color: var(--muted); font-size: 12.5px; }
+    .nw-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .nw-form-grid .wide { grid-column: 1 / -1; }
+    .nw-inline { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+    .nw-check { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; color: var(--muted); font-size: 12.5px; }
+    .nw-check input { accent-color: var(--accent); }
+    .nw-form-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    .nw-feedback { min-height: 1.4em; margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+    .nw-feedback[data-kind="error"] { color: var(--danger); }
+    .nw-feedback[data-kind="success"] { color: var(--success); }
+    .nw-terminal-command { margin-top: 14px; padding: 11px 12px; background: var(--sunken); border: 1px solid var(--border); }
+    .nw-terminal-command code { display: block; margin-top: 5px; font-size: 12px; overflow-wrap: anywhere; }
+    .nw-filters { display: grid; grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(120px, auto)); gap: 9px; margin-bottom: 15px; }
+    .nw-tabs { display: flex; gap: 2px; margin: 20px 0 0; border-bottom: 1px solid var(--border); }
+    .nw-tabs button { padding: 9px 12px; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); cursor: pointer; }
+    .nw-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 650; }
+    .nw-tabpanel { padding-top: 10px; }
+    .nw-rule-form { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .nw-protocols { display: flex; flex-wrap: wrap; gap: 12px; min-height: 38px; align-items: center; }
+    .nw-policy-state { display: flex; flex-wrap: wrap; gap: 10px 18px; color: var(--muted); font-size: 12px; }
+    .nw-policy-state code { color: var(--ink); }
+    .nw-decision { margin-top: 12px; padding: 12px 0; border-block: 1px solid var(--border); }
+    .nw-decision strong { display: block; }
+    .nw-decision p { margin: 3px 0 0; color: var(--muted); }
+    .nw-capability-list { list-style: none; padding: 0; margin: 0; }
+    .nw-capability-list li { display: grid; grid-template-columns: 11rem 1fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border); }
+    .nw-capability-list li:first-child { border-top: 0; }
+    .nw-capability-list strong { font-family: var(--mono); font-size: 12px; }
+    .nw-capability-list span { color: var(--muted); }
+    .nw-danger-zone { margin-top: 24px; padding-top: 16px; border-top: 1px solid #d9baba; }
+    .nw-mobile-only { display: none; }
+    @media (max-width: 1100px) {
+      .nw-stats { grid-template-columns: repeat(3, 1fr); }
+      .nw-stat:nth-child(4) { padding-left: 0; border-left: 0; }
+      .nw-stat:nth-child(n+4) { border-top: 1px solid var(--border); }
+      .nw-grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 880px) {
+      .nw-layout { display: block; }
+      .nw-rail { position: static; min-height: 0; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--nw-rail-line); }
+      .nw-coverage-mini, .nw-storage { display: none; }
+      .nw-nav { display: flex; overflow-x: auto; }
+      .nw-nav button { width: auto; min-width: max-content; padding: 9px 12px 9px 25px; }
+      .nw-main { padding-inline: 20px; }
+      .nw-commandbar { margin-inline: -20px; padding-inline: 20px; }
+    }
+    @media (max-width: 680px) {
+      .nw-topbar { padding-inline: 14px; }
+      .nw-product { font-size: 13px; }
+      .nw-local { font-size: 0; }
+      .nw-commandbar { position: static; grid-template-columns: 1fr 1fr; }
+      .nw-commandbar .nw-field { grid-column: 1 / -1; }
+      .nw-freshness { text-align: left; align-self: center; }
+      .nw-view { padding-top: 22px; }
+      .nw-heading { display: block; }
+      .nw-heading-actions { justify-content: flex-start; margin-top: 14px; }
+      .nw-control-state { grid-template-columns: 1fr; gap: 5px; }
+      .nw-control-state button { width: 100%; }
+      .nw-stats { grid-template-columns: repeat(2, 1fr); }
+      .nw-stat:nth-child(odd) { padding-left: 0; border-left: 0; }
+      .nw-stat:nth-child(even) { padding-left: 12px; border-left: 1px solid var(--border); }
+      .nw-stat:nth-child(n+3) { border-top: 1px solid var(--border); }
+      .nw-form-grid, .nw-filters { grid-template-columns: 1fr; }
+      .nw-form-grid .wide { grid-column: auto; }
+      .nw-panel { padding: 14px; }
+      .nw-compact-hide { display: none; }
+      .nw-mobile-only { display: table-cell; }
+      .nw-btn { min-height: 44px; }
+      .nw-capability-list li { grid-template-columns: 1fr; gap: 3px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="nw-skip" href="#workspace">Skip to Netwatch workspace</a>
+  <header class="nw-topbar">
+    <a class="nw-brand" href="/">fieldkit</a>
+    <span class="nw-slash">/</span>
+    <span class="nw-product">netwatch control room</span>
+    <span class="nw-local" id="top-status">local evidence</span>
+  </header>
+
+  <div class="nw-layout">
+    <aside class="nw-rail" aria-label="Netwatch sections">
+      <div class="nw-coverage-mini">
+        <strong>Coverage lane</strong>
+        <p>Proxy-routed TCP is visible. Attach is observation-only. TLS content, DNS, UDP/QUIC, and bypassing sockets stay outside coverage.</p>
+      </div>
+      <nav class="nw-nav" aria-label="Netwatch workspace">
+        <button type="button" data-view="overview" aria-current="page">Overview</button>
+        <button type="button" data-view="traffic">Live traffic</button>
+        <button type="button" data-view="capture">Agents &amp; capture</button>
+        <button type="button" data-view="policy">Policies</button>
+        <button type="button" data-view="system">Diagnostics</button>
+      </nav>
+      <p class="nw-storage" id="storage-path">Reading local storage path…</p>
+    </aside>
+
+    <main class="nw-main" id="workspace" tabindex="-1">
+      <div class="nw-commandbar">
+        <div class="nw-field">
+          <label for="session-select">Evidence session</label>
+          <select id="session-select"><option value="">Loading sessions…</option></select>
+        </div>
+        <button class="nw-btn" id="refresh" type="button">Refresh</button>
+        <span class="nw-freshness" id="freshness">Connecting…</span>
+      </div>
+
+      <section class="nw-view" id="view-overview" data-view-panel="overview">
+        <div class="nw-heading">
+          <div>
+            <p class="nw-eyebrow">All saved evidence</p>
+            <h1>Who connected, where, and how?</h1>
+            <p>Compare agent sources, proxy paths, destinations, and policy outcomes without flattening requests, tunnels, and socket observations into the same unit.</p>
+          </div>
+          <div class="nw-heading-actions">
+            <button class="nw-btn nw-btn-primary" type="button" data-open-view="capture">Start a capture</button>
+            <button class="nw-btn" type="button" data-open-view="policy">Edit policy</button>
+          </div>
+        </div>
+        <div class="nw-control-state" id="control-state" role="status">
+          <strong>Checking controls</strong>
+          <p>Verifying that this browser is connected directly through loopback.</p>
+          <button class="nw-btn nw-btn-small" type="button" data-open-view="system">Coverage details</button>
+        </div>
+        <div class="nw-stats" id="overview-stats" aria-label="All-session totals"></div>
+        <div class="nw-grid-2">
+          <section class="nw-section" aria-labelledby="sources-title">
+            <div class="nw-section-head"><h2 id="sources-title">Capture sources</h2><span>transport path, not inferred cause</span></div>
+            <div id="source-overview"><p class="nw-loading">Loading source evidence…</p></div>
+          </section>
+          <section class="nw-section" aria-labelledby="agents-title">
+            <div class="nw-section-head"><h2 id="agents-title">Agent sources</h2><span>session executable class</span></div>
+            <div id="agent-overview"><p class="nw-loading">Loading agent evidence…</p></div>
+          </section>
+        </div>
+        <section class="nw-section" aria-labelledby="all-destinations-title">
+          <div class="nw-section-head"><h2 id="all-destinations-title">Destinations across sessions</h2><span>identified locally from hostname</span></div>
+          <div id="destination-overview"><p class="nw-loading">Loading destinations…</p></div>
+        </section>
+        <section class="nw-section" aria-labelledby="sessions-title">
+          <div class="nw-section-head"><h2 id="sessions-title">Sessions</h2><span>newest first</span></div>
+          <div id="session-overview"><p class="nw-loading">Loading sessions…</p></div>
+        </section>
+      </section>
+
+      <section class="nw-view" id="view-traffic" data-view-panel="traffic" hidden>
+        <div class="nw-heading">
+          <div>
+            <p class="nw-eyebrow">Selected session</p>
+            <h1>Live traffic ledger</h1>
+            <p>Inspect destination groups, raw proxy or socket evidence, and separately reported tool actions. Tool actions are not claimed as causes of nearby connections.</p>
+          </div>
+          <div class="nw-heading-actions">
+            <a class="nw-btn" id="export-json" aria-disabled="true" download>JSON</a>
+            <a class="nw-btn" id="export-csv" aria-disabled="true" download>CSV</a>
+            <button class="nw-btn nw-btn-danger" id="stop-session" type="button">Stop</button>
+          </div>
+        </div>
+        <div id="session-summary"><p class="nw-empty">Select a session to inspect its evidence.</p></div>
+        <div class="nw-filters" aria-label="Traffic filters">
+          <div class="nw-field"><label for="traffic-search">Destination or service</label><input id="traffic-search" type="search" placeholder="api.openai.com"></div>
+          <div class="nw-field"><label for="decision-filter">Decision</label><select id="decision-filter"><option value="">All decisions</option><option>allowed</option><option>blocked</option><option value="would_block">would block</option><option>observed</option><option>failed</option><option>unsupported</option></select></div>
+          <div class="nw-field"><label for="source-filter">Capture source</label><select id="source-filter"><option value="">All sources</option></select></div>
+          <div class="nw-field"><label for="scope-filter">Network scope</label><select id="scope-filter"><option value="">All scopes</option></select></div>
+        </div>
+        <div class="nw-tabs" role="tablist" aria-label="Session evidence">
+          <button type="button" role="tab" id="tab-destinations" aria-selected="true" aria-controls="panel-destinations" data-evidence-tab="destinations">Destinations</button>
+          <button type="button" role="tab" id="tab-events" tabindex="-1" aria-selected="false" aria-controls="panel-events" data-evidence-tab="events">Raw events</button>
+          <button type="button" role="tab" id="tab-tools" tabindex="-1" aria-selected="false" aria-controls="panel-tools" data-evidence-tab="tools">Tool actions</button>
+          <button type="button" role="tab" id="tab-coverage" tabindex="-1" aria-selected="false" aria-controls="panel-coverage" data-evidence-tab="coverage">Coverage</button>
+        </div>
+        <section class="nw-tabpanel" id="panel-destinations" role="tabpanel" aria-labelledby="tab-destinations"><div id="destinations"></div></section>
+        <section class="nw-tabpanel" id="panel-events" role="tabpanel" aria-labelledby="tab-events" hidden><div id="events"></div></section>
+        <section class="nw-tabpanel" id="panel-tools" role="tabpanel" aria-labelledby="tab-tools" hidden><div id="tool-events"></div></section>
+        <section class="nw-tabpanel" id="panel-coverage" role="tabpanel" aria-labelledby="tab-coverage" hidden><div id="coverage"></div></section>
+        <div class="nw-danger-zone">
+          <button class="nw-btn nw-btn-danger" id="delete-session" type="button">Delete this stopped session</button>
+          <p class="nw-feedback" id="session-action-state" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="nw-view" id="view-capture" data-view-panel="capture" hidden>
+        <div class="nw-heading">
+          <div>
+            <p class="nw-eyebrow">Local process control</p>
+            <h1>Agents and capture</h1>
+            <p>Launch a direct argv command through Netwatch or attach to an existing coding agent. Browser launches are intended for noninteractive commands; terminal agents keep their terminal.</p>
+          </div>
+        </div>
+        <div class="nw-grid-2">
+          <section class="nw-panel" aria-labelledby="run-title">
+            <h2 id="run-title">Supervise a command</h2>
+            <p class="nw-panel-note">No shell is used. Command arguments are passed to the process but never written to Netwatch evidence.</p>
+            <form id="run-form">
+              <div class="nw-form-grid">
+                <div class="nw-field wide"><label for="run-command">Command and arguments</label><input id="run-command" type="text" value="codex" autocomplete="off" required></div>
+                <div class="nw-field"><label for="run-agent">Integration</label><select id="run-agent"><option value="auto">Auto-detect</option><option value="codex">Codex</option><option value="claude">Claude Code</option><option value="generic">Generic proxy environment</option></select></div>
+                <div class="nw-field"><label for="run-mode">Policy mode</label><select id="run-mode"><option value="audit">Audit, never block</option><option value="enforce">Enforce saved policy</option></select></div>
+                <label class="nw-check wide"><input id="run-policy" type="checkbox" checked> Evaluate the saved policy in audit mode and record would-block decisions</label>
+              </div>
+              <div class="nw-form-actions"><button class="nw-btn nw-btn-primary" type="submit" data-control-action>Start supervised command</button></div>
+              <p class="nw-feedback" id="run-state" aria-live="polite"></p>
+            </form>
+            <div class="nw-terminal-command">
+              <strong>Interactive agent?</strong>
+              <span>Run this in its terminal, then watch the session here.</span>
+              <code id="terminal-command">fieldkit netwatch run -- codex</code>
+              <button class="nw-btn nw-btn-small" id="copy-terminal-command" type="button">Copy command</button>
+            </div>
+          </section>
+          <section class="nw-panel" aria-labelledby="attach-title">
+            <h2 id="attach-title">Attach by PID</h2>
+            <p class="nw-panel-note">Attachment samples established TCP sockets with lsof. It cannot block, count requests, or catch sockets that open and close between samples.</p>
+            <form id="attach-form">
+              <div class="nw-form-grid">
+                <div class="nw-field"><label for="attach-pid">Root PID</label><input id="attach-pid" type="number" min="1" required></div>
+                <div class="nw-field"><label for="attach-interval">Sample interval</label><input id="attach-interval" type="number" min="0.1" step="0.1" value="1"></div>
+                <label class="nw-check wide"><input id="attach-follow" type="checkbox" checked> Keep sampling until I stop the session</label>
+              </div>
+              <div class="nw-form-actions"><button class="nw-btn nw-btn-primary" type="submit" data-control-action>Start observation</button></div>
+              <p class="nw-feedback" id="attach-state" aria-live="polite"></p>
+            </form>
+          </section>
+        </div>
+        <section class="nw-section" aria-labelledby="running-agents-title">
+          <div class="nw-section-head"><h2 id="running-agents-title">Detected coding agents</h2><span>arguments redacted</span></div>
+          <div id="running-agents"><p class="nw-loading">Inspecting the process table…</p></div>
+        </section>
+      </section>
+
+      <section class="nw-view" id="view-policy" data-view-panel="policy" hidden>
+        <div class="nw-heading">
+          <div>
+            <p class="nw-eyebrow">Managed destination policy</p>
+            <h1>Allow what the agent needs.</h1>
+            <p>Rules combine configured match categories with AND; values inside a category are alternatives. Deny wins. Changes apply to future runs and do not close existing tunnels.</p>
+          </div>
+          <div class="nw-heading-actions">
+            <button class="nw-btn" id="import-policy" type="button" data-control-action>Import JSON</button>
+            <input id="policy-file" type="file" accept="application/json,.json" hidden>
+            <button class="nw-btn" id="export-policy" type="button">Export JSON</button>
+            <button class="nw-btn nw-btn-primary" id="save-policy" type="button" data-control-action>Save policy</button>
+          </div>
+        </div>
+        <div class="nw-panel">
+          <div class="nw-policy-state">
+            <span id="policy-save-state">Loading managed policy…</span>
+            <span>Storage: <code id="policy-path">—</code></span>
+          </div>
+          <div class="nw-inline" style="margin-top: 16px">
+            <div class="nw-field"><label for="policy-default">When no rule matches</label><select id="policy-default"><option value="deny">Deny</option><option value="allow">Allow</option></select></div>
+            <p class="nw-panel-note">Private, loopback, link-local, multicast, and reserved targets still need an explicit allow rule with private access enabled.</p>
+          </div>
+          <section class="nw-section" aria-labelledby="rules-title">
+            <div class="nw-section-head"><h2 id="rules-title">Ordered rules</h2><span>deny precedence applies across matches</span></div>
+            <div id="policy-rules"><p class="nw-loading">Loading policy rules…</p></div>
+          </section>
+          <form class="nw-rule-form" id="rule-form">
+            <h3 id="rule-form-title">Add a rule</h3>
+            <input id="rule-index" type="hidden" value="">
+            <div class="nw-form-grid">
+              <div class="nw-field"><label for="rule-id">Rule ID</label><input id="rule-id" type="text" placeholder="openai-api" required></div>
+              <div class="nw-field"><label for="rule-action">Action</label><select id="rule-action"><option value="allow">Allow</option><option value="deny">Deny</option></select></div>
+              <div class="nw-field"><label for="rule-hosts">Hosts, comma or line separated</label><textarea id="rule-hosts" placeholder="api.openai.com&#10;*.example.com"></textarea></div>
+              <div class="nw-field"><label for="rule-ips">IP addresses or CIDRs</label><textarea id="rule-ips" placeholder="127.0.0.0/8&#10;::1/128"></textarea></div>
+              <div class="nw-field"><label for="rule-ports">Ports</label><input id="rule-ports" type="text" placeholder="443, 8443"></div>
+              <div class="nw-field"><span>Protocols</span><div class="nw-protocols"><label class="nw-check"><input type="checkbox" name="rule-protocol" value="http"> HTTP</label><label class="nw-check"><input type="checkbox" name="rule-protocol" value="https"> HTTPS</label><label class="nw-check"><input type="checkbox" name="rule-protocol" value="tcp"> TCP</label></div></div>
+              <label class="nw-check wide"><input id="rule-private" type="checkbox"> This allow rule may reach matched private or loopback destinations</label>
+              <div class="nw-field wide"><label for="rule-note">Reason</label><input id="rule-note" type="text" placeholder="Needed for model API calls"></div>
+            </div>
+            <div class="nw-form-actions"><button class="nw-btn nw-btn-primary" type="submit">Add rule</button><button class="nw-btn" id="cancel-rule" type="button" hidden>Cancel edit</button></div>
+            <p class="nw-feedback" id="rule-state" aria-live="polite"></p>
+          </form>
+        </div>
+        <section class="nw-panel nw-section" aria-labelledby="tester-title">
+          <h2 id="tester-title">Decision simulator</h2>
+          <p class="nw-panel-note">Checking a hostname may perform a user-requested DNS lookup. It does not contact an enrichment service.</p>
+          <form id="policy-check-form" class="nw-inline">
+            <div class="nw-field" style="flex: 1 1 280px"><label for="check-destination">Destination</label><input id="check-destination" type="text" placeholder="https://api.openai.com" required></div>
+            <div class="nw-field"><label for="check-protocol">Fallback protocol</label><select id="check-protocol"><option>https</option><option>http</option><option>tcp</option></select></div>
+            <div class="nw-field"><label for="check-mode">Evaluation mode</label><select id="check-mode"><option value="enforce">Enforce</option><option value="audit">Audit</option></select></div>
+            <button class="nw-btn" type="submit" data-control-action>Check decision</button>
+          </form>
+          <div id="policy-decision" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <section class="nw-view" id="view-system" data-view-panel="system" hidden>
+        <div class="nw-heading">
+          <div>
+            <p class="nw-eyebrow">Coverage and privacy</p>
+            <h1>Know what Netwatch can prove.</h1>
+            <p>Diagnostics report the capture paths available on this Mac. They make no network request and do not test vendor APIs.</p>
+          </div>
+          <div class="nw-heading-actions"><button class="nw-btn" id="refresh-diagnostics" type="button">Refresh diagnostics</button></div>
+        </div>
+        <div class="nw-grid-2">
+          <section class="nw-panel" aria-labelledby="capability-title">
+            <h2 id="capability-title">Machine capabilities</h2>
+            <ul class="nw-capability-list" id="capabilities"><li><strong>Loading</strong><span>Inspecting local executables and capture tools.</span></li></ul>
+          </section>
+          <section class="nw-panel" aria-labelledby="privacy-title">
+            <h2 id="privacy-title">Evidence contract</h2>
+            <ul class="nw-capability-list">
+              <li><strong>Stored</strong><span>Destination, port, protocol, local service identification, decision, timing, byte totals, and sanitized plaintext paths.</span></li>
+              <li><strong>Never stored</strong><span>Headers, bodies, credentials, URL queries, prompts, Bash commands, search queries, or command arguments.</span></li>
+              <li><strong>TLS</strong><span>HTTPS paths and payloads remain encrypted unless a supported hook reports a sanitized target.</span></li>
+              <li><strong>Blind spots</strong><span>DNS packets, UDP/QUIC, direct sockets that bypass proxies, and short-lived sockets missed between attach samples.</span></li>
+              <li><strong>Whole machine</strong><span>Universal arbitrary-process enforcement requires a separately signed macOS Network Extension.</span></li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

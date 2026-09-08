@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xray docs — profile any data file locally</title>
+    <meta
+      name="description"
+      content="How to use fieldkit xray: profile schema, types, null rates, outliers, and PII flags in any CSV, TSV, XLSX, JSON, or JSONL file, entirely on your laptop."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/xray.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="xray docs — profile any data file locally">
+    <meta
+      property="og:description"
+      content="Schema, types, nulls, stats, outliers, and PII flags for every column."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/xray.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="xray docs — FDE Tools">
+    <meta name="twitter:description" content="Schema, types, nulls, stats, outliers, and PII flags for every column.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to xray docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" data-active-section="true">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 01 Inspect</p>
+      <h1>xray</h1>
+      <p class="docs-page__dek">
+        Point xray at a file you have never seen and it tells you what is inside:
+        every column, what type it looks like, how much is missing, what the common
+        values are, and whether anything in there looks like personal data.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>When to reach for it</strong>
+          Someone hands you a dump and asks "can you work with this?" Run xray first.
+          You get the shape of the data and a PII warning before you paste anything
+          into a notebook, a ticket, or an AI chat.
+        </p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>
+        xray reads one tabular file and prints a profile: schema, inferred types
+        (integer, float, date, boolean, categorical, id_like, text), null rates,
+        distinct counts, summary statistics, and outlier counts per column. Raw top
+        values and outlier examples are redacted unless you explicitly request a
+        sensitive CLI report.
+        Each column also gets PII flags with a confidence score, so
+        <code>ssn</code>-shaped or email-shaped data stands out immediately.
+      </p>
+      <p>
+        It works on <code>.csv</code>, <code>.tsv</code>, <code>.xlsx</code>,
+        <code>.json</code>, and <code>.jsonl</code> files, runs entirely on your
+        machine, and never sends data anywhere.
+      </p>
+
+      <h2>Install and run</h2>
+      <p>
+        Already running the <code>fieldkit</code> core? The tool is one
+        <a href="plugins.html">plugin add</a> away:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool, then profile a file</span>
+          <button class="copy-button" type="button" data-copy-target="xray-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="xray-docs-install">fieldkit plugin add xray
+fieldkit xray customers.csv</code></pre>
+      </div>
+      <p>
+        Working from the <code>fde-fieldkit</code> repo instead? You need
+        <a href="https://docs.astral.sh/uv/">uv</a>; one <code>uv sync</code> installs
+        the core and every tool editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="xray-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="xray-docs-dev">uv sync
+uv run fieldkit xray examples/customers.csv</code></pre>
+      </div>
+
+      <h2>Every flag</h2>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>FILE</code></td>
+              <td>required</td>
+              <td>The data file to profile: .csv, .tsv, .xlsx, .json, or .jsonl.</td>
+            </tr>
+            <tr>
+              <td><code>--json PATH</code></td>
+              <td>off</td>
+              <td>Also write the redacted profile as JSON, handy for scripts and agents.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Also write a printable HTML report, redacted by default.</td>
+            </tr>
+            <tr>
+              <td><code>--top-k N</code></td>
+              <td>10</td>
+              <td>Top values to keep when <code>--include-values</code> is set. Minimum 1.</td>
+            </tr>
+            <tr>
+              <td><code>--include-values</code></td>
+              <td>off</td>
+              <td>Include sensitive raw top/outlier values in this one local report.</td>
+            </tr>
+            <tr>
+              <td><code>--sheet NAME</code></td>
+              <td>first sheet</td>
+              <td>Which sheet to profile when the file is an Excel workbook.</td>
+            </tr>
+            <tr>
+              <td><code>--help</code></td>
+              <td></td>
+              <td>Show usage and exit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Worked examples</h2>
+
+      <h3>1. First look at a mystery file</h3>
+      <p>
+        The plain run prints the whole profile to your terminal. Note the PII column
+        on the right: xray spotted the email, phone, SSN, card, and IP columns
+        without being told.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="xray-ex1">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="xray-ex1">uv run fieldkit xray examples/customers.csv</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>customers.csv · CSV · 150 × 14
+┃ column      ┃ type        ┃ nulls % ┃    distinct ┃ PII flags  ┃
+│ customer_id │ id_like     │    0.0% │ 150 (100%)  │ —          │
+│ email       │ text        │    0.0% │ 150 (100%)  │ EMAIL 1.00 │
+│ ssn         │ id_like     │    0.0% │ 150 (100%)  │ SSN 1.00   │
+│ ip_address  │ text        │    0.0% │ 150 (100%)  │ IP 1.00    │
+│ plan        │ categorical │    0.0% │ 3 (2.0%)    │ —          │
+│ mrr         │ float       │    0.0% │ 148 (98.7%) │ —          │
+│ churned     │ boolean     │    0.0% │ 2 (1.3%)    │ —          │
+(7 of 14 columns shown; top-value column trimmed for width)</code></pre>
+      </div>
+
+      <h3>2. Make a report you can send</h3>
+      <p>
+        Add <code>--html</code> and you get a self-contained page with the same
+        profile, ready to attach to a ticket or a status email.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="xray-ex2">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="xray-ex2">uv run fieldkit xray examples/customers.csv --html profile.html</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>customers.csv · CSV · 150 × 14
+(profile table as above)
+wrote profile.html</code></pre>
+      </div>
+
+      <h3>3. Feed the profile to a script</h3>
+      <p>
+        <code>--json</code> writes the machine-readable version alongside the
+        terminal view. Both output flags can be combined in one run.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="xray-ex3">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="xray-ex3">uv run fieldkit xray examples/customers.csv --json profile.json --top-k 5</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>customers.csv · CSV · 150 × 14
+(profile table; raw values remain omitted unless --include-values is also set)
+wrote profile.json</code></pre>
+      </div>
+
+      <h2>Next steps</h2>
+      <p>
+        If xray flags PII and you need to share the file, <a href="scrub.html">scrub</a>
+        replaces the sensitive values with realistic fakes. If you need demo data with
+        the same shape but none of the real values, that is <a href="mimic.html">mimic</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

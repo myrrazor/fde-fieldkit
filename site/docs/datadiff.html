@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>datadiff docs — compare two data dumps</title>
+    <meta
+      name="description"
+      content="How to use fieldkit datadiff: compare two data dumps for schema changes, keyed row adds, removes, and edits, plus per-column value drift reports."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/datadiff.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="datadiff docs — compare two data dumps">
+    <meta
+      property="og:description"
+      content="Schema drift, keyed row changes, and per-column value drift between dumps."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/datadiff.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="datadiff docs — FDE Tools">
+    <meta name="twitter:description" content="Schema drift, keyed row changes, and per-column value drift between dumps.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to datadiff docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" data-active-section="true">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 04 Compare</p>
+      <h1>datadiff</h1>
+      <p class="docs-page__dek">
+        Give datadiff last month's dump and this month's dump, and it explains what
+        actually changed: which columns appeared or vanished, which rows were added,
+        removed, or edited, and how the values themselves drifted.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>When to reach for it</strong>
+          "The numbers look different this week and nobody knows why." datadiff turns
+          two exports into a concrete change list you can walk a customer through,
+          instead of eyeballing spreadsheets side by side.
+        </p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>
+        datadiff compares the two files at three levels. Schema: added and dropped
+        columns, plus type drift, like a column silently turning from integer to
+        float. Rows: matched on a key column so you get true added, removed, changed,
+        and unchanged counts. Values: per-column drift, such as new categories
+        appearing or a mean shifting by a suspicious amount.
+      </p>
+      <p>
+        It detects the key column on its own when it can. When it guesses wrong, or
+        your key spans multiple columns, say so with <code>--key</code>. Automatic
+        detection checks single columns only, avoiding schema-width pair enumeration.
+      </p>
+
+      <h2>Install and run</h2>
+      <p>
+        Already running the <code>fieldkit</code> core? The tool is one
+        <a href="plugins.html">plugin add</a> away:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool, then diff two dumps</span>
+          <button class="copy-button" type="button" data-copy-target="datadiff-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="datadiff-docs-install">fieldkit plugin add datadiff
+fieldkit datadiff customers.csv customers_v2.csv</code></pre>
+      </div>
+      <p>
+        Working from the <code>fde-fieldkit</code> repo instead? You need
+        <a href="https://docs.astral.sh/uv/">uv</a>; one <code>uv sync</code> installs
+        the core and every tool editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="datadiff-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="datadiff-docs-dev">uv sync
+uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv</code></pre>
+      </div>
+
+      <h2>Every flag</h2>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>OLD NEW</code></td>
+              <td>required</td>
+              <td>The original dump and the new dump, in that order.</td>
+            </tr>
+            <tr>
+              <td><code>--key COL[,COL]</code></td>
+              <td>auto-detected</td>
+              <td>Which column(s) identify a row. Comma-separate for a compound key.</td>
+            </tr>
+            <tr>
+              <td><code>--json PATH</code></td>
+              <td>off</td>
+              <td>Also write the diff as JSON for scripts and pipelines.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Also write a printable HTML report, redacted by default.</td>
+            </tr>
+            <tr>
+              <td><code>--include-values</code></td>
+              <td>off</td>
+              <td>Include sensitive raw row/category values in this one local report.</td>
+            </tr>
+            <tr>
+              <td><code>--sheet NAME</code></td>
+              <td>first sheet</td>
+              <td>Excel sheet to compare. Applies to both workbooks.</td>
+            </tr>
+            <tr>
+              <td><code>--help</code></td>
+              <td></td>
+              <td>Show usage and exit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Worked examples</h2>
+
+      <h3>1. What changed between v1 and v2?</h3>
+      <p>
+        One command, four answers: schema changes, row counts by change type, which
+        columns the edits landed in, and how values drifted.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="datadiff-ex1">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="datadiff-ex1">uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>customers.csv (150 rows) → customers_v2.csv (152 rows)
+                 Schema
+┃ change  ┃ column ┃ old     ┃ new     ┃
+│ added   │ region │ —       │ present │
+│ removed │ ssn    │ present │ —       │
+│ type    │ seats  │ INTEGER │ FLOAT   │
+
+         Rows · key: customer_id
+┃ added ┃ removed ┃ changed ┃ unchanged ┃
+│    12 │      10 │      25 │       115 │
+
+                 Drift
+┃ column ┃ kind        ┃ details
+│ plan   │ categorical │ new: starter; vanished: —
+│ mrr    │ numeric     │ mean Δ +23.09; std Δ +20.59; mean +7.69%</code></pre>
+      </div>
+
+      <h3>2. Pin the key and write a redacted report</h3>
+      <p>
+        Here the key is set explicitly and the same diff is saved as HTML. Counts stay
+        useful while raw row and category values remain omitted.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="datadiff-ex2">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="datadiff-ex2">uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv \
+  --key customer_id --html diff.html</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>(diff tables as above)
+wrote diff.html</code></pre>
+      </div>
+
+      <h3>3. Feed the diff to a pipeline</h3>
+      <p>
+        <code>--json</code> gives you the same three levels as structured data, so a
+        nightly job can alert on schema drift instead of a human noticing on Friday.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="datadiff-ex3">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="datadiff-ex3">uv run fieldkit datadiff old.csv new.csv --json diff.json</code></pre>
+      </div>
+
+      <h2>Next steps</h2>
+      <p>
+        If the diff shows a column full of PII moved around, sanitize before you
+        share the evidence: <a href="scrub.html">scrub</a>. And the "what is this
+        column anyway" question belongs to <a href="xray.html">xray</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

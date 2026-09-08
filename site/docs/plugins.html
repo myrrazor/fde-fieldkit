@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>plugins docs — add and manage fieldkit tools</title>
+    <meta
+      name="description"
+      content="One core, tools as plugins: how fieldkit plugin add, remove, and update work, where installs resolve from today, and how the hub treats missing tools."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/plugins.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="plugins docs — add and manage fieldkit tools">
+    <meta
+      property="og:description"
+      content="The fieldkit plugin manager: list, add, remove, update, and install sources."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/plugins.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="plugins docs — FDE Tools">
+    <meta name="twitter:description" content="The fieldkit plugin manager: list, add, remove, update, and install sources.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to plugin docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html">Docs</a>
+          <a href="plugins.html" aria-current="page">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / The toolkit</p>
+      <h1>Plugins</h1>
+      <p class="docs-page__dek">
+        Fieldkit is one small core plus seven shipped plugins. Add only the tools
+        you need. This page is the manager reference: list, add, remove, and update,
+        where installs come from, what a missing tool looks like, and how to write a
+        plugin of your own. AWCP remains a separate prototype, not an eighth plugin.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>Not on PyPI yet</strong>
+          The fieldkit packages are not on PyPI yet. Today <code>plugin add</code>
+          resolves tools from your repo checkout, from the git subdirectory once the
+          repository is public, or from a wheelhouse directory you point it at. PyPI
+          installs arrive with the public release.
+        </p>
+      </div>
+
+      <h2>One core, tools you add</h2>
+      <p>
+        The <code>fieldkit</code> package carries what every tool shares: the CLI
+        shell, table IO, PII scanning, report rendering, and the local web hub. Each
+        tool is its own package named <code>fieldkit-&lt;tool&gt;</code> with its own
+        dependencies, so a machine that only needs <code>scrub</code> never downloads
+        the rest. Adding a tool is one command, and removing it is just as clean:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">The whole lifecycle</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-lifecycle">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-lifecycle">fieldkit plugin list
+fieldkit plugin add xray scrub
+fieldkit plugin update
+fieldkit plugin remove scrub</code></pre>
+      </div>
+
+      <h2>The manager</h2>
+
+      <h3>plugin list</h3>
+      <p>
+        Shows every registry tool with its status, and points at the next add. Pass
+        <code>--json</code> for machine-readable output.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-list">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-list">fieldkit plugin list</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Output with one tool installed</span>
+        </div>
+        <pre><code>                 Fieldkit tools
+┏━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ tool     ┃ status    ┃ what it does                     ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ xray     │ installed │ Profile any table in seconds     │
+│ scrub    │ available │ Find and mask PII before sharing │
+│ mimic    │ available │ Generate realistic fake datasets │
+│ datadiff │ available │ Explain why two tables disagree  │
+│ debrief  │ available │ Turn field notes into reports    │
+│ tell     │ available │ Spot AI-written text, locally    │
+│ netwatch │ available │ Observe agent network access     │
+└──────────┴───────────┴──────────────────────────────────┘
+add one with: fieldkit plugin add scrub</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Machine-readable</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-list-json">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-list-json">fieldkit plugin list --json</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>{
+  "plugins": [
+    {
+      "name": "xray",
+      "package": "fieldkit-xray",
+      "summary": "Profile any table in seconds",
+      "status": "installed"
+    },
+    (six more entries)
+  ]
+}</code></pre>
+      </div>
+
+      <h3>plugin add</h3>
+      <p>
+        Takes one or more tool names and installs their packages into the same
+        environment the core runs from. Extras ride along per tool. A wheelhouse
+        directory selects local Fieldkit wheels; other dependencies may still be
+        retrieved from a package index:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add tools, extras, or wheels</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-add">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-add">fieldkit plugin add xray scrub
+fieldkit plugin add tell --extra ml
+fieldkit plugin add xray --wheelhouse ./dist</code></pre>
+      </div>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>NAMES...</code></td>
+              <td>required</td>
+              <td>Tool names, e.g. <code>xray scrub</code>. Unknown names fail loudly with the known list.</td>
+            </tr>
+            <tr>
+              <td><code>--source</code></td>
+              <td>auto</td>
+              <td>Force <code>local</code>, <code>git</code>, or <code>pypi</code>. Auto prefers a local checkout, then the git subdirectory.</td>
+            </tr>
+            <tr>
+              <td><code>--extra NAME</code></td>
+              <td>none</td>
+              <td>Optional extras for a tool, e.g. <code>--extra ml</code> for tell. Repeatable.</td>
+            </tr>
+            <tr>
+              <td><code>--wheelhouse DIR</code></td>
+              <td>off</td>
+              <td>Resolve Fieldkit packages from local wheels. Other dependencies may still require network access.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>plugin remove and plugin update</h3>
+      <p>
+        <code>plugin remove</code> uninstalls the named tool packages; the core and
+        anything a tool wrote, like your debrief log, stay put.
+        <code>plugin update</code> reinstalls at the newest version, defaults to
+        everything installed when you name nothing, and accepts the same
+        <code>--source</code> and <code>--wheelhouse</code> options as add.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Remove and update</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-manage">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-manage">fieldkit plugin remove scrub
+fieldkit plugin update
+fieldkit plugin update xray --wheelhouse ./dist</code></pre>
+      </div>
+
+      <h2>When a tool is missing</h2>
+      <p>
+        Running a registry tool you have not added never dumps a Python traceback.
+        The CLI tells you what it is and how to get it, then exits with status 2 so
+        scripts fail loudly instead of half-running:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Real transcript</span>
+        </div>
+        <pre><code id="plugins-hint">$ fieldkit xray
+'xray' is a Fieldkit tool that isn't installed yet.
+  fieldkit plugin add xray</code></pre>
+      </div>
+
+      <h2>Where plugins install from</h2>
+      <p>
+        <code>plugin add</code> builds one pip requirement per tool and installs it
+        into the running environment, using uv when it is available. The source is
+        picked in this order unless you force one:
+      </p>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Source</th>
+              <th scope="col">When it applies</th>
+              <th scope="col">What happens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Repo checkout</td>
+              <td>You are running fieldkit from a <code>fde-fieldkit</code> checkout. The default today.</td>
+              <td>The tool installs straight from <code>plugins/fieldkit-&lt;tool&gt;</code> on disk.</td>
+            </tr>
+            <tr>
+              <td>Git subdirectory</td>
+              <td>No checkout on disk, once the repository is public.</td>
+              <td>pip pulls the package from the GitHub repo's <code>plugins/</code> subdirectory.</td>
+            </tr>
+            <tr>
+              <td>Wheelhouse</td>
+              <td><code>--wheelhouse DIR</code>. Local wheels and pre-release testing.</td>
+              <td>Fieldkit packages resolve from local wheels; other dependencies may still contact a package index. This option does not enforce offline installation.</td>
+            </tr>
+            <tr>
+              <td>PyPI</td>
+              <td>With the public release. Not available yet.</td>
+              <td><code>fieldkit plugin add xray</code> works from any machine; <code>--source pypi</code> will force it.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The hub dims what you have not added</h2>
+      <p>
+        <code>fieldkit serve</code> starts the local web hub at
+        <code>http://127.0.0.1:8765</code>. Tools you have installed are live cards
+        with drag-and-drop. Registry tools you have not added stay on the board,
+        dimmed, with their exact <code>fieldkit plugin add</code> command printed on
+        the card, so whoever is driving the browser knows what to ask for. Nothing
+        about the page needs a rebuild; the hub reads the environment on startup.
+      </p>
+
+      <h2>Working from the repo</h2>
+      <p>
+        A dev checkout is a <a href="https://docs.astral.sh/uv/">uv</a> workspace, so
+        one command installs the core and all seven tools editable, which is why the
+        worked examples across these docs use the <code>uv run</code> prefix:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="plugins-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="plugins-dev">uv sync
+uv run fieldkit plugin list</code></pre>
+      </div>
+
+      <h2>Write your own</h2>
+      <p>
+        A new tool is a new package under <code>plugins/fieldkit-&lt;name&gt;</code>
+        that exposes a typer app in the <code>fieldkit.plugins</code> entry-point
+        group, plus one registry line in the core. Expose a module in the
+        <code>fieldkit.web</code> group and the hub mounts its web page too. Plugins
+        import shared table IO and PII scanning from the core and never import each
+        other. Any installed package with the entry point shows up in
+        <code>fieldkit plugin list</code>, and packages from outside the registry are
+        labeled third-party. The AGENTS.md file in the
+        <a href="https://github.com/myrrazor/fde-fieldkit">repository</a> spells out
+        the full contract.
+      </p>
+
+      <h2>Next steps</h2>
+      <p>
+        Pick your first tool from the <a href="index.html">docs index</a>, or start
+        where most engagements start: <a href="xray.html">xray</a>, for the file
+        nobody can explain.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

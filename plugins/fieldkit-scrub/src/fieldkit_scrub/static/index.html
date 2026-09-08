@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>scrub — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">fieldkit</a>
+      <span class="sep">/</span>
+      <span class="tool-name">scrub</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>processed locally — nothing leaves this machine</span>
+      <span><code>fieldkit scrub FILE -o OUT</code></span>
+    </p>
+
+    <h1 class="page-title">Remove the PII you can detect.</h1>
+    <p class="page-sub">
+      Detected PII gets replaced with realistic fakes — deterministically, so the same
+      value always maps to the same fake and joins between files keep working. Detection
+      is not a guarantee; inspect the output before sharing it.
+    </p>
+
+    <section>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="choose a data file">
+        <input type="file" accept=".csv,.tsv,.xlsx,.json,.jsonl,.ndjson,.log,.txt">
+        <strong>Drop a file here</strong> or click to browse
+        <p class="hint">tabular files get column scrubbing · .log/.txt get line-by-line</p>
+      </div>
+      <span class="file-chip" hidden><span></span><button type="button" aria-label="clear file">×</button></span>
+
+      <div class="controls">
+        <div class="field">
+          <label id="kinds-label">scrub these kinds</label>
+          <div class="check-row" role="group" aria-labelledby="kinds-label" id="kinds"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <label class="check-pill">
+          <input type="checkbox" id="mapping"> keep a mapping file (original → fake)
+        </label>
+        <button class="btn btn-primary" id="go" disabled>Scrub it</button>
+      </div>
+      <p class="note-warn" id="mapping-warn" hidden>
+        The mapping file reverses the scrub — treat it like the original data. It stays
+        on this machine unless you move it.
+      </p>
+    </section>
+
+    <section id="result" aria-live="polite"></section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

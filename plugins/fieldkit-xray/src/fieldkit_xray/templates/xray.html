@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .summary { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0 1.5rem; }
+  .summary span { padding: .45rem .7rem; border: 1px solid #ddd; border-radius: .25rem; }
+  .profile { font-size: .9rem; }
+  .profile th { white-space: nowrap; }
+  .profile td { vertical-align: top; }
+  .profile ul { margin: 0; padding-left: 1.1rem; }
+  .profile .number { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pii-high { color: #b42318; font-weight: 700; }
+  .muted { color: #666; }
+  .warnings { padding: .75rem 1rem; background: #fff4d6; }
+  @media print {
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    tr { break-inside: avoid; }
+  }
+</style>
+
+<h1>xray</h1>
+<p><code>{{ result.source }}</code></p>
+<div class="summary" aria-label="Profile summary">
+  <span><strong>format</strong> {{ result.fmt | upper }}</span>
+  <span><strong>rows</strong> {{ "{:,}".format(result.row_count) }}</span>
+  <span><strong>columns</strong> {{ result.column_count }}</span>
+</div>
+
+{% if result.warnings %}
+<ul class="warnings">
+  {% for warning in result.warnings %}<li>{{ warning }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<table class="profile">
+  <thead>
+    <tr>
+      <th>column</th>
+      <th>type</th>
+      <th>nulls</th>
+      <th>distinct</th>
+      <th>numeric stats</th>
+      <th>top values</th>
+      <th>outliers</th>
+      <th>PII</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for column in result.columns %}
+    <tr>
+      <td><strong>{{ column.name }}</strong></td>
+      <td>{{ column.inferred_type }}</td>
+      <td class="number">{{ column.null_count }} ({{ "%.1f" | format(column.null_pct) }}%)</td>
+      <td class="number">{{ column.distinct_count }} ({{ "%.1f" | format(column.distinct_pct) }}%)</td>
+      <td>
+        {% if column.numeric %}
+        <span class="number">min {{ "%.4g" | format(column.numeric.min) }}</span><br>
+        <span class="number">max {{ "%.4g" | format(column.numeric.max) }}</span><br>
+        <span class="number">mean {{ "%.4g" | format(column.numeric.mean) }}</span><br>
+        <span class="number">median {{ "%.4g" | format(column.numeric.median) }}</span><br>
+        <span class="number">std {{ "%.4g" | format(column.numeric.std) }}</span><br>
+        <span class="number">p5 {{ "%.4g" | format(column.numeric.p5) }}</span><br>
+        <span class="number">p95 {{ "%.4g" | format(column.numeric.p95) }}</span>
+        {% else %}<span class="muted">—</span>{% endif %}
+      </td>
+      <td>
+        {% if column.top_values %}
+        <ul>
+          {% for value, count in column.top_values[:5] %}
+          <li><code>{{ value }}</code> <span class="number">({{ count }})</span></li>
+          {% endfor %}
+        </ul>
+        {% else %}<span class="muted">—</span>{% endif %}
+      </td>
+      <td>
+        <span class="number">{{ column.outlier_count }}</span>
+        {% if column.outlier_examples %}
+        <ul>
+          {% for value in column.outlier_examples %}<li><code>{{ value }}</code></li>{% endfor %}
+        </ul>
+        {% endif %}
+      </td>
+      <td>
+        {% set pii_flags = column.pii.items() | rejectattr("0", "equalto", "hit_rate") | list %}
+        {% if pii_flags %}
+        <ul>
+          {% for kind, confidence in pii_flags %}
+          <li{% if confidence >= 0.9 %} class="pii-high"{% endif %}>{{ kind | upper }} {{ "%.2f" | format(confidence) }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}<span class="muted">—</span>{% endif %}
+        <span class="muted number">hit rate {{ "%.1f" | format(column.pii.hit_rate * 100) }}%</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <span class="brand">fieldkit</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>local by default — tell confirms each remote send; netwatch relays only the command you supervise</span>
+      <span>also a CLI: <code>fieldkit --help</code></span>
+    </p>
+
+    <h1 class="page-title">One toolkit. The instruments you chose.</h1>
+    <p class="page-sub">
+      For the days you get handed a mystery CSV, a locked-down laptop, and a Friday
+      status deadline. Add or remove tools any time: <code>fieldkit plugin list</code>
+    </p>
+
+    <nav class="kit-grid" aria-label="tools">
+      <a class="kit-card" data-tool="xray" href="/xray/">
+        <span class="no">01</span>
+        <h2>xray <span class="arrow">→</span></h2>
+        <p>Drop in any data file. Get schema, types, null rates, stats, and PII flags in seconds.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add xray</code></p>
+      </a>
+      <a class="kit-card" data-tool="scrub" href="/scrub/">
+        <span class="no">02</span>
+        <h2>scrub <span class="arrow">→</span></h2>
+        <p>Pseudonymize detected PII deterministically, then inspect the output before sharing.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add scrub</code></p>
+      </a>
+      <a class="kit-card" data-tool="mimic" href="/mimic/">
+        <span class="no">03</span>
+        <h2>mimic <span class="arrow">→</span></h2>
+        <p>Learn a spec from sample data and generate independent lookalike rows for demos.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add mimic</code></p>
+      </a>
+      <a class="kit-card" data-tool="datadiff" href="/datadiff/">
+        <span class="no">04</span>
+        <h2>datadiff <span class="arrow">→</span></h2>
+        <p>Diff two dumps: schema changes, row-level adds and edits, category and numeric drift.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add datadiff</code></p>
+      </a>
+      <a class="kit-card" data-tool="debrief" href="/debrief/">
+        <span class="no">05</span>
+        <h2>debrief <span class="arrow">→</span></h2>
+        <p>Log wins and blockers as they happen. Render a stakeholder-ready weekly status.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add debrief</code></p>
+      </a>
+      <a class="kit-card" data-tool="tell" href="/tell/">
+        <span class="no">06</span>
+        <h2>tell <span class="arrow">→</span></h2>
+        <p>Paste a draft. See every AI tell — phrase tells, robot rhythm, em-dash clusters — then strip them out.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add tell</code></p>
+      </a>
+      <a class="kit-card" data-tool="netwatch" href="/netwatch/">
+        <span class="no">07</span>
+        <h2>netwatch <span class="arrow">→</span></h2>
+        <p>Run an AI coding agent through local proxies. See destinations, counts, and policy decisions.</p>
+        <p class="kit-add" hidden><code>fieldkit plugin add netwatch</code></p>
+      </a>
+    </nav>
+  </div>
+  <script type="module" src="/hub.js"></script>
+</body>
+</html>

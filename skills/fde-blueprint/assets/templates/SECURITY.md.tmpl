@@ -1,0 +1,26 @@
+# Security and privacy contract
+
+## Data and environment decisions
+
+{{security_context}}
+
+## Non-negotiable invariants
+
+{{security_invariants}}
+
+## Threats to exercise
+
+{{threat_scenarios}}
+
+## Secret and identity handling
+
+- Generated files contain environment-variable names and secret references only.
+- Credential values must remain in the approved secret or workload-identity system.
+- External payloads, retrieved documents, webhook bodies, and connector responses are untrusted.
+- Authorization is enforced server-side at object, property, function, tenant, and provider-connection boundaries.
+
+## Supply-chain gate
+
+Record the exact version or commit, license, source URL, review result, SBOM entry, and retained
+notice before adapting third-party code. A catalog entry is research evidence, not approval to
+vendor code.

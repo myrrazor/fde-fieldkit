@@ -1,0 +1,962 @@
+[
+  {
+    "order_id": "ORD-000001",
+    "customer_email": "gailoconnor103@example.com",
+    "amount": 1309.21,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-07-25T20:00:00",
+    "shipping": {
+      "city": "Colebury",
+      "country": "LT"
+    }
+  },
+  {
+    "order_id": "ORD-000002",
+    "customer_email": "rogersullivan106@example.com",
+    "amount": 2491.6,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-05-07T20:00:00",
+    "shipping": {
+      "city": "North Joseph",
+      "country": "MT"
+    }
+  },
+  {
+    "order_id": "ORD-000003",
+    "customer_email": "colinmarshall53@example.com",
+    "amount": 946.37,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2023-02-23T18:00:00",
+    "shipping": {
+      "city": "Brendanville",
+      "country": "BW"
+    }
+  },
+  {
+    "order_id": "ORD-000004",
+    "customer_email": "darrylmayo147@example.com",
+    "amount": 1440.81,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-05-09T04:00:00",
+    "shipping": {
+      "city": "Lake Diana",
+      "country": "SK"
+    }
+  },
+  {
+    "order_id": "ORD-000005",
+    "customer_email": "madelinevaldez14@example.com",
+    "amount": 910.64,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-05-13T11:00:00",
+    "shipping": {
+      "city": "Daniellefort",
+      "country": "NA"
+    }
+  },
+  {
+    "order_id": "ORD-000006",
+    "customer_email": "darrylmayo147@example.com",
+    "amount": 2448.16,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-09-13T06:00:00",
+    "shipping": {
+      "city": "North Anthony",
+      "country": "KI"
+    }
+  },
+  {
+    "order_id": "ORD-000007",
+    "customer_email": "collinrivas9@example.com",
+    "amount": 1157.93,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-09-01T10:00:00",
+    "shipping": {
+      "city": "South Sharon",
+      "country": "CZ"
+    }
+  },
+  {
+    "order_id": "ORD-000008",
+    "customer_email": "jorgehull132@example.com",
+    "amount": 2474.95,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-06-04T18:00:00",
+    "shipping": {
+      "city": "Lindaburgh",
+      "country": "BZ"
+    }
+  },
+  {
+    "order_id": "ORD-000009",
+    "customer_email": "michealfry102@example.com",
+    "amount": 1850.73,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2023-11-29T07:00:00",
+    "shipping": {
+      "city": "Crawfordhaven",
+      "country": "PS"
+    }
+  },
+  {
+    "order_id": "ORD-000010",
+    "customer_email": "melissabarr145@example.com",
+    "amount": 1777.91,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-03-24T11:00:00",
+    "shipping": {
+      "city": "Changside",
+      "country": "VU"
+    }
+  },
+  {
+    "order_id": "ORD-000011",
+    "customer_email": "mollymacias97@example.com",
+    "amount": 1006.29,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-11-02T02:00:00",
+    "shipping": {
+      "city": "West Stevenchester",
+      "country": "LV"
+    }
+  },
+  {
+    "order_id": "ORD-000012",
+    "customer_email": "mariadougherty134@example.com",
+    "amount": 2117.54,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-03-30T20:00:00",
+    "shipping": {
+      "city": "New Dianaville",
+      "country": "GQ"
+    }
+  },
+  {
+    "order_id": "ORD-000013",
+    "customer_email": "corysalazar58@example.com",
+    "amount": 900.52,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-03-17T08:00:00",
+    "shipping": {
+      "city": "Millerton",
+      "country": "CG"
+    }
+  },
+  {
+    "order_id": "ORD-000014",
+    "customer_email": "cristiansutton61@example.com",
+    "amount": 1003.15,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-02-01T10:00:00",
+    "shipping": {
+      "city": "Michaelshire",
+      "country": "LC"
+    }
+  },
+  {
+    "order_id": "ORD-000015",
+    "customer_email": "karenschwartz96@example.com",
+    "amount": 363.22,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-07-23T04:00:00",
+    "shipping": {
+      "city": "Amandaview",
+      "country": "SK"
+    }
+  },
+  {
+    "order_id": "ORD-000016",
+    "customer_email": "mollymacias97@example.com",
+    "amount": 2365.51,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-08-18T09:00:00",
+    "shipping": {
+      "city": "East Calvin",
+      "country": "CD"
+    }
+  },
+  {
+    "order_id": "ORD-000017",
+    "customer_email": "faithbrooks148@example.com",
+    "amount": 1854.64,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-09-30T11:00:00",
+    "shipping": {
+      "city": "Coreyview",
+      "country": "PE"
+    }
+  },
+  {
+    "order_id": "ORD-000018",
+    "customer_email": "suesherman38@example.com",
+    "amount": 1243.75,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-05-13T07:00:00",
+    "shipping": {
+      "city": "South Jessicaside",
+      "country": "BG"
+    }
+  },
+  {
+    "order_id": "ORD-000019",
+    "customer_email": "ernestsexton116@example.com",
+    "amount": 1680.01,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2023-06-02T20:00:00",
+    "shipping": {
+      "city": "Delgadoton",
+      "country": "CN"
+    }
+  },
+  {
+    "order_id": "ORD-000020",
+    "customer_email": "darrylmayo147@example.com",
+    "amount": 586.13,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-12-30T13:00:00",
+    "shipping": {
+      "city": "Lake Brandon",
+      "country": "ZW"
+    }
+  },
+  {
+    "order_id": "ORD-000021",
+    "customer_email": "haroldhaas64@example.com",
+    "amount": 1056.95,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-08-14T19:00:00",
+    "shipping": {
+      "city": "Bruceshire",
+      "country": "CM"
+    }
+  },
+  {
+    "order_id": "ORD-000022",
+    "customer_email": "tristandixon130@example.com",
+    "amount": 1999.95,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-10-31T07:00:00",
+    "shipping": {
+      "city": "Mcgrathberg",
+      "country": "TL"
+    }
+  },
+  {
+    "order_id": "ORD-000023",
+    "customer_email": "madelinevaldez14@example.com",
+    "amount": 580.82,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-07-02T21:00:00",
+    "shipping": {
+      "city": "Port Linda",
+      "country": "HT"
+    }
+  },
+  {
+    "order_id": "ORD-000024",
+    "customer_email": "ginaramos59@example.com",
+    "amount": 955.91,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-11-20T19:00:00",
+    "shipping": {
+      "city": "North Zacharyton",
+      "country": "SA"
+    }
+  },
+  {
+    "order_id": "ORD-000025",
+    "customer_email": "waltermcclain124@example.com",
+    "amount": 342.12,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-11-29T17:00:00",
+    "shipping": {
+      "city": "South Jamesland",
+      "country": "LV"
+    }
+  },
+  {
+    "order_id": "ORD-000026",
+    "customer_email": "karagarrett71@example.com",
+    "amount": 688.05,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-01-28T18:00:00",
+    "shipping": {
+      "city": "Brownfurt",
+      "country": "DE"
+    }
+  },
+  {
+    "order_id": "ORD-000027",
+    "customer_email": "francesgibbs32@example.com",
+    "amount": 2110.74,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-12-17T04:00:00",
+    "shipping": {
+      "city": "Jacobbury",
+      "country": "KW"
+    }
+  },
+  {
+    "order_id": "ORD-000028",
+    "customer_email": "kristopheraguirre112@example.com",
+    "amount": 484.9,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-02-02T16:00:00",
+    "shipping": {
+      "city": "Port William",
+      "country": "KH"
+    }
+  },
+  {
+    "order_id": "ORD-000029",
+    "customer_email": "alicefoster136@example.com",
+    "amount": 840.8,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-08-29T19:00:00",
+    "shipping": {
+      "city": "Ambermouth",
+      "country": "NZ"
+    }
+  },
+  {
+    "order_id": "ORD-000030",
+    "customer_email": "claytonmassey4@example.com",
+    "amount": 2470.36,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-04-12T03:00:00",
+    "shipping": {
+      "city": "Herreraville",
+      "country": "VA"
+    }
+  },
+  {
+    "order_id": "ORD-000031",
+    "customer_email": "jocelynerickson26@example.com",
+    "amount": 362.54,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-06-26T07:00:00",
+    "shipping": {
+      "city": "Aaronmouth",
+      "country": "CV"
+    }
+  },
+  {
+    "order_id": "ORD-000032",
+    "customer_email": "kristinegallagher13@example.com",
+    "amount": 491.1,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-03-13T07:00:00",
+    "shipping": {
+      "city": "Tracifurt",
+      "country": "RS"
+    }
+  },
+  {
+    "order_id": "ORD-000033",
+    "customer_email": "earldavis121@example.com",
+    "amount": 2357.67,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2023-10-26T16:00:00",
+    "shipping": {
+      "city": "Sherrystad",
+      "country": "SC"
+    }
+  },
+  {
+    "order_id": "ORD-000034",
+    "customer_email": "melissabarr145@example.com",
+    "amount": 1108.01,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-01-15T16:00:00",
+    "shipping": {
+      "city": "West Adamborough",
+      "country": "VN"
+    }
+  },
+  {
+    "order_id": "ORD-000035",
+    "customer_email": "darrenbowman15@example.com",
+    "amount": 1942.15,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-03-04T19:00:00",
+    "shipping": {
+      "city": "Kathrynside",
+      "country": "AT"
+    }
+  },
+  {
+    "order_id": "ORD-000036",
+    "customer_email": "suesherman38@example.com",
+    "amount": 1873.13,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-10-14T17:00:00",
+    "shipping": {
+      "city": "West Edward",
+      "country": "KW"
+    }
+  },
+  {
+    "order_id": "ORD-000037",
+    "customer_email": "rachaelhood19@example.com",
+    "amount": 1985.49,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2023-11-21T14:00:00",
+    "shipping": {
+      "city": "Brendaland",
+      "country": "ER"
+    }
+  },
+  {
+    "order_id": "ORD-000038",
+    "customer_email": "pedromerritt37@example.com",
+    "amount": 305.38,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-09-27T13:00:00",
+    "shipping": {
+      "city": "North Dustinview",
+      "country": "PA"
+    }
+  },
+  {
+    "order_id": "ORD-000039",
+    "customer_email": "melissabarr145@example.com",
+    "amount": 2359.55,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-12-24T04:00:00",
+    "shipping": {
+      "city": "Brookechester",
+      "country": "NP"
+    }
+  },
+  {
+    "order_id": "ORD-000040",
+    "customer_email": "darrylmayo147@example.com",
+    "amount": 1039.79,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-08-10T09:00:00",
+    "shipping": {
+      "city": "Bishoptown",
+      "country": "ID"
+    }
+  },
+  {
+    "order_id": "ORD-000041",
+    "customer_email": "dustingarcia73@example.com",
+    "amount": 1813.64,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-04-18T13:00:00",
+    "shipping": {
+      "city": "West Colton",
+      "country": "RO"
+    }
+  },
+  {
+    "order_id": "ORD-000042",
+    "customer_email": "brookerivers85@example.com",
+    "amount": 1450.75,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-09-23T12:00:00",
+    "shipping": {
+      "city": "North Scottfort",
+      "country": "PT"
+    }
+  },
+  {
+    "order_id": "ORD-000043",
+    "customer_email": "samuelbarry83@example.com",
+    "amount": 1063.41,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-08-22T21:00:00",
+    "shipping": {
+      "city": "Baileyshire",
+      "country": "PG"
+    }
+  },
+  {
+    "order_id": "ORD-000044",
+    "customer_email": "maureenjohns10@example.com",
+    "amount": 1508.51,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2023-07-19T18:00:00",
+    "shipping": {
+      "city": "South Reneeville",
+      "country": "MM"
+    }
+  },
+  {
+    "order_id": "ORD-000045",
+    "customer_email": "adrianerickson6@example.com",
+    "amount": 777.33,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-01-31T15:00:00",
+    "shipping": {
+      "city": "Hudsonmouth",
+      "country": "MU"
+    }
+  },
+  {
+    "order_id": "ORD-000046",
+    "customer_email": "kylecherry108@example.com",
+    "amount": 1188.57,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2023-12-06T00:00:00",
+    "shipping": {
+      "city": "Danaberg",
+      "country": "HT"
+    }
+  },
+  {
+    "order_id": "ORD-000047",
+    "customer_email": "angelhunter7@example.com",
+    "amount": 864.24,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-01-04T18:00:00",
+    "shipping": {
+      "city": "Lake Paul",
+      "country": "AL"
+    }
+  },
+  {
+    "order_id": "ORD-000048",
+    "customer_email": "earldavis121@example.com",
+    "amount": 2247.15,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-11-15T19:00:00",
+    "shipping": {
+      "city": "Port Curtisfurt",
+      "country": "KM"
+    }
+  },
+  {
+    "order_id": "ORD-000049",
+    "customer_email": "kristinegallagher13@example.com",
+    "amount": 1388.71,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-06-08T17:00:00",
+    "shipping": {
+      "city": "Linchester",
+      "country": "CY"
+    }
+  },
+  {
+    "order_id": "ORD-000050",
+    "customer_email": "toddcarpenter131@example.com",
+    "amount": 1828.1,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2023-12-21T12:00:00",
+    "shipping": {
+      "city": "Edwardville",
+      "country": "MV"
+    }
+  },
+  {
+    "order_id": "ORD-000051",
+    "customer_email": "derrickhogan56@example.com",
+    "amount": 2159.86,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-11-16T06:00:00",
+    "shipping": {
+      "city": "Angelaview",
+      "country": "PG"
+    }
+  },
+  {
+    "order_id": "ORD-000052",
+    "customer_email": "darlenelambert114@example.com",
+    "amount": 508.29,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-01-23T23:00:00",
+    "shipping": {
+      "city": "South Erica",
+      "country": "CH"
+    }
+  },
+  {
+    "order_id": "ORD-000053",
+    "customer_email": "sherryholder79@example.com",
+    "amount": 1272.18,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-08-10T14:00:00",
+    "shipping": {
+      "city": "Port Janiceburgh",
+      "country": "ML"
+    }
+  },
+  {
+    "order_id": "ORD-000054",
+    "customer_email": "darrylmayo147@example.com",
+    "amount": 1929.02,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-02-06T17:00:00",
+    "shipping": {
+      "city": "Port Sharifurt",
+      "country": "VU"
+    }
+  },
+  {
+    "order_id": "ORD-000055",
+    "customer_email": "ginaramos59@example.com",
+    "amount": 1006.61,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-07-03T01:00:00",
+    "shipping": {
+      "city": "North Jennabury",
+      "country": "CG"
+    }
+  },
+  {
+    "order_id": "ORD-000056",
+    "customer_email": "vickiecruz92@example.com",
+    "amount": 1090.31,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2023-12-21T07:00:00",
+    "shipping": {
+      "city": "Elliottfort",
+      "country": "NG"
+    }
+  },
+  {
+    "order_id": "ORD-000057",
+    "customer_email": "cassidyellis22@example.com",
+    "amount": 713.11,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-09-20T17:00:00",
+    "shipping": {
+      "city": "Port James",
+      "country": "BI"
+    }
+  },
+  {
+    "order_id": "ORD-000058",
+    "customer_email": "josephbaxter109@example.com",
+    "amount": 277.05,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-01-18T09:00:00",
+    "shipping": {
+      "city": "North Ronald",
+      "country": "NA"
+    }
+  },
+  {
+    "order_id": "ORD-000059",
+    "customer_email": "ernestshaw88@example.com",
+    "amount": 58.34,
+    "currency": "EUR",
+    "status": "refunded",
+    "created_at": "2024-10-06T00:00:00",
+    "shipping": {
+      "city": "East Colleenside",
+      "country": "SB"
+    }
+  },
+  {
+    "order_id": "ORD-000060",
+    "customer_email": "alicefoster136@example.com",
+    "amount": 1008.21,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2023-08-27T20:00:00",
+    "shipping": {
+      "city": "West Joseph",
+      "country": "AG"
+    }
+  },
+  {
+    "order_id": "ORD-000061",
+    "customer_email": "julianparrish150@example.com",
+    "amount": 2467.98,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-06-19T12:00:00",
+    "shipping": {
+      "city": "Christopherberg",
+      "country": "KP"
+    }
+  },
+  {
+    "order_id": "ORD-000062",
+    "customer_email": "jamiebarton48@example.com",
+    "amount": 1425.99,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-12-18T07:00:00",
+    "shipping": {
+      "city": "New Kenneth",
+      "country": "BG"
+    }
+  },
+  {
+    "order_id": "ORD-000063",
+    "customer_email": "brandisalinas122@example.com",
+    "amount": 497.83,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-01-12T22:00:00",
+    "shipping": {
+      "city": "South Sabrinatown",
+      "country": "BH"
+    }
+  },
+  {
+    "order_id": "ORD-000064",
+    "customer_email": "shelbygamble142@example.com",
+    "amount": 645.81,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-08-29T08:00:00",
+    "shipping": {
+      "city": "South Heatherton",
+      "country": "SY"
+    }
+  },
+  {
+    "order_id": "ORD-000065",
+    "customer_email": "juliaboone80@example.com",
+    "amount": 693.57,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-12-14T18:00:00",
+    "shipping": {
+      "city": "Williamfort",
+      "country": "FI"
+    }
+  },
+  {
+    "order_id": "ORD-000066",
+    "customer_email": "tanyawiley95@example.com",
+    "amount": 12.09,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-07-17T00:00:00",
+    "shipping": {
+      "city": "North Erin",
+      "country": "CD"
+    }
+  },
+  {
+    "order_id": "ORD-000067",
+    "customer_email": "bradbeltran30@example.com",
+    "amount": 1721.17,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-07-21T04:00:00",
+    "shipping": {
+      "city": "Georgeborough",
+      "country": "NP"
+    }
+  },
+  {
+    "order_id": "ORD-000068",
+    "customer_email": "faithbrooks148@example.com",
+    "amount": 2193.72,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-07-12T10:00:00",
+    "shipping": {
+      "city": "Dannyhaven",
+      "country": "GN"
+    }
+  },
+  {
+    "order_id": "ORD-000069",
+    "customer_email": "maureenjohns10@example.com",
+    "amount": 2291.79,
+    "currency": "USD",
+    "status": "paid",
+    "created_at": "2024-02-01T11:00:00",
+    "shipping": {
+      "city": "New Tabitha",
+      "country": "FJ"
+    }
+  },
+  {
+    "order_id": "ORD-000070",
+    "customer_email": "diamondmarshall91@example.com",
+    "amount": 2206.08,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-07-23T15:00:00",
+    "shipping": {
+      "city": "Curtischester",
+      "country": "AR"
+    }
+  },
+  {
+    "order_id": "ORD-000071",
+    "customer_email": "rebeccagarrett65@example.com",
+    "amount": 634.54,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2023-06-09T20:00:00",
+    "shipping": {
+      "city": "New Jessica",
+      "country": "PY"
+    }
+  },
+  {
+    "order_id": "ORD-000072",
+    "customer_email": "meagansellers146@example.com",
+    "amount": 191.34,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-08-28T16:00:00",
+    "shipping": {
+      "city": "East Amymouth",
+      "country": "UA"
+    }
+  },
+  {
+    "order_id": "ORD-000073",
+    "customer_email": "cristinamullen115@example.com",
+    "amount": 2107.51,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2024-02-04T09:00:00",
+    "shipping": {
+      "city": "Vaughnview",
+      "country": "TZ"
+    }
+  },
+  {
+    "order_id": "ORD-000074",
+    "customer_email": "beverlysummers90@example.com",
+    "amount": 156.68,
+    "currency": "EUR",
+    "status": "pending",
+    "created_at": "2023-01-21T08:00:00",
+    "shipping": {
+      "city": "North Arthurton",
+      "country": "KH"
+    }
+  },
+  {
+    "order_id": "ORD-000075",
+    "customer_email": "rileygolden24@example.com",
+    "amount": 2481.67,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2023-04-06T23:00:00",
+    "shipping": {
+      "city": "Fernandezshire",
+      "country": "AD"
+    }
+  },
+  {
+    "order_id": "ORD-000076",
+    "customer_email": "jacobchang57@example.com",
+    "amount": 399.86,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-09-03T14:00:00",
+    "shipping": {
+      "city": "South Melanie",
+      "country": "UG"
+    }
+  },
+  {
+    "order_id": "ORD-000077",
+    "customer_email": "collinrivas9@example.com",
+    "amount": 1036.56,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2024-06-12T04:00:00",
+    "shipping": {
+      "city": "Lake Shannonville",
+      "country": "BH"
+    }
+  },
+  {
+    "order_id": "ORD-000078",
+    "customer_email": "joelshannon93@example.com",
+    "amount": 955.8,
+    "currency": "USD",
+    "status": "refunded",
+    "created_at": "2024-08-14T19:00:00",
+    "shipping": {
+      "city": "Davidsonview",
+      "country": "EG"
+    }
+  },
+  {
+    "order_id": "ORD-000079",
+    "customer_email": "cristianperry42@example.com",
+    "amount": 355.57,
+    "currency": "USD",
+    "status": "pending",
+    "created_at": "2024-05-02T13:00:00",
+    "shipping": {
+      "city": "East Danny",
+      "country": "ME"
+    }
+  },
+  {
+    "order_id": "ORD-000080",
+    "customer_email": "kristopheraguirre112@example.com",
+    "amount": 1942.76,
+    "currency": "EUR",
+    "status": "paid",
+    "created_at": "2023-08-04T21:00:00",
+    "shipping": {
+      "city": "North Cassie",
+      "country": "GE"
+    }
+  }
+]

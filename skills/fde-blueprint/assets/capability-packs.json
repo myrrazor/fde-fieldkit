@@ -1,0 +1,406 @@
+{
+  "schema_version": "1.0",
+  "packs": [
+    {
+      "id": "multi-tenant-saas",
+      "title": "Multi-tenant SaaS foundation",
+      "outcome": "Add explicit organization boundaries, tenant-scoped persistence, roles, auditability, and tenant-safe background work.",
+      "scaffold_modules": [
+        "organization and membership model",
+        "tenant-context middleware",
+        "tenant-scoped repository layer",
+        "role and permission policy",
+        "tenant-safe job envelope",
+        "audit event model",
+        "cross-tenant isolation tests"
+      ],
+      "invariants": [
+        "Resolve tenant context on the server from authenticated claims or a trusted mapping.",
+        "Never authorize from a client-supplied tenant identifier alone.",
+        "Apply tenant scope to reads, writes, jobs, caches, files, vectors, logs, and metrics.",
+        "Make administrative cross-tenant access explicit, narrow, audited, and separately tested.",
+        "Fail closed when tenant context is absent or ambiguous."
+      ],
+      "acceptance": [
+        "A user in tenant A cannot read, mutate, enumerate, export, or infer tenant B resources.",
+        "Background jobs reject payloads whose tenant context cannot be verified.",
+        "Tenant deletion and export operate on every declared data store.",
+        "Authorization tests cover object, property, and function boundaries."
+      ],
+      "evidence": [
+        "tenant-boundary integration test output",
+        "role matrix",
+        "data-store tenancy inventory",
+        "audit-event sample"
+      ]
+    },
+    {
+      "id": "enterprise-sso",
+      "title": "Enterprise SSO and lifecycle management",
+      "outcome": "Add organization-aware SAML or OIDC login, domain-safe connection discovery, JIT membership, and optional SCIM provisioning.",
+      "scaffold_modules": [
+        "identity-provider connection model",
+        "SSO initiation and callback routes",
+        "state, nonce, PKCE, and redirect validation",
+        "organization binding",
+        "JIT membership policy",
+        "SCIM Users and Groups endpoints",
+        "provisioning reconciliation and audit trail"
+      ],
+      "invariants": [
+        "Bind the returned identity to the expected organization; email domain is not authorization.",
+        "Validate state, nonce, redirect URI, issuer, audience, signature, and token lifetime.",
+        "Treat the directory as lifecycle source of truth only where the customer selected that mode.",
+        "Deprovision by disabling access before destructive cleanup.",
+        "Protect SCIM bearer credentials and log lifecycle actions without sensitive values."
+      ],
+      "acceptance": [
+        "IdP-initiated and service-provider-initiated behavior is explicitly selected and tested.",
+        "A profile returned for the wrong organization is rejected.",
+        "SCIM create, update, deactivate, reactivate, pagination, filtering, and group membership are tested when enabled.",
+        "Break-glass access and account-linking rules are documented."
+      ],
+      "evidence": [
+        "SSO protocol trace with secrets removed",
+        "SCIM conformance test output",
+        "IdP configuration checklist",
+        "deprovisioning audit sample"
+      ]
+    },
+    {
+      "id": "connector-pack",
+      "title": "Customer connector pack",
+      "outcome": "Create one or more tenant-safe external API connectors with explicit auth, schemas, sync state, rate-limit handling, and capability honesty.",
+      "scaffold_modules": [
+        "provider definition",
+        "credential reference model",
+        "OAuth or credential setup flow",
+        "typed provider client",
+        "pagination and checkpoint state",
+        "normalization boundary",
+        "sync and action workers",
+        "provider contract tests"
+      ],
+      "invariants": [
+        "Store credential references, not secret values, in ordinary application records.",
+        "Request the least provider scopes that satisfy selected operations.",
+        "Separate provider-native payloads from normalized domain models.",
+        "Persist resumable checkpoints and make reprocessing idempotent.",
+        "Expose unsupported operations as unsupported, never as silent no-ops."
+      ],
+      "acceptance": [
+        "OAuth denial, expiry, refresh, revocation, and reconnect paths are tested when applicable.",
+        "Pagination, rate limits, partial failure, schema drift, and replay are tested.",
+        "A dry run describes intended reads and writes without contacting the provider.",
+        "Per-tenant provider credentials cannot cross connection boundaries."
+      ],
+      "evidence": [
+        "provider capability matrix",
+        "recorded contract fixtures",
+        "rate-limit and retry test output",
+        "scope and secret inventory"
+      ]
+    },
+    {
+      "id": "secure-rag",
+      "title": "Permission-aware customer RAG",
+      "outcome": "Ingest customer content into an auditable retrieval pipeline that enforces tenant and document ACLs before generation and preserves citations.",
+      "scaffold_modules": [
+        "source and permission ingestion",
+        "document and chunk provenance model",
+        "classification and redaction stage",
+        "embedding adapter",
+        "tenant and ACL-aware index",
+        "authorization-filtered retriever",
+        "citation assembler",
+        "retrieval and leakage evaluation set"
+      ],
+      "invariants": [
+        "Apply tenant and document authorization in the retrieval query, not after results return.",
+        "Carry source, version, tenant, ACL, and deletion identifiers on every chunk.",
+        "Treat retrieved content as untrusted data that cannot override system instructions.",
+        "Do not send restricted content to a model provider unless the selected data policy permits it.",
+        "Propagate source deletion and permission changes into every derived index."
+      ],
+      "acceptance": [
+        "Unauthorized documents never enter the generation context in adversarial retrieval tests.",
+        "Every answer claim can link to permitted source material or is labeled unsupported.",
+        "Deletion and permission-revocation tests remove future retrieval access.",
+        "Prompt-injection and poisoned-document cases are evaluated."
+      ],
+      "evidence": [
+        "ACL leakage evaluation results",
+        "citation-grounding evaluation results",
+        "index deletion trace",
+        "model egress decision record"
+      ]
+    },
+    {
+      "id": "customer-health",
+      "title": "Customer health control room",
+      "outcome": "Combine product usage, support, commercial, implementation, and reliability signals into explainable account health and action queues.",
+      "scaffold_modules": [
+        "account and stakeholder model",
+        "signal event schema",
+        "source freshness tracking",
+        "health dimension definitions",
+        "explainable scoring policy",
+        "risk and opportunity queue",
+        "timeline and evidence export"
+      ],
+      "invariants": [
+        "Show the inputs, freshness, and policy behind every score.",
+        "Represent missing or stale data separately from healthy data.",
+        "Keep human judgments, automated signals, and forecasts distinguishable.",
+        "Tenant-scope every account signal and export.",
+        "Do not turn a heuristic score into an automated punitive action without approval."
+      ],
+      "acceptance": [
+        "Each score is reproducible from versioned inputs and a versioned policy.",
+        "Source outages visibly degrade freshness rather than silently preserving confidence.",
+        "Account drill-down links every dimension to underlying evidence.",
+        "Role-based access covers sensitive commercial and support data."
+      ],
+      "evidence": [
+        "score replay fixture",
+        "freshness failure test",
+        "source lineage map",
+        "sample account evidence export"
+      ]
+    },
+    {
+      "id": "webhook-engine",
+      "title": "Reliable webhook engine",
+      "outcome": "Receive or send signed webhooks through a durable, observable pipeline with replay protection, idempotency, retries, and dead-letter recovery.",
+      "scaffold_modules": [
+        "raw-body ingress",
+        "signature and timestamp verification",
+        "replay cache",
+        "delivery ledger",
+        "idempotency guard",
+        "queue and worker",
+        "retry policy",
+        "dead-letter and replay controls"
+      ],
+      "invariants": [
+        "Verify signatures against the unmodified raw body before parsing.",
+        "Authenticate the endpoint and reject stale or replayed messages.",
+        "Acknowledge only after durable acceptance, then process asynchronously when the provider deadline requires it.",
+        "Assume at-least-once delivery and make handlers idempotent.",
+        "Never follow customer-supplied callback URLs without SSRF controls."
+      ],
+      "acceptance": [
+        "Valid, invalid, stale, duplicate, reordered, and malformed deliveries are tested.",
+        "Retries stop or dead-letter according to an explicitly selected policy.",
+        "Operators can inspect, replay, and quarantine deliveries without editing production data directly.",
+        "Logs and metrics identify delivery and tenant without exposing payload secrets."
+      ],
+      "evidence": [
+        "signature verification tests",
+        "duplicate and replay tests",
+        "dead-letter recovery transcript",
+        "delivery SLO dashboard snapshot"
+      ]
+    },
+    {
+      "id": "one-click-deployment",
+      "title": "Repeatable customer deployment",
+      "outcome": "Package an application for a selected cloud, on-premises, edge, or air-gapped environment with explicit prerequisites and reversible infrastructure changes.",
+      "scaffold_modules": [
+        "environment contract",
+        "container build",
+        "deployment descriptor",
+        "infrastructure modules",
+        "secret references",
+        "database migration job",
+        "health and readiness probes",
+        "upgrade, backup, and rollback runbooks"
+      ],
+      "invariants": [
+        "Plan before apply and require approval for destructive infrastructure changes.",
+        "Keep secret values out of source, state output, logs, and generated examples.",
+        "Pin deployable artifacts and record provenance.",
+        "Make network egress, ingress, data residency, and customer prerequisites explicit.",
+        "Treat one-click as one controlled workflow, not as zero operational responsibility."
+      ],
+      "acceptance": [
+        "A clean environment can deploy from documented prerequisites and pinned artifacts.",
+        "Upgrade and rollback are exercised against representative state.",
+        "Backup restore proves data recovery for selected stores.",
+        "Air-gapped mode performs no undeclared downloads when selected."
+      ],
+      "evidence": [
+        "infrastructure plan",
+        "clean-environment deployment transcript",
+        "rollback and restore transcript",
+        "SBOM and artifact provenance"
+      ]
+    },
+    {
+      "id": "pii-redaction",
+      "title": "PII and secret redaction pipeline",
+      "outcome": "Detect, classify, transform, and audit sensitive values in structured data, text, logs, or documents under an explicit privacy policy.",
+      "scaffold_modules": [
+        "data classification policy",
+        "detector adapters",
+        "structured and unstructured scanners",
+        "redaction and pseudonymization operators",
+        "mapping-key storage policy",
+        "sampling and review workflow",
+        "false-positive and false-negative evaluation corpus"
+      ],
+      "invariants": [
+        "Automated detection is probabilistic and never a complete compliance guarantee.",
+        "Keep reversible mappings under controls equivalent to the original data.",
+        "Prefer deterministic pseudonyms only where referential consistency is required.",
+        "Never log original sensitive values in findings or errors.",
+        "Apply regional and domain-specific recognizers selected by the data owner."
+      ],
+      "acceptance": [
+        "Known sensitive values are covered by a versioned evaluation corpus.",
+        "Output scans verify that forbidden classes are absent within the agreed detector limits.",
+        "Deterministic mappings remain stable only within the intended scope.",
+        "Reviewers can inspect detector type, confidence, and transformation without seeing unnecessary raw values."
+      ],
+      "evidence": [
+        "precision and recall evaluation summary",
+        "output leakage scan",
+        "mapping storage review",
+        "privacy policy decision record"
+      ]
+    },
+    {
+      "id": "incident-response",
+      "title": "Incident response automation",
+      "outcome": "Turn trustworthy telemetry and customer signals into deduplicated incidents, routed ownership, safe automation, and auditable recovery workflows.",
+      "scaffold_modules": [
+        "service and ownership catalog",
+        "telemetry normalization",
+        "alert and deduplication rules",
+        "incident state machine",
+        "notification and ticket adapters",
+        "runbook executor with approvals",
+        "timeline and post-incident evidence export"
+      ],
+      "invariants": [
+        "Separate detection, diagnosis, decision, and mutation permissions.",
+        "Require human approval for destructive or customer-impacting remediation unless a pre-approved policy says otherwise.",
+        "Correlate by stable incident and service identifiers.",
+        "Keep raw sensitive telemetry out of chat and ticket destinations unless approved.",
+        "Record who or what performed every state transition and action."
+      ],
+      "acceptance": [
+        "Duplicate alerts converge on the same incident under declared rules.",
+        "Notification failure and escalation paths are tested.",
+        "Unauthorized automation cannot execute privileged runbooks.",
+        "The final timeline is reproducible from immutable events."
+      ],
+      "evidence": [
+        "synthetic incident exercise",
+        "routing and escalation test",
+        "approval audit trail",
+        "post-incident timeline export"
+      ]
+    },
+    {
+      "id": "usage-metering",
+      "title": "Usage metering, entitlements, and billing",
+      "outcome": "Capture versioned usage events, aggregate billable meters, enforce entitlements, and reconcile invoices without letting clients set their own billable totals.",
+      "scaffold_modules": [
+        "usage event contract",
+        "trusted ingestion boundary",
+        "deduplication ledger",
+        "meter definitions",
+        "entitlement checks",
+        "billing-customer mapping",
+        "invoice reconciliation",
+        "customer usage export"
+      ],
+      "invariants": [
+        "Accept billable usage only from authenticated trusted producers.",
+        "Use immutable event identifiers and deterministic deduplication.",
+        "Version meter and pricing semantics; never reinterpret historical events silently.",
+        "Keep the billing provider as payment source of truth when one is selected.",
+        "Verify billing webhooks against the raw body before updating entitlement mirrors."
+      ],
+      "acceptance": [
+        "Duplicate, late, corrected, and out-of-order usage events are tested.",
+        "Meter totals reconcile to source events and provider invoices.",
+        "Unauthorized clients cannot increase or grant entitlements.",
+        "Customers can see the usage evidence behind a charge."
+      ],
+      "evidence": [
+        "meter replay and reconciliation output",
+        "billing webhook tests",
+        "entitlement authorization tests",
+        "sample customer usage statement"
+      ]
+    },
+    {
+      "id": "onboarding-automation",
+      "title": "Customer onboarding automation",
+      "outcome": "Coordinate prerequisites, access, data validation, training, approvals, and handoff through a resumable customer-specific workflow.",
+      "scaffold_modules": [
+        "onboarding template and version",
+        "customer workflow instance",
+        "prerequisite and evidence model",
+        "task ownership and approvals",
+        "durable workflow or job runner",
+        "reminders and escalation adapters",
+        "readiness and handoff report"
+      ],
+      "invariants": [
+        "Keep workflow state durable and resumable across process restarts.",
+        "Distinguish customer-owned, vendor-owned, and automated tasks.",
+        "Do not mark prerequisites complete without their required evidence.",
+        "Make retries safe and avoid duplicate invitations or external actions.",
+        "Version templates without mutating already accepted historical evidence."
+      ],
+      "acceptance": [
+        "Interrupted workflows resume without losing or repeating completed work.",
+        "Blocked items identify owner, dependency, age, and next action.",
+        "Template upgrades have an explicit migration policy for active onboardings.",
+        "Handoff reports link every readiness claim to evidence."
+      ],
+      "evidence": [
+        "resume and idempotency tests",
+        "blocked-path exercise",
+        "template version migration test",
+        "sample readiness handoff"
+      ]
+    },
+    {
+      "id": "deployment-case-study",
+      "title": "Public deployment case study and evidence bundle",
+      "outcome": "Produce a truthful, reproducible account of the customer problem, constraints, architecture, delivery process, outcomes, and operational boundaries.",
+      "scaffold_modules": [
+        "claim inventory",
+        "before and after evidence model",
+        "architecture decision records",
+        "deployment and verification transcript",
+        "security and privacy boundary statement",
+        "customer approval and redaction workflow",
+        "public case-study template"
+      ],
+      "invariants": [
+        "Publish only claims backed by attributable evidence and customer approval.",
+        "Remove credentials, internal identifiers, personal data, and confidential topology.",
+        "Distinguish measured outcomes from estimates, anecdotes, and future work.",
+        "State prototype, pilot, production, and enterprise-readiness boundaries honestly.",
+        "Keep a private evidence bundle separate from the public narrative."
+      ],
+      "acceptance": [
+        "Every quantitative and capability claim maps to a named evidence artifact.",
+        "A redaction review finds no forbidden customer or secret material.",
+        "A third party can reproduce the public setup from the documented prerequisites where allowed.",
+        "The customer or designated owner approves the final public scope."
+      ],
+      "evidence": [
+        "claim-to-evidence matrix",
+        "redaction review result",
+        "reproduction transcript",
+        "publication approval record"
+      ]
+    }
+  ]
+}

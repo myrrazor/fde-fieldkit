@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Privacy note — FDE Tools</title>
+    <meta
+      name="description"
+      content="Read the short FDE Tools privacy note: no cookies, analytics, accounts, uploads, forms, or data collection, plus a plain note about hosting logs."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/privacy.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="Privacy note — FDE Tools">
+    <meta
+      property="og:description"
+      content="No cookies, analytics, accounts, uploads, forms, or marketing trackers."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/privacy.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Privacy note — FDE Tools">
+    <meta name="twitter:description" content="No analytics, accounts, or upload forms. Hosting requests and optional tool connections are described here.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to privacy note</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="index.html" aria-label="FDE Tools home">
+          <img src="assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="index.html#tools">Tools</a>
+          <a href="privacy.html" aria-current="page">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell legal-page">
+      <p class="legal-kicker">Legal / right-sized</p>
+      <h1>Privacy note</h1>
+      <p class="legal-page__dek">
+        The short version: this site does not set cookies, run analytics, accept
+        uploads, create accounts, or collect information through a form.
+      </p>
+      <p class="legal-page__date">Effective August 7, 2026</p>
+
+      <h2>What this site collects</h2>
+      <p>
+        <strong>Nothing directly.</strong> There are no analytics scripts, advertising
+        pixels, session-replay tools, forms, account systems, or newsletter fields. The
+        site does not use local storage or cookies.
+      </p>
+
+      <h2>Hosting logs</h2>
+      <p>
+        The hosting provider may process ordinary request information such as an IP
+        address, browser details, requested path, and timestamp to deliver and protect
+        the site. FDE Tools does not add its own tracking layer or use those logs for
+        advertising.
+      </p>
+
+      <h2>Links to other sites</h2>
+      <p>
+        Links to GitHub and other sites take you outside FDE Tools. Those services have
+        their own privacy practices. Nothing is sent to them merely by loading this page;
+        the site embeds no third-party content.
+      </p>
+
+      <h2>Your data choices</h2>
+      <p>
+        There is no site account or profile to access, correct, export, or delete. The
+        command-line tools write their reports and working data on the machine where you
+        run them. The optional network actions are described below.
+      </p>
+      <p>
+        Netwatch is a local relay for a command you explicitly supervise. It opens only
+        that command's requested destinations allowed by the selected policy, stores
+        metadata in a local SQLite file, and sends no telemetry of its own. Its dashboard
+        reads that local evidence and keeps its managed policy on the same machine.
+        Mutation controls work only from a direct loopback browser; a non-loopback view
+        is read-only. Tell's optional detector adapters need configured vendor keys and
+        explicit authorization: <code>--remote</code> for a CLI run, <code>offline=False</code>
+        for Python adapter calls, or the web flow's one-use confirmation for that text and
+        vendor set. The CLI names the destinations before sending text. A third-party
+        detector's handling of that text is governed by its own privacy practices.
+      </p>
+      <p>
+        The optional local model may download weights when you first enable <code>--ml</code>;
+        it evaluates the draft locally. Installing Fieldkit or adding plugins also retrieves
+        packages. The static website does not trigger any of these actions.
+      </p>
+      <p>
+        The Netwatch screenshot on this website contains generated sample evidence. It
+        does not contain customer traffic, prompts, command arguments, or product-usage
+        telemetry, and the page does not connect to a running Netwatch installation.
+      </p>
+
+      <p class="launch-note">
+        This static documentation site is maintained by the Fieldkit contributors.
+        For project questions, use the repository’s issue tracker. For a disclosure
+        involving sensitive information, follow the private reporting route in
+        the repository’s security policy. Do not include private data in public issues.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / no cookies, no banner.</p>
+          <nav aria-label="Footer navigation">
+            <a href="index.html">Home</a>
+            <a href="docs/index.html">Docs</a>
+            <a href="privacy.html" aria-current="page">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

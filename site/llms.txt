@@ -1,0 +1,53 @@
+# FDE Tools
+
+> Practical tools for forward-deployed engineers working with unfamiliar data,
+> customer privacy constraints, delivery evidence, drafts headed to customers,
+> and AI workload governance.
+
+Canonical site: https://fde-tools.vercel.app/
+Source: https://github.com/myrrazor/fde-fieldkit
+
+Toolkit model: one fieldkit core install; each of the seven shipped tools is a
+plugin package added with `fieldkit plugin add <tool>`. AWCP remains separate.
+Not on PyPI yet: plugins resolve from the repo checkout today, and PyPI installs
+arrive with the public release.
+
+## Seven shipped Fieldkit plugins
+
+- xray: local schema, type, null, outlier, and PII profiling for csv, tsv, xlsx, json, and jsonl.
+- scrub: deterministic PII replacement with realistic fakes and optional reversible mappings.
+- mimic: learn an editable YAML data specification and generate seeded synthetic rows.
+- datadiff: compare schema, keyed rows, and per-column value drift between two dumps.
+- debrief: turn a tagged engagement log into markdown or HTML stakeholder status.
+- tell: ten local stylometric checks, opt-in remote detector adapters, and deterministic slop cleanup.
+- netwatch: local metadata-only agent network evidence, destination policy, and a control room for supervised launch, observation-only attachment, reports, and managed policy.
+- AWCP: separate v0.1 executable specification / local reference prototype for AI workload delivery control; not a shipped Fieldkit plugin.
+
+## Important limits
+
+- The seven shipped Fieldkit plugins run locally by default. Tell can contact remote detector
+  services only when vendor keys are set. Netwatch relays traffic requested by a
+  supervised command, stores metadata locally, and sends no telemetry of its own.
+- AWCP is a concept preview: not packaged and not pilot-ready, enterprise-ready,
+  or public-alpha-ready. It has no docs page here.
+- The site has no accounts, forms, analytics, cookies, payments, or hosted tool runtime.
+- Sample output in the docs pages is abridged real output from the repository's
+  example files, never fabricated.
+- The Netwatch dashboard screenshot uses generated sample evidence. Its hosts and
+  totals demonstrate the interface; they are not customer traffic, telemetry,
+  benchmarks, or usage claims.
+
+## Pages
+
+- Home and tool details: https://fde-tools.vercel.app/
+- Docs index: https://fde-tools.vercel.app/docs/index.html
+- Plugins and the toolkit: https://fde-tools.vercel.app/docs/plugins.html
+- xray docs: https://fde-tools.vercel.app/docs/xray.html
+- scrub docs: https://fde-tools.vercel.app/docs/scrub.html
+- mimic docs: https://fde-tools.vercel.app/docs/mimic.html
+- datadiff docs: https://fde-tools.vercel.app/docs/datadiff.html
+- debrief docs: https://fde-tools.vercel.app/docs/debrief.html
+- tell docs: https://fde-tools.vercel.app/docs/tell.html
+- netwatch docs: https://fde-tools.vercel.app/docs/netwatch.html
+- Privacy: https://fde-tools.vercel.app/privacy.html
+- Terms: https://fde-tools.vercel.app/terms.html

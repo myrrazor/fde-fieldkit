@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FDE Tools — Local utilities for field work</title>
+    <meta
+      name="description"
+      content="Seven shipped Fieldkit plugins plus the separate AWCP prototype: inspect data, remove PII, build demos, compare dumps, report, check drafts, and watch agents."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="FDE Tools — Local utilities for field work">
+    <meta
+      property="og:description"
+      content="Seven shipped Fieldkit plugins and one separately labelled AWCP control-plane prototype."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FDE Tools — Local utilities for field work">
+    <meta
+      name="twitter:description"
+      content="Seven shipped Fieldkit plugins plus a separate AWCP prototype, described with real commands and explicit limits."
+    >
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+    <link
+      rel="preload"
+      href="fonts/ibm-plex-sans-vf.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    >
+    <link
+      rel="preload"
+      href="fonts/ibm-plex-mono-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "FDE Tools",
+        "description": "Seven shipped Fieldkit plugins plus one separate AWCP prototype for forward-deployed engineering work.",
+        "url": "https://fde-tools.vercel.app/",
+        "numberOfItems": 8,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "xray",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Local schema, type, null, outlier, and PII profiling for unfamiliar data files.",
+              "url": "https://fde-tools.vercel.app/#tool-xray"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "scrub",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Deterministic PII replacement with realistic fakes and optional reversible mappings.",
+              "url": "https://fde-tools.vercel.app/#tool-scrub"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "mimic",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Learn an editable YAML data specification and generate seeded synthetic rows.",
+              "url": "https://fde-tools.vercel.app/#tool-mimic"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "datadiff",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Compare two data dumps for schema, keyed row, and per-column value drift.",
+              "url": "https://fde-tools.vercel.app/#tool-datadiff"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 5,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "debrief",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Turn a tagged engagement log into stakeholder-ready markdown or HTML status reports.",
+              "url": "https://fde-tools.vercel.app/#tool-debrief"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 6,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "tell",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Local stylometric tell inspection, opt-in remote detector adapters, and deterministic slop cleanup for drafts.",
+              "url": "https://fde-tools.vercel.app/#tool-tell"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 7,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "netwatch",
+              "applicationCategory": "DeveloperApplication",
+              "description": "Local metadata-only network evidence and destination policy enforcement for AI coding agents.",
+              "url": "https://fde-tools.vercel.app/#tool-netwatch"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 8,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": "AWCP",
+              "softwareVersion": "0.1 prototype",
+              "applicationCategory": "DeveloperApplication",
+              "description": "API-first AI-workload control plane for specifications, gates, approvals, rollout, and evidence.",
+              "url": "https://fde-tools.vercel.app/#tool-awcp"
+            }
+          }
+        ]
+      }
+    </script>
+    <!-- analytics: intentionally none. If traffic data is ever wanted, add a privacy-respecting,
+       cookieless script (e.g. self-hosted Plausible) here AND update the privacy page first. -->
+</head>
+  <body>
+    <a class="skip-link" href="#main">Skip to tools</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="index.html" aria-label="FDE Tools home">
+          <img src="assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="#tools" data-active-section="true">Tools</a>
+          <a href="docs/index.html">Docs</a>
+          <a href="docs/plugins.html">Plugins</a>
+          <a href="#principles">Principles</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="hero__kicker">Field utilities / local by default</p>
+          <h1 id="page-title">FDE Tools</h1>
+          <p class="hero__lede">
+            Seven local field utilities and one control-plane prototype for the work between
+            “we got the dump” and “the customer can trust the result”: inspect, sanitize,
+            synthesize, compare, report, check drafts, watch agent traffic, and govern
+            without sending customer data to a hosted service.
+          </p>
+          <p class="hero__toolkit">One install. Add the tools you need, and nothing you don't.</p>
+          <a class="hero__action" href="#tools">Choose a tool <span aria-hidden="true">↓</span></a>
+        </div>
+        <aside class="hero__field-note" aria-label="Field kit facts">
+          <p>FIELD NOTE / 001</p>
+          <ul>
+            <li><strong>Install</strong><span>One fieldkit core with seven optional plugins; AWCP remains a separate prototype</span></li>
+            <li><strong>Runtime</strong><span>Local by default; tell needs vendor keys and an explicit remote run, and Netwatch's supervised relay is the other explicit egress</span></li>
+            <li><strong>Input</strong><span>CSV, TSV, XLSX, JSON, JSONL, text, and agent processes</span></li>
+            <li><strong>Output</strong><span>Local dashboards, CLI, JSON, CSV, markdown, and HTML</span></li>
+          </ul>
+        </aside>
+      </section>
+
+      <section id="tools" class="tool-index" aria-labelledby="tools-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Seven shipped plugins / one prototype</p>
+            <h2 id="tools-title">Pick the job in front of you.</h2>
+          </div>
+          <p>
+            Select a block to open working notes, commands, and examples. The seven
+            shipped tools share one path: get the toolkit, run
+            <code>fieldkit plugin add</code>, use it. Plugins resolve from the repo
+            checkout today; PyPI installs arrive with the public release. AWCP stays
+            separately labelled as a source-checkout prototype. Each shipped tool
+            links to its full docs page.
+          </p>
+        </div>
+
+        <div class="tool-grid" aria-label="Tool index">
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-xray"
+              aria-controls="tool-xray"
+              aria-expanded="true"
+              aria-current="true"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">01 / Inspect</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>xray</h3>
+                <p>“What is this file?” profiling for schema, types, nulls, outliers, and PII.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/xray.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-scrub"
+              aria-controls="tool-scrub"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">02 / Sanitize</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>scrub</h3>
+                <p>Replace PII deterministically with realistic fakes, with an optional mapping.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/scrub.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-mimic"
+              aria-controls="tool-mimic"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">03 / Synthesize</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>mimic</h3>
+                <p>Learn a YAML spec from real data, then generate seeded synthetic rows.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/mimic.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-datadiff"
+              aria-controls="tool-datadiff"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">04 / Compare</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>datadiff</h3>
+                <p>Find schema drift, keyed row changes, and per-column value drift between dumps.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/datadiff.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-debrief"
+              aria-controls="tool-debrief"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">05 / Report</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>debrief</h3>
+                <p>Turn a tagged engagement log into a stakeholder-ready status report.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/debrief.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-tell"
+              aria-controls="tool-tell"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">06 / Check</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>tell</h3>
+                <p>Inspect drafts for stylometric tells, then strip deterministic slop before sending.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/tell.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-netwatch"
+              aria-controls="tool-netwatch"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">07 / Observe</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>netwatch</h3>
+                <p>Audit destinations and set next-run policy from one local control room.</p>
+              </span>
+            </a>
+            <a class="tool-cell__docs" href="docs/netwatch.html">Docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="tool-cell">
+            <a
+              class="tool-block"
+              href="#tool-awcp"
+              aria-controls="tool-awcp"
+              aria-expanded="false"
+              data-tool-link
+            >
+              <span class="tool-block__top">
+                <span class="tool-block__number">08 / Govern</span>
+                <span class="tool-block__open">Open ↓</span>
+              </span>
+              <span>
+                <h3>AWCP</h3>
+                <p>Prototype control plane for AI workload specs, gates, approvals, rollout, and evidence. Ships as a plugin when it lands.</p>
+                <span class="tool-block__chip">Concept preview / not yet shipped</span>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <div class="detail-stack" aria-label="Tool details">
+          <article id="tool-xray" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">01 / Inspect unfamiliar data</p>
+              <h3>xray</h3>
+              <p>
+                Profile schema, inferred types, null rates, summary statistics, outliers,
+                and PII flags for CSV, TSV, XLSX, JSON, and JSONL files. Use
+                <code>--html</code> for a redacted report or <code>--json</code> for
+                machine-readable output. Raw values require an explicit CLI opt-in.
+              </p>
+              <a class="tool-detail__docs" href="docs/xray.html">Read the xray docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="xray-install-title">
+                <h4 id="xray-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="xray-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="xray-install">fieldkit plugin add xray
+fieldkit xray customers.csv</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="xray-examples-title">
+                <h4 id="xray-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="xray-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="xray-examples">uv sync
+uv run fieldkit xray examples/customers.csv
+uv run fieldkit xray examples/customers.csv --html profile.html</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-scrub" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">02 / Remove detected PII before sharing</p>
+              <h3>scrub</h3>
+              <p>
+                Replace detected emails, phones, SSNs, cards, IPs, names, and secrets with
+                realistic fakes. Sparse recognized matches are covered and residual
+                recognized PII stops the run. Detection still requires output review.
+              </p>
+              <a class="tool-detail__docs" href="docs/scrub.html">Read the scrub docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="scrub-install-title">
+                <h4 id="scrub-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="scrub-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="scrub-install">fieldkit plugin add scrub
+fieldkit scrub customers.csv -o customers_safe.csv</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="scrub-examples-title">
+                <h4 id="scrub-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="scrub-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="scrub-examples">uv sync
+uv run fieldkit scrub examples/customers.csv -o customers_safe.csv
+uv run fieldkit scrub examples/app.log -o app_safe.log --text</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-mimic" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">03 / Build credible demo data</p>
+              <h3>mimic</h3>
+              <p>
+                Learn column types, category pools, and distributions from a sample, then
+                generate as many rows as you need from an editable YAML specification.
+                PII columns use independent Faker providers without storing source-value
+                fingerprints. The same seed produces the same output; inspect it before sharing.
+              </p>
+              <a class="tool-detail__docs" href="docs/mimic.html">Read the mimic docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="mimic-install-title">
+                <h4 id="mimic-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="mimic-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="mimic-install">fieldkit plugin add mimic
+fieldkit mimic learn customers.csv -o spec.yaml</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="mimic-examples-title">
+                <h4 id="mimic-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="mimic-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="mimic-examples">uv sync
+uv run fieldkit mimic learn examples/customers.csv -o spec.yaml
+uv run fieldkit mimic generate spec.yaml -n 10000 --seed 42 -o demo.csv
+uv run fieldkit mimic generate examples/customers.csv -n 500 -o demo.csv</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-datadiff" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">04 / Explain what changed</p>
+              <h3>datadiff</h3>
+              <p>
+                Compare two dumps for added or dropped columns, type drift, keyed row
+                additions, removals and edits, plus value drift by column. It detects a key
+                when it can; use <code>--key customer_id</code> to override it. Reports
+                redact raw row/category values unless the CLI explicitly opts in.
+              </p>
+              <a class="tool-detail__docs" href="docs/datadiff.html">Read the datadiff docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="datadiff-install-title">
+                <h4 id="datadiff-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="datadiff-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="datadiff-install">fieldkit plugin add datadiff
+fieldkit datadiff customers.csv customers_v2.csv</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="datadiff-examples-title">
+                <h4 id="datadiff-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="datadiff-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="datadiff-examples">uv sync
+uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-debrief" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">05 / Turn the week into a status</p>
+              <h3>debrief</h3>
+              <p>
+                Capture wins, blockers, decisions, notes, and next steps as they happen.
+                The report command turns that tagged engagement log into stakeholder-ready
+                markdown, or HTML with <code>--html status.html</code>.
+              </p>
+              <a class="tool-detail__docs" href="docs/debrief.html">Read the debrief docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="debrief-install-title">
+                <h4 id="debrief-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="debrief-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="debrief-install">fieldkit plugin add debrief
+fieldkit debrief report</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="debrief-examples-title">
+                <h4 id="debrief-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="debrief-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="debrief-examples">uv sync
+uv run fieldkit debrief add "shipped ingestion pipeline to prod" --tag win
+uv run fieldkit debrief add "waiting on VPN access for staging" --tag blocker
+uv run fieldkit debrief report</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-tell" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">06 / Check the draft before it ships</p>
+              <h3>tell</h3>
+              <p>
+                Run ten local stylometric checks on a draft and keep those signals separate
+                from any remote classifier score. Neither establishes who wrote the text.
+                Remote checkers need vendor keys and an explicit <code>--remote</code> run;
+                the CLI names every destination before text leaves the machine. The default
+                stays offline. Use
+                <code>unslop</code> to strip deterministic slop patterns.
+              </p>
+              <a class="tool-detail__docs" href="docs/tell.html">Read the tell docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="tell-install-title">
+                <h4 id="tell-install-title">Install and run</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="tell-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="tell-install">fieldkit plugin add tell
+fieldkit tell check draft.md</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="tell-examples-title">
+                <h4 id="tell-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="tell-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="tell-examples">uv sync
+uv run fieldkit tell check draft.md
+uv run fieldkit tell adapters</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article id="tool-netwatch" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">07 / Observe agent network access</p>
+              <h3>netwatch</h3>
+              <p>
+                Launch Codex, Claude Code, or another command through local HTTP and
+                SOCKS5 proxies. Netwatch records destination metadata, groups common
+                services, and can enforce a deny-by-default host, IP, port, and protocol
+                policy before opening an upstream connection.
+              </p>
+              <p>
+                The local control room compares sessions and sources, launches supervised
+                noninteractive commands, discovers agents, attaches by PID, edits and tests
+                policy, filters the traffic ledger, and exports reports. Interactive agents
+                still run in their terminal while the dashboard follows the session.
+              </p>
+              <p>
+                Coverage stays visible beside the totals. HTTPS content remains encrypted,
+                attachment is observation-only, and DNS, UDP/QUIC, and sockets that bypass
+                the proxies are not counted.
+              </p>
+              <a class="tool-detail__docs" href="docs/netwatch.html">Read the netwatch docs <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="netwatch-install-title">
+                <h4 id="netwatch-install-title">Install and audit Codex</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">Add it to your toolkit</span>
+                    <button class="copy-button" type="button" data-copy-target="netwatch-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="netwatch-install">fieldkit plugin add netwatch
+fieldkit netwatch run -- codex</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="netwatch-examples-title">
+                <h4 id="netwatch-examples-title">Working from the repo</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">README-tested commands</span>
+                    <button class="copy-button" type="button" data-copy-target="netwatch-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="netwatch-examples">uv sync
+uv run fieldkit netwatch doctor
+uv run fieldkit netwatch run -- codex
+uv run fieldkit netwatch run -- claude</code></pre>
+                </div>
+              </section>
+            </div>
+            <figure class="product-shot tool-detail__showcase">
+              <img
+                src="assets/netwatch-dashboard.png"
+                alt="Netwatch local control room showing sample sessions, capture sources, destinations, and policy outcomes"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>
+                The real local dashboard with generated sample evidence. Hosts and totals in
+                this image illustrate the interface; they are not customer traffic, usage
+                metrics, or benchmark results.
+              </figcaption>
+            </figure>
+          </article>
+
+          <article id="tool-awcp" class="tool-detail" tabindex="-1">
+            <div class="tool-detail__intro">
+              <p class="detail-kicker">08 / Govern an AI workload</p>
+              <h3>AWCP</h3>
+              <p>
+                AI Workload Control Plane is an API-first delivery control plane for
+                workload specs, eval gates, policy checks, approvals, rollout state,
+                telemetry, rollback, and evidence bundles. When it lands, it ships as
+                a Fieldkit plugin you add like the rest; today it runs only from its
+                own source checkout.
+              </p>
+              <p class="prototype-note">
+                Honest status: v0.1 executable specification / local reference prototype.
+                It is not pilot-ready, enterprise-ready, public-alpha-ready, or packaged.
+              </p>
+            </div>
+            <div class="tool-detail__commands">
+              <section class="command-group" aria-labelledby="awcp-install-title">
+                <h4 id="awcp-install-title">Bootstrap and run from source</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">From the AWCP checkout</span>
+                    <button class="copy-button" type="button" data-copy-target="awcp-install">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="awcp-install">make bootstrap
+PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml</code></pre>
+                </div>
+              </section>
+              <section class="command-group" aria-labelledby="awcp-examples-title">
+                <h4 id="awcp-examples-title">Example uses</h4>
+                <div class="command-box">
+                  <div class="command-box__bar">
+                    <span class="command-box__label">AWCP README commands</span>
+                    <button class="copy-button" type="button" data-copy-target="awcp-examples">Copy</button>
+                    <span class="copy-status" aria-live="polite"></span>
+                  </div>
+                  <pre><code id="awcp-examples">PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml
+PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml --dry-run --json
+PYTHONPATH=src python3 -m awcp.cli diff examples/workloads/support-ticket-triage.yaml examples/templates/support-ticket-triage.yaml --json
+PYTHONPATH=src python3 -m awcp.cli eval run examples/workloads/support-ticket-triage.yaml --suite examples/eval-suites/support-triage-golden-v1.yaml --json</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="principles" class="principles" aria-labelledby="principles-title">
+        <div>
+          <p class="section-label">Operating constraints</p>
+          <h2 id="principles-title">Built for the awkward middle.</h2>
+        </div>
+        <ul class="principles__list">
+          <li>
+            <strong>Keep it local</strong>
+            <span>Fieldkit runs locally by default. Tell needs vendor keys and an explicit remote run, and it names each destination first. Netwatch relays only traffic requested by the command you supervise and stores metadata locally.</span>
+          </li>
+          <li>
+            <strong>Show the work</strong>
+            <span>Commands can produce inspectable JSON, markdown, and HTML artifacts instead of opaque claims.</span>
+          </li>
+          <li>
+            <strong>Repeat exactly</strong>
+            <span>Deterministic replacements and seeded generation make demos and checks reproducible.</span>
+          </li>
+          <li>
+            <strong>Label maturity</strong>
+            <span>AWCP is a v0.1 prototype/spec, not a packaged enterprise product. The site says so plainly.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="faq" aria-labelledby="faq-title">
+        <div class="faq__layout">
+          <div>
+            <p class="section-label">Practical questions</p>
+            <h2 id="faq-title">Before you use it</h2>
+          </div>
+          <div class="faq__items">
+            <details>
+              <summary>What is FDE Tools?</summary>
+              <p>
+                It is the index for the Fieldkit toolkit: one <code>fieldkit</code> core
+                you install once, seven tools you add with
+                <code>fieldkit plugin add</code>, and the separate AWCP prototype, which
+                runs from its own checkout today and ships as a plugin when it lands.
+              </p>
+            </details>
+            <details>
+              <summary>What does it cost?</summary>
+              <p>
+                This site has no payment flow, subscription, or hosted account. Review each
+                repository’s maturity and license status before adopting it.
+              </p>
+            </details>
+            <details>
+              <summary>Where does my data go?</summary>
+              <p>
+                Fieldkit runs locally by default. <code>tell</code> contacts remote detector
+                services only when you set their vendor keys and explicitly authorize a remote
+                run, and it warns before any text leaves the machine. Netwatch is a
+                user-requested relay: it opens the destinations requested by the supervised
+                command, applies your policy, and stores metadata locally. This website has
+                no upload form, analytics, cookies, or embedded third-party content.
+              </p>
+            </details>
+            <details>
+              <summary>How do I delete data or get support?</summary>
+              <p>
+                The site stores nothing to delete. Remove files created by the CLI from
+                your own machine, and use the
+                <a href="https://github.com/myrrazor/fde-fieldkit">fde-fieldkit repository</a>
+                for source, issues, and project updates.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. If it saved your Friday afternoon,
+            you can buy me a coffee, or star the repo so the next engineer with a mystery
+            CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
+            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="docs/index.html">Docs</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="llms.txt">llms.txt</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  :root { color: #17212b; }
+  main { max-width: 780px; padding: 3rem 3.5rem; }
+  .eyebrow { margin: 0 0 .5rem; color: #52606d; font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+  h1 { margin: 0; font-size: 2.15rem; letter-spacing: -.025em; }
+  .range { margin: .6rem 0 2.75rem; color: #52606d; }
+  section { margin: 0 0 2rem; padding-top: 1.25rem; border-top: 1px solid #dfe3e6; }
+  h2 { margin: 0 0 .8rem; font-size: 1rem; letter-spacing: .01em; }
+  ul { margin: 0; padding-left: 1.25rem; }
+  li { margin: 0 0 .55rem; line-height: 1.5; }
+  .empty { margin: 0; color: #7b8794; font-style: italic; }
+  @media print {
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    section { break-inside: avoid; }
+  }
+</style>
+
+<header>
+  <p class="eyebrow">{{ report.week }}</p>
+  <h1>{{ report.title }}</h1>
+  <p class="range">{{ report.date_range }}</p>
+</header>
+
+{% for heading, entries in report.sections %}
+<section>
+  <h2>{{ heading }}</h2>
+  {% if entries %}
+  <ul>
+    {% for entry in entries %}<li>{{ entry.text }}</li>{% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Nothing logged.</p>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

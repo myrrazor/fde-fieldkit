@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldkit-datadiff"
+version = "0.2.0"
+readme = "README.md"
+authors = [{ name = "FDE Fieldkit contributors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+description = "Explain why two tables disagree"
+requires-python = ">=3.12"
+dependencies = [
+    # everything datadiff needs (pandas, jinja2, rich) comes with core
+    "fieldkit",
+]
+
+[project.urls]
+Homepage = "https://fde-tools.vercel.app"
+Documentation = "https://fde-tools.vercel.app/docs/"
+Repository = "https://github.com/myrrazor/fde-fieldkit"
+Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
+Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"
+
+[project.entry-points."fieldkit.plugins"]
+datadiff = "fieldkit_datadiff.cli:app"
+
+[project.entry-points."fieldkit.web"]
+datadiff = "fieldkit_datadiff.web"
+
+[tool.uv.sources]
+fieldkit = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldkit_datadiff"]

@@ -1,0 +1,16 @@
+# {{ report.title }}
+
+**{{ report.week }} · {{ report.date_range }}**
+
+{% for heading, entries in report.sections %}
+## {{ heading }}
+
+{% if entries %}
+{% for entry in entries %}
+- {{ entry.text }}
+{% endfor %}
+{% else %}
+Nothing logged.
+{% endif %}
+
+{% endfor %}

@@ -1,0 +1,21 @@
+# Implementation plan
+
+The work below is ordered by dependency. Each package remains incomplete until its acceptance
+criteria have passing evidence. Do not manufacture dates, estimates, retry counts, SLOs, or
+capacity limits that the owner has not supplied.
+
+{{implementation_packages}}
+
+## Integration sequence
+
+1. Confirm unresolved owner decisions and target-repository conventions.
+2. Freeze versioned contracts: blueprint, provider schemas, events, permissions, and evidence IDs.
+3. Build the narrowest vertical slice that crosses the real trust and data boundaries.
+4. Prove failure paths and isolation before expanding provider or language coverage.
+5. Add deployment, operations, and public evidence only after runtime behavior is proven.
+
+## Generator boundary
+
+This release emits this plan and a machine-readable `SCAFFOLD_PLAN.json`; it does not emit
+application source. Future language adapters must consume `blueprint.json` rather than infer
+requirements again.

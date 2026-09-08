@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>debrief — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">fieldkit</a>
+      <span class="sep">/</span>
+      <span class="tool-name">debrief</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>stored locally in ~/.fieldkit/debrief.db</span>
+      <span><code>fieldkit debrief add "..." --tag win</code></span>
+    </p>
+
+    <h1 class="page-title">Log it now, report it Friday.</h1>
+    <p class="page-sub">
+      Ten seconds per entry during the week. A stakeholder-ready status report when
+      you need one.
+    </p>
+
+    <section>
+      <form id="add-form">
+        <div class="field">
+          <label for="text">what happened?</label>
+          <input type="text" id="text" size="60" maxlength="500"
+                 placeholder="shipped the ingestion pipeline to prod" required>
+        </div>
+        <div class="controls">
+          <div class="check-row" role="radiogroup" aria-label="tag" id="tags">
+            <label class="check-pill"><input type="radio" name="tag" value="win" checked> win</label>
+            <label class="check-pill"><input type="radio" name="tag" value="note"> in&nbsp;progress</label>
+            <label class="check-pill"><input type="radio" name="tag" value="blocker"> blocker</label>
+            <label class="check-pill"><input type="radio" name="tag" value="decision"> decision</label>
+            <label class="check-pill"><input type="radio" name="tag" value="next"> next&nbsp;step</label>
+          </div>
+          <button class="btn btn-primary" type="submit">Log it</button>
+        </div>
+      </form>
+    </section>
+
+    <section>
+      <div class="controls" style="align-items: center;">
+        <p class="label-eng" style="margin: 0;">this week's entries</p>
+        <div class="field" style="margin-left: auto;">
+          <label for="week">week</label>
+          <input type="week" id="week">
+        </div>
+      </div>
+      <div id="entries"></div>
+    </section>
+
+    <section id="report-section" hidden>
+      <div class="report">
+        <div class="report-head">
+          <span class="title" id="report-title">weekly status</span>
+          <div class="actions">
+            <button class="btn btn-ghost" id="copy-md">Copy markdown</button>
+            <button class="btn btn-ghost" id="dl-md">Download .md</button>
+          </div>
+        </div>
+        <div class="report-body" id="report-body"></div>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

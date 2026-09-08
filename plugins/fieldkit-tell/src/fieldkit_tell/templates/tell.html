@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  :root {
+    --tell-ink: #1c1a17;
+    --tell-muted: #67625a;
+    --tell-line: #ddd7cd;
+    --tell-surface: #fffdf9;
+    --tell-sunken: #f4f0e8;
+    --tell-accent: #9a3412;
+    --tell-info: #52606d;
+    --tell-notice: #8a4b08;
+    --tell-strong: #a51d1d;
+    --tell-ran: #166534;
+  }
+  main { max-width: 1080px; }
+  h1 { margin-bottom: .2rem; }
+  h2 { margin-top: 2rem; border-bottom: 2px solid var(--tell-ink); padding-bottom: .35rem; }
+  h3 { margin: 0; font-size: 1rem; }
+  .lede { color: var(--tell-muted); margin-top: 0; }
+  .stats { display: flex; flex-wrap: wrap; gap: .55rem 1.4rem; margin: 1.2rem 0; }
+  .stat { min-width: 7rem; }
+  .stat strong { display: block; font: 700 1.15rem ui-monospace, monospace; }
+  .stat span { color: var(--tell-muted); font-size: .78rem; }
+  .honesty {
+    border: 1px solid #e6d8bf;
+    background: #fff9e9;
+    padding: .9rem 1rem;
+    margin: 1.2rem 0;
+  }
+  .honesty p { margin: .25rem 0; }
+  .evidence-class { color: var(--tell-muted); max-width: 76ch; }
+  .checker-table { font-size: .86rem; }
+  .checker-table tr.skipped { color: var(--tell-muted); }
+  .status, .severity {
+    display: inline-block;
+    border: 1px solid currentColor;
+    border-radius: .2rem;
+    padding: .12rem .38rem;
+    font: 700 .72rem ui-monospace, monospace;
+    text-transform: uppercase;
+  }
+  .status-ran { color: var(--tell-ran); }
+  .status-skipped { color: var(--tell-muted); }
+  .status-error, .severity-strong { color: var(--tell-strong); }
+  .severity-info { color: var(--tell-info); }
+  .severity-notice { color: var(--tell-notice); }
+  .meter {
+    width: 7.5rem;
+    height: .55rem;
+    margin-top: .2rem;
+    background: var(--tell-sunken);
+    border: 1px solid var(--tell-line);
+  }
+  .meter span { display: block; height: 100%; background: var(--tell-accent); }
+  .signals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+  .signal {
+    border-top: 3px solid var(--tell-line);
+    background: var(--tell-surface);
+    padding: .8rem .9rem;
+  }
+  .signal.strong { border-color: var(--tell-strong); }
+  .signal.notice { border-color: var(--tell-notice); }
+  .signal-head { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+  .density { color: var(--tell-muted); font: .76rem ui-monospace, monospace; white-space: nowrap; }
+  .summary { margin: .55rem 0; }
+  .signal dl { display: flex; flex-wrap: wrap; gap: .25rem .8rem; margin: 0; font-size: .78rem; }
+  .signal dt { color: var(--tell-muted); }
+  .signal dd { margin: 0; font-family: ui-monospace, monospace; }
+  .evidence { margin: .6rem 0 0; padding-left: 1.2rem; }
+  .evidence li + li { margin-top: .4rem; }
+  mark { background: #ffe7a7; color: inherit; padding: 0 .08rem; }
+  .note { display: block; color: var(--tell-muted); font-size: .78rem; }
+  .iteration td { vertical-align: top; }
+  .change { white-space: nowrap; }
+  .diff {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--tell-line);
+    background: var(--tell-sunken);
+    padding: 1rem;
+    line-height: 1.7;
+  }
+  ins { color: #14532d; background: #dcfce7; text-decoration: none; }
+  del { color: #7f1d1d; background: #fee2e2; }
+  .suggestions li + li { margin-top: .8rem; }
+  .final-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--tell-line);
+    background: var(--tell-surface);
+    padding: 1rem;
+  }
+  @media (max-width: 720px) {
+    .signals { grid-template-columns: 1fr; }
+    .checker-table { min-width: 760px; }
+    .table-scroll { overflow-x: auto; }
+  }
+  @media print {
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    .signal, tr { break-inside: avoid; }
+  }
+</style>
+
+<h1>tell</h1>
+<p class="lede">Writing evidence, shown by class. No combined score and no overall verdict.</p>
+
+<div class="stats" aria-label="Text statistics">
+  <div class="stat"><strong>{{ "{:,}".format(report.text_stats.chars) }}</strong><span>characters</span></div>
+  <div class="stat"><strong>{{ "{:,}".format(report.text_stats.words) }}</strong><span>words</span></div>
+  <div class="stat"><strong>{{ "{:,}".format(report.text_stats.sentences) }}</strong><span>sentences</span></div>
+  <div class="stat"><strong>{{ "{:,}".format(report.text_stats.paragraphs) }}</strong><span>paragraphs</span></div>
+  <div class="stat"><strong>{{ "%.1f"|format(report.text_stats.mean_sentence_len) }}</strong><span>mean sentence words</span></div>
+</div>
+
+<aside class="honesty" aria-label="How to read this report">
+  <strong>Read these as clues, not authorship proof.</strong>
+  <p>{{ honesty_caveat }}</p>
+  <p>Local signal scores are tell-density, not P(AI). Remote checker probabilities are
+    vendor classifier outputs, shown separately and never averaged with local signals.</p>
+</aside>
+
+<section aria-labelledby="checker-title">
+  <h2 id="checker-title">Remote classifier scores</h2>
+  <p class="evidence-class">Every configured checker has a row. A skipped or error row is
+    evidence about what ran, not a clean verdict.</p>
+  <div class="table-scroll">
+    <table class="checker-table">
+      <thead>
+        <tr>
+          <th>checker</th>
+          <th>status</th>
+          <th>AI probability</th>
+          <th>vendor label</th>
+          <th>detail</th>
+          <th>latency</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for detector in detectors %}
+        <tr class="{{ detector.status.value }}">
+          <td><strong>{{ detector.display_name }}</strong></td>
+          <td><span class="status status-{{ detector.status.value }}">{{ detector.status.value }}</span></td>
+          <td>
+            {% if detector.ai_probability is not none %}
+            <strong>{{ "%.1f%%"|format(detector.ai_probability * 100) }}</strong>
+            <div class="meter" aria-label="{{ "%.1f%% AI probability"|format(detector.ai_probability * 100) }}">
+              <span style="width: {{ detector.ai_probability * 100 }}%"></span>
+            </div>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ detector.label or "—" }}</td>
+          <td>{{ detector.detail or "—" }}</td>
+          <td>{% if detector.latency_ms %}{{ "%.0f ms"|format(detector.latency_ms) }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="signals-title">
+  <h2 id="signals-title">Local stylometric tells</h2>
+  <p class="evidence-class">All ten signals run locally against one shared coordinate
+    space. Density indicates how concentrated a pattern is in this text; it does not
+    estimate who wrote it.</p>
+  <div class="signals">
+    {% for signal in report.signals %}
+    <article class="signal {{ signal.severity.value }}">
+      <div class="signal-head">
+        <div>
+          <span class="severity severity-{{ signal.severity.value }}">{{ signal.severity.value }}</span>
+          <h3>{{ signal.title }}</h3>
+        </div>
+        <span class="density">tell-density {{ "%.2f"|format(signal.score) }}</span>
+      </div>
+      <p class="summary">{{ signal.summary }}</p>
+      <dl>
+        {% for key, value in signal.stats.items() %}
+        <dt>{{ key }}</dt><dd>{{ value }}</dd>
+        {% endfor %}
+      </dl>
+      {% if signal.evidence %}
+      <ul class="evidence">
+        {% for item in signal.evidence %}
+        <li><mark>{{ item.excerpt }}</mark><span class="note">{{ item.note }} · offsets {{ item.start }}–{{ item.end }}</span></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+{% if rewrite %}
+<section aria-labelledby="rewrite-title">
+  <h2 id="rewrite-title">Deterministic un-slop rewrite</h2>
+  <p class="evidence-class">Only fixed lookup and deletion transforms ran. Suggestions
+    below require judgment and did not change the draft.</p>
+
+  <table class="iteration">
+    <thead><tr><th>iteration</th><th>edits</th><th>severity changes</th></tr></thead>
+    <tbody>
+      {% for iteration in iteration_deltas %}
+      <tr>
+        <td>{{ iteration.index }}</td>
+        <td>{{ iteration.edits }}</td>
+        <td>
+          {% if iteration.changes %}
+          {% for change in iteration.changes %}
+          <span class="change">{{ change.title }}:
+            <span class="severity severity-{{ change.before }}">{{ change.before }}</span>
+            →
+            <span class="severity severity-{{ change.after }}">{{ change.after }}</span>
+          </span>{% if not loop.last %}<br>{% endif %}
+          {% endfor %}
+          {% else %}no severity changes{% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td>—</td><td>0</td><td>already stable</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Word diff</h3>
+  <div class="diff">{% for operation in diff %}{% if operation.op == "insert" %}<ins>{{ operation.text }}</ins>{% elif operation.op == "delete" %}<del>{{ operation.text }}</del>{% else %}{{ operation.text }}{% endif %}{% endfor %}</div>
+
+  <h3>Suggestions requiring judgment</h3>
+  {% if rewrite.suggestions %}
+  <ul class="suggestions">
+    {% for suggestion in rewrite.suggestions %}
+    <li><mark>{{ suggestion.excerpt }}</mark><span class="note">{{ suggestion.pattern }} · {{ suggestion.advice }}</span></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No judgment-only patterns were flagged.</p>
+  {% endif %}
+
+  <h3>Final text</h3>
+  <pre class="final-text">{{ rewrite.final }}</pre>
+</section>
+{% endif %}
+{% endblock %}

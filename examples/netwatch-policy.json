@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "default": "deny",
+  "rules": [
+    {
+      "id": "local-hostname",
+      "action": "allow",
+      "hosts": [
+        "localhost"
+      ],
+      "allow_private": true,
+      "note": "allow localhost by name"
+    },
+    {
+      "id": "local-addresses",
+      "action": "allow",
+      "ips": [
+        "127.0.0.0/8",
+        "::1/128"
+      ],
+      "allow_private": true,
+      "note": "allow loopback IP literals"
+    }
+  ]
+}

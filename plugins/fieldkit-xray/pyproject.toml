@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldkit-xray"
+version = "0.2.0"
+readme = "README.md"
+authors = [{ name = "FDE Fieldkit contributors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+description = "Profile any table in seconds"
+requires-python = ">=3.12"
+dependencies = [
+    # pandas/jinja2/rich/typer all ride along with core
+    "fieldkit",
+]
+
+[project.urls]
+Homepage = "https://fde-tools.vercel.app"
+Documentation = "https://fde-tools.vercel.app/docs/"
+Repository = "https://github.com/myrrazor/fde-fieldkit"
+Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
+Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"
+
+[project.entry-points."fieldkit.plugins"]
+xray = "fieldkit_xray.cli:app"
+
+[project.entry-points."fieldkit.web"]
+xray = "fieldkit_xray.web"
+
+[tool.uv.sources]
+fieldkit = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldkit_xray"]

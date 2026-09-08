@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fieldkit.dev/schemas/fde-blueprint-1.0.json",
+  "title": "Fieldkit FDE blueprint",
+  "description": "Machine-readable decision and evidence contract for an FDE capability scaffold.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "capabilities",
+    "answers",
+    "selected_products",
+    "scaffold_plan",
+    "security_invariants",
+    "acceptance_criteria",
+    "evidence",
+    "open_decisions",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "engagement_mode", "business_outcome", "primary_language", "framework"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "engagement_mode": {"enum": ["greenfield", "existing", "migration", "assessment"]},
+        "business_outcome": {"type": "string", "minLength": 1},
+        "repository_path": {"type": ["string", "null"]},
+        "primary_language": {"type": "string", "minLength": 1},
+        "framework": {"type": "string", "minLength": 1}
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "multi-tenant-saas",
+          "enterprise-sso",
+          "connector-pack",
+          "secure-rag",
+          "customer-health",
+          "webhook-engine",
+          "one-click-deployment",
+          "pii-redaction",
+          "incident-response",
+          "usage-metering",
+          "onboarding-automation",
+          "deployment-case-study"
+        ]
+      }
+    },
+    "answers": {
+      "type": "object",
+      "description": "Normalized interview answers. Unknown values are omitted instead of guessed."
+    },
+    "selected_products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "categories", "delivery", "license_class", "reuse", "sources"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "categories": {"type": "array", "items": {"type": "string"}},
+          "delivery": {"type": "string"},
+          "license_class": {"type": "string"},
+          "reuse": {"type": "string"},
+          "sources": {
+            "type": "array",
+            "items": {"type": "string", "format": "uri"}
+          }
+        }
+      }
+    },
+    "scaffold_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability", "title", "outcome", "modules"],
+        "properties": {
+          "capability": {"type": "string"},
+          "title": {"type": "string"},
+          "outcome": {"type": "string"},
+          "modules": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "security_invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability", "statement"],
+        "properties": {
+          "capability": {"type": "string"},
+          "statement": {"type": "string"}
+        }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability", "criterion"],
+        "properties": {
+          "capability": {"type": "string"},
+          "criterion": {"type": "string"}
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "capability", "artifact", "status"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "capability": {"type": "string"},
+          "artifact": {"type": "string"},
+          "status": {"const": "pending"},
+          "proof_command": {"type": ["string", "null"]},
+          "artifact_path": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "open_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question_id", "answer_path", "prompt", "required"],
+        "properties": {
+          "question_id": {"type": "string"},
+          "answer_path": {"type": "string"},
+          "prompt": {"type": "string"},
+          "required": {"type": "boolean"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalog_version", "catalog_researched_on", "generator", "source_reuse_policy"],
+      "properties": {
+        "catalog_version": {"type": "string"},
+        "catalog_researched_on": {"type": "string", "format": "date"},
+        "generator": {"const": "fde-blueprint/scripts/blueprint.py"},
+        "source_reuse_policy": {"type": "string"}
+      }
+    }
+  }
+}

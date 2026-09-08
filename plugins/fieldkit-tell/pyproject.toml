@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldkit-tell"
+version = "0.2.0"
+readme = "README.md"
+authors = [{ name = "FDE Fieldkit contributors" }]
+license = "MIT"
+license-files = ["LICENSE", "licenses/no-ai-slop-MIT.txt"]
+description = "Inspect writing patterns with local signals and optional classifiers"
+requires-python = ">=3.12"
+dependencies = [
+    "fieldkit",
+    "httpx>=0.27",
+    # web.py bridges sync detectors from a worker thread via anyio.from_thread;
+    # starlette ships it transitively but we import it by name
+    "anyio>=4",
+]
+
+[project.urls]
+Homepage = "https://fde-tools.vercel.app"
+Documentation = "https://fde-tools.vercel.app/docs/"
+Repository = "https://github.com/myrrazor/fde-fieldkit"
+Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
+Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+ml = [
+    "transformers>=4.44",
+    "torch>=2.3",
+]
+
+[project.entry-points."fieldkit.plugins"]
+tell = "fieldkit_tell.cli:app"
+
+[project.entry-points."fieldkit.web"]
+tell = "fieldkit_tell.web"
+
+[tool.uv.sources]
+fieldkit = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldkit_tell"]

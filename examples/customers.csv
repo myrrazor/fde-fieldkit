@@ -1,0 +1,151 @@
+customer_id,first_name,last_name,email,phone,ssn,credit_card,ip_address,signup_date,plan,mrr,seats,churned,notes
+CUST-0001,Shelby,Joyce,shelbyjoyce1@example.com,(993) 540-6286,651-47-5041,4635166185664053,163.60.235.64,2023-12-29,free,416.63,408,false,Understand report number rule simple four play growth yet hot recent seven tell.
+CUST-0002,Sally,Floyd,sallyfloyd2@example.com,(738) 833-9458,794-06-1184,4690033143795092,96.221.117.141,2024-05-20,free,108.65,398,false,
+CUST-0003,Mario,Glenn,marioglenn3@example.com,(251) 964-8104,722-95-9565,4708785894412025,91.40.98.113,2022-01-06,enterprise,200.08,427,false,Body star human assume recognize give idea soon son professional.
+CUST-0004,Clayton,Massey,claytonmassey4@example.com,(243) 640-4710,760-20-0917,4756135943327694,120.129.81.57,2021-11-04,enterprise,130.98,432,false,Organization leave whatever somebody finish real trip lead enter cut.
+CUST-0005,Christy,Savage,christysavage5@example.com,(240) 230-8846,615-25-7168,4485653479662944,206.121.197.209,2022-02-03,enterprise,483.89,44,false,Point wide wide similar authority while.
+CUST-0006,Adrian,Erickson,adrianerickson6@example.com,(808) 598-2286,039-65-9522,4637134073585499,37.78.22.165,2021-06-25,enterprise,403.71,255,false,Approach admit culture bit cultural see yourself notice actually view four occur director.
+CUST-0007,Angel,Hunter,angelhunter7@example.com,(950) 830-8010,469-95-0342,4232330776450655,213.52.86.21,2021-10-31,enterprise,168.91,8,false,Simply new position summer degree window.
+CUST-0008,Stacey,Eaton,staceyeaton8@example.com,(763) 857-6630,592-77-4023,4063658773111258,80.193.14.1,2022-02-01,enterprise,86.50,468,true,
+CUST-0009,Collin,Rivas,collinrivas9@example.com,(207) 624-4905,498-48-0634,4509010569667204,138.94.97.19,2024-02-01,pro,283.34,97,true,
+CUST-0010,Maureen,Johns,maureenjohns10@example.com,(817) 282-3661,514-24-7157,4068841540755053,160.169.110.27,2023-12-08,enterprise,321.34,14,true,Money continue production second region on wind agency mission my pressure usually.
+CUST-0011,Cynthia,Lam,cynthialam11@example.com,(859) 241-7111,740-59-1350,4598978831795502,48.74.55.59,2023-12-19,enterprise,150.13,210,true,Sometimes popular energy remember way tough firm bad keep music education approach change.
+CUST-0012,Hector,Johnston,hectorjohnston12@example.com,(582) 833-3536,168-77-7739,4481474213222000,25.121.180.32,2024-09-19,pro,443.95,103,true,Paper thing use involve scientist choose plant girl attention good.
+CUST-0013,Kristine,Gallagher,kristinegallagher13@example.com,(613) 292-3270,833-24-5905,4380314854540462,93.174.45.165,2024-06-26,enterprise,315.15,389,false,Enough degree carry hot involve education develop yard free person soon whatever upon.
+CUST-0014,Madeline,Valdez,madelinevaldez14@example.com,(551) 373-9852,385-67-0345,4719386438799691,126.65.200.97,2021-03-12,enterprise,178.11,199,true,Responsibility perform pick always music court join shake.
+CUST-0015,Darren,Bowman,darrenbowman15@example.com,(736) 456-1736,103-80-3043,4256281286568042,34.197.198.160,2022-11-09,enterprise,30.27,235,true,Fire I grow true throughout oil whole herself perhaps every second history.
+CUST-0016,Edwin,Cooper,edwincooper16@example.com,(925) 227-0907,637-06-9574,4890952953494546,167.202.173.183,2024-03-14,free,105.10,17,false,Leave able beat use man standard traditional.
+CUST-0017,Eduardo,Mejia,eduardomejia17@example.com,(439) 204-8481,188-52-4369,4995472108457045,156.113.244.101,2023-05-18,free,131.69,180,true,Also wall ok crime know project feeling.
+CUST-0018,Andre,Michael,andremichael18@example.com,(648) 388-8541,698-04-5150,4769890378274499,52.241.157.217,2022-04-21,pro,182.41,277,false,So defense movement up oil bill task wear media opportunity popular political.
+CUST-0019,Rachael,Hood,rachaelhood19@example.com,(311) 831-6390,352-14-9199,4335427351741080,39.109.117.50,2023-12-16,enterprise,155.31,404,false,Fast chance letter ball their run major leader return compare cover down.
+CUST-0020,Patricia,Stephenson,patriciastephenson20@example.com,(235) 217-2274,698-30-9322,4058789031858252,148.138.160.139,2023-04-23,pro,1126.38,132,true,
+CUST-0021,Gwendolyn,Bates,gwendolynbates21@example.com,(483) 286-2067,233-20-2805,4182541248646064,188.98.141.128,2021-08-23,pro,22.12,353,false,Positive represent son leave source pull sell agent.
+CUST-0022,Cassidy,Ellis,cassidyellis22@example.com,(736) 540-8122,873-59-2116,4647928450995710,79.72.158.215,2024-06-25,pro,20.00,395,true,Good picture size ball address federal process create range blood city.
+CUST-0023,Samuel,Navarro,samuelnavarro23@example.com,(557) 530-8766,623-02-6086,4738579632354324,184.153.245.170,2024-02-20,pro,1647.01,338,true,Officer early trial arrive dinner small foreign necessary list create available.
+CUST-0024,Riley,Golden,rileygolden24@example.com,(988) 323-5364,735-07-2472,4183738562333092,147.179.95.148,2022-08-29,pro,245.49,405,false,Guess oil agree view quickly weight arrive.
+CUST-0025,Gabriel,Odonnell,gabrielodonnell25@example.com,(237) 667-4507,495-54-5201,4432749680756659,131.35.254.234,2022-09-17,enterprise,37.57,136,true,Value suddenly wind when miss true choose truth suddenly increase main although professional.
+CUST-0026,Jocelyn,Erickson,jocelynerickson26@example.com,(311) 739-1556,088-16-3476,4767535481573905,11.66.49.91,2023-11-10,free,127.64,300,false,Series argue service approach seven song.
+CUST-0027,Kristy,Baldwin,kristybaldwin27@example.com,(467) 213-3813,784-55-8719,4401763588653857,61.38.93.60,2024-07-07,pro,343.92,277,true,
+CUST-0028,Lydia,Fisher,lydiafisher28@example.com,(400) 450-6716,759-28-6335,4138339554375104,27.210.227.22,2023-04-21,enterprise,84.82,327,true,Instead list activity whose table couple interesting because nearly mission space individual those.
+CUST-0029,Kristi,Conrad,kristiconrad29@example.com,(771) 666-6691,727-36-0155,4035359072341242,223.73.223.68,2021-08-18,pro,992.92,254,false,What may join interesting wear national figure.
+CUST-0030,Brad,Beltran,bradbeltran30@example.com,(584) 237-3770,713-21-4284,4823473804577092,164.205.224.194,2021-07-03,pro,1036.92,363,true,
+CUST-0031,Robert,Hahn,roberthahn31@example.com,(662) 478-4508,647-06-6347,4383301384445236,124.251.69.21,2022-08-13,free,238.96,53,true,Example you theory happen yet agency guess option trial democratic.
+CUST-0032,Frances,Gibbs,francesgibbs32@example.com,(712) 205-6944,061-50-9577,4063658484537023,195.73.164.114,2021-04-22,enterprise,608.10,116,true,Agree wear I more without song a popular question wide return bar.
+CUST-0033,Darin,Flowers,darinflowers33@example.com,(584) 550-9195,356-66-1897,4937669462359250,79.108.153.52,2021-08-30,pro,215.65,70,false,Others pass no what become word purpose sign seat allow.
+CUST-0034,Tina,Collier,tinacollier34@example.com,(980) 443-3344,673-72-4510,4264353263616373,173.83.235.16,2023-07-29,free,158.39,12,false,Blue soon impact career production enter machine.
+CUST-0035,Seth,Andrade,sethandrade35@example.com,(804) 548-2081,725-67-9482,4549479554094959,140.143.249.160,2023-06-15,enterprise,452.09,363,true,
+CUST-0036,Savannah,Wheeler,savannahwheeler36@example.com,(445) 309-3916,321-74-5393,4695293404547054,68.34.95.205,2023-03-07,pro,46.15,147,true,Health democratic station there environmental must.
+CUST-0037,Pedro,Merritt,pedromerritt37@example.com,(745) 280-5027,053-25-7138,4196086270203529,66.14.229.75,2022-06-12,free,68.12,280,true,
+CUST-0038,Sue,Sherman,suesherman38@example.com,(743) 916-2327,597-45-5258,4504146113165918,213.163.106.207,2022-07-01,pro,166.90,321,true,
+CUST-0039,Gina,Ochoa,ginaochoa39@example.com,(270) 242-7912,005-23-0705,4423007945999833,48.95.70.5,2023-04-02,free,110.40,422,true,Purpose exactly either rule shake themselves certain.
+CUST-0040,Jerome,Hamilton,jeromehamilton40@example.com,(434) 448-2615,432-09-6148,4633250925349621,200.214.214.209,2023-11-07,pro,263.83,56,true,
+CUST-0041,Shane,Santiago,shanesantiago41@example.com,(693) 963-6898,648-39-5253,4210163110943879,82.98.48.7,2024-02-07,free,268.22,66,false,Charge produce area skin buy current as middle.
+CUST-0042,Cristian,Perry,cristianperry42@example.com,(879) 540-9478,723-34-9213,4229601724422144,139.45.156.43,2023-06-19,pro,84.20,488,true,Modern type room idea current continue strategy require wall morning product arm turn.
+CUST-0043,Carmen,Ferrell,carmenferrell43@example.com,(926) 447-4780,593-28-5362,4145090015457798,177.170.181.191,2024-02-24,enterprise,166.64,470,false,Fast first food fact analysis inside future.
+CUST-0044,Wyatt,Dixon,wyattdixon44@example.com,(972) 278-1901,118-95-5868,4805759784309866,222.252.154.13,2024-04-30,free,224.70,164,false,Politics must open movie alone follow strategy.
+CUST-0045,Chloe,Bullock,chloebullock45@example.com,(245) 751-2405,824-87-4051,4868333752716637,21.183.146.53,2021-10-14,enterprise,288.09,490,false,Into though poor note college heart military.
+CUST-0046,Joe,Bright,joebright46@example.com,(213) 971-6085,309-06-3892,4637350078654011,67.16.197.112,2024-04-16,enterprise,82.97,476,false,
+CUST-0047,Jodi,Braun,jodibraun47@example.com,(530) 695-1488,170-25-0304,4811844845740457,14.242.92.172,2022-10-04,free,43.59,321,true,Key once there movie say debate.
+CUST-0048,Jamie,Barton,jamiebarton48@example.com,(878) 330-5791,568-87-8850,4161644137546638,59.226.196.87,2023-07-18,enterprise,198.42,62,true,Majority party imagine laugh respond campaign her hold baby former edge nothing.
+CUST-0049,Patrick,Wong,patrickwong49@example.com,(273) 465-8004,353-47-8546,4221127121751701,190.56.54.103,2021-08-27,pro,58.70,23,true,Economy beyond control girl include memory pretty mean recognize usually protect necessary.
+CUST-0050,Angelica,Cameron,angelicacameron50@example.com,(398) 938-3180,533-33-7828,4620024372592172,138.241.235.137,2021-10-15,enterprise,103.32,11,false,
+CUST-0051,Jeanette,Knapp,jeanetteknapp51@example.com,(268) 712-5968,124-87-7839,4101554958048221,27.54.129.26,2024-11-04,pro,459.20,129,false,Behavior risk perhaps leader air artist number similar discuss.
+CUST-0052,Geoffrey,Dickson,geoffreydickson52@example.com,(868) 257-2091,802-30-0768,4750916233008805,137.4.219.52,2023-07-20,free,445.09,176,false,Remain same water area perform animal.
+CUST-0053,Colin,Marshall,colinmarshall53@example.com,(443) 520-9812,172-98-8360,4548556689194068,203.236.72.165,2023-04-01,enterprise,346.01,259,false,
+CUST-0054,Angie,Atkins,angieatkins54@example.com,(827) 576-8192,039-42-0110,4039848025285494,71.36.95.239,2024-10-08,free,78.22,495,true,Past occur their simple pattern gas father represent visit true whole house.
+CUST-0055,Jack,Contreras,jackcontreras55@example.com,(342) 863-6883,439-71-8456,4797042410700711,132.238.210.90,2022-06-27,enterprise,20.25,289,false,Research all pass term travel join human language plan do.
+CUST-0056,Derrick,Hogan,derrickhogan56@example.com,(590) 529-8486,674-18-3785,4269001667962522,37.197.175.143,2021-08-29,pro,105.14,461,false,Contain entire organization future later attorney movement energy just police nothing modern.
+CUST-0057,Jacob,Chang,jacobchang57@example.com,(778) 869-0280,865-75-6435,4911831796762324,27.124.19.110,2024-10-18,enterprise,593.75,392,false,Book any add discussion peace oil executive just miss ago prove.
+CUST-0058,Cory,Salazar,corysalazar58@example.com,(477) 281-0162,332-11-1145,4242942016001706,209.160.253.50,2024-07-04,enterprise,446.84,123,true,Public identify network along doctor stop start lot rule cost.
+CUST-0059,Gina,Ramos,ginaramos59@example.com,(488) 729-3599,250-73-3205,4726029179802859,162.226.131.151,2022-11-26,enterprise,87.57,34,true,Father clear likely teacher suffer music opportunity need indicate.
+CUST-0060,Brent,Preston,brentpreston60@example.com,(841) 356-6444,870-40-9763,4171074282213099,219.107.172.56,2021-04-16,enterprise,312.06,425,true,Certainly race yard pattern gas suggest.
+CUST-0061,Cristian,Sutton,cristiansutton61@example.com,(795) 389-8387,841-11-4551,4823136991767863,186.66.8.18,2022-07-25,free,291.31,391,true,Very dinner enter physical treat suffer blue find picture nice born real top.
+CUST-0062,John,Petersen,johnpetersen62@example.com,(655) 220-2224,575-48-2482,4454104049496949,22.36.246.31,2023-01-18,enterprise,38.65,436,true,
+CUST-0063,Melody,Schneider,melodyschneider63@example.com,(770) 695-2162,110-02-4626,4235428739640748,144.222.186.241,2022-11-17,free,224.80,134,true,
+CUST-0064,Harold,Haas,haroldhaas64@example.com,(770) 603-9295,771-55-2899,4099685655074633,39.194.44.223,2024-06-07,free,53.45,289,false,Media job prepare race store believe sure whose.
+CUST-0065,Rebecca,Garrett,rebeccagarrett65@example.com,(980) 334-2613,570-76-9047,4962943642158322,61.211.7.110,2021-05-03,enterprise,212.15,494,false,Catch dinner rock group throughout major.
+CUST-0066,Robert,Davenport,robertdavenport66@example.com,(947) 322-4533,603-60-5875,4400397003681028,102.16.248.48,2021-12-28,enterprise,47.62,143,false,Anyone attack might strategy car young Mrs with even music word either bit.
+CUST-0067,Joanne,Wang,joannewang67@example.com,(569) 300-2139,506-09-0024,4514135147144260,156.168.168.204,2024-07-10,pro,131.52,220,true,
+CUST-0068,Dylan,Daniel,dylandaniel68@example.com,(697) 923-8837,684-22-1982,4627156381741698,86.128.125.171,2022-10-15,enterprise,174.28,420,true,Boy American we yet relationship say be protect dinner.
+CUST-0069,Jessica,Wise,jessicawise69@example.com,(879) 274-3469,639-56-2642,4314176460988760,206.21.146.54,2022-07-28,free,163.07,311,true,Benefit cell return environment away pick who impact.
+CUST-0070,Cory,Singh,corysingh70@example.com,(552) 953-5449,695-60-4936,4603598076263959,62.121.121.198,2023-07-23,free,97.15,484,false,Agency realize cover treat marriage reach staff town read bring newspaper.
+CUST-0071,Kara,Garrett,karagarrett71@example.com,(248) 975-6095,261-35-3070,4142046855859900,48.200.43.123,2024-09-06,pro,619.21,326,false,Election standard firm model truth many stand strategy can second just power.
+CUST-0072,Jodi,Johnson,jodijohnson72@example.com,(461) 325-3687,586-12-3946,4910304507530720,207.79.48.95,2024-08-06,pro,301.98,167,true,Capital expert skin policy particularly magazine baby natural center financial father vote college.
+CUST-0073,Dustin,Garcia,dustingarcia73@example.com,(612) 433-5070,614-59-9060,4348595881946448,215.29.143.148,2024-11-01,free,267.24,331,false,Her nice continue place drop teach movement address he.
+CUST-0074,Dustin,Chambers,dustinchambers74@example.com,(619) 421-2345,443-12-6609,4144984457724205,160.91.102.95,2022-01-04,pro,118.22,292,true,
+CUST-0075,Tammie,Robinson,tammierobinson75@example.com,(224) 930-1123,725-89-3537,4176022338270741,216.37.240.147,2021-03-14,free,60.79,83,false,Team policy free personal one discuss sea wife.
+CUST-0076,George,Horton,georgehorton76@example.com,(423) 814-4863,259-89-6990,4822830332099470,217.219.86.57,2023-11-25,free,67.48,105,true,
+CUST-0077,Debra,Ochoa,debraochoa77@example.com,(360) 412-5761,490-68-9306,4748667137229865,187.198.179.119,2021-05-03,pro,128.53,486,true,Themselves century federal next lose if since either fast.
+CUST-0078,Zachary,Coleman,zacharycoleman78@example.com,(982) 323-8998,026-19-6085,4402046624482229,70.117.254.240,2024-10-20,enterprise,218.91,483,true,
+CUST-0079,Sherry,Holder,sherryholder79@example.com,(732) 986-8935,465-30-6384,4341808786585154,104.92.246.186,2022-03-04,pro,120.98,265,true,Agent military side thought respond pick before understand meet wind.
+CUST-0080,Julia,Boone,juliaboone80@example.com,(291) 844-8402,718-71-2323,4030217266663091,51.36.70.2,2024-12-03,free,227.80,234,false,Couple yourself take health commercial defense again offer go thank office so.
+CUST-0081,Alexandria,Dickson,alexandriadickson81@example.com,(414) 634-3932,792-13-7231,4231944327208601,61.232.147.69,2021-03-21,free,66.24,58,true,Technology report book of however already every industry soon purpose.
+CUST-0082,Brenda,Mcmillan,brendamcmillan82@example.com,(846) 820-5293,635-72-8893,4085726397284712,102.130.234.28,2022-05-03,free,145.85,495,true,List performance million last fund imagine resource.
+CUST-0083,Samuel,Barry,samuelbarry83@example.com,(459) 979-7143,379-99-1804,4656618575023617,158.212.227.47,2021-04-07,free,250.98,24,true,Generation plant market rest beyond garden general development individual trial.
+CUST-0084,Sonia,Sosa,soniasosa84@example.com,(515) 455-9147,474-17-0720,4952375434410763,213.2.31.18,2022-10-30,enterprise,22.72,428,false,Prevent be budget deep stage huge there similar your television early skin.
+CUST-0085,Brooke,Rivers,brookerivers85@example.com,(651) 950-7455,437-07-2616,4210555227164101,17.59.1.217,2023-03-24,enterprise,81.89,175,false,Beat lose participant study ability best data PM might phone memory if name.
+CUST-0086,Geoffrey,Blair,geoffreyblair86@example.com,(271) 648-4669,693-43-6609,4498407350612279,84.201.197.169,2022-04-08,free,414.61,430,false,Compare end discussion international woman after week two itself go play improve friend.
+CUST-0087,Holly,Molina,hollymolina87@example.com,(519) 916-0600,177-60-1822,4476614176881881,144.38.248.121,2021-05-20,enterprise,254.72,129,true,
+CUST-0088,Ernest,Shaw,ernestshaw88@example.com,(822) 386-3555,045-89-3037,4747131469564226,122.249.9.26,2023-05-13,enterprise,168.06,33,true,
+CUST-0089,Vernon,Munoz,vernonmunoz89@example.com,(768) 379-0946,202-91-6049,4701352777721225,68.87.123.196,2024-10-11,enterprise,359.31,418,true,Focus avoid these do music mouth whole wife wall candidate church then cultural.
+CUST-0090,Beverly,Summers,beverlysummers90@example.com,(218) 249-4028,496-57-0570,4624120483367367,210.150.100.6,2022-08-17,free,377.88,138,true,School defense true question hit during develop two per score field.
+CUST-0091,Diamond,Marshall,diamondmarshall91@example.com,(477) 987-5138,675-29-6459,4097039318271545,169.82.194.64,2023-12-03,pro,233.78,200,true,Food beat also assume in knowledge point PM memory born pick them.
+CUST-0092,Vickie,Cruz,vickiecruz92@example.com,(256) 966-7759,283-43-3019,4264267639059482,139.167.217.117,2021-09-04,enterprise,205.85,94,true,Road personal next impact everybody prove describe fire garden relationship.
+CUST-0093,Joel,Shannon,joelshannon93@example.com,(380) 231-3726,365-97-0388,4257470156037548,23.126.136.245,2021-12-06,pro,144.49,364,false,Long detail economic surface feel stop.
+CUST-0094,Lorraine,Irwin,lorraineirwin94@example.com,(901) 719-0410,859-62-2721,4512276173674887,148.185.89.238,2023-03-31,free,495.03,378,true,
+CUST-0095,Tanya,Wiley,tanyawiley95@example.com,(576) 745-6239,399-37-7611,4309417595880473,59.24.126.198,2022-12-02,free,106.94,483,true,Join important group through become situation throw.
+CUST-0096,Karen,Schwartz,karenschwartz96@example.com,(530) 990-5801,157-87-2484,4197535490395449,200.100.75.216,2021-04-18,pro,147.63,114,false,Some address heart discover clear end near.
+CUST-0097,Molly,Macias,mollymacias97@example.com,(591) 327-5492,534-07-6397,4478427233691682,72.213.14.17,2022-12-27,free,335.21,94,false,Range during specific deep anything simply fine remain.
+CUST-0098,Virginia,Lester,virginialester98@example.com,(482) 823-5955,321-60-5310,4869739940276244,121.122.90.109,2022-12-04,pro,1604.48,266,true,Ahead over just floor benefit sort explain away exist stock evening picture.
+CUST-0099,Eddie,Bright,eddiebright99@example.com,(798) 868-4545,342-23-7894,4249268207636768,51.67.250.38,2021-03-25,pro,607.83,304,false,Piece hold data money couple property along will early.
+CUST-0100,Judith,Osborne,judithosborne100@example.com,(685) 294-2177,437-02-2746,4026750904558824,23.16.150.196,2024-05-05,enterprise,99.06,119,false,Trial else election condition reality research structure cut never man them ball.
+CUST-0101,Jillian,Olsen,jillianolsen101@example.com,(860) 553-0848,466-92-7364,4292224844137112,37.227.235.34,2021-09-30,free,89.08,195,true,
+CUST-0102,Micheal,Fry,michealfry102@example.com,(932) 638-7205,315-60-3807,4200369203279020,200.253.90.97,2024-03-14,pro,1803.12,35,true,Big letter type idea soon may training.
+CUST-0103,Gail,Oconnor,gailoconnor103@example.com,(936) 556-8069,113-61-2925,4972331768190774,202.4.255.212,2022-11-08,free,1089.94,464,true,
+CUST-0104,Caitlyn,Carlson,caitlyncarlson104@example.com,(615) 668-2454,656-94-5789,4547427316642054,134.68.226.173,2022-08-14,pro,43.26,267,true,Arrive once hold difficult into practice else movie five leg computer.
+CUST-0105,Evelyn,Gentry,evelyngentry105@example.com,(824) 905-3566,826-99-5196,4491337091001911,188.21.208.110,2021-07-20,free,1981.63,103,false,Senior century know difficult work national brother allow scene case the soon.
+CUST-0106,Roger,Sullivan,rogersullivan106@example.com,(705) 279-0987,563-08-3414,4564157399978434,147.15.255.101,2022-05-28,enterprise,42.56,137,false,
+CUST-0107,Jeanne,Moreno,jeannemoreno107@example.com,(426) 875-5224,621-47-4361,4496051702522349,178.167.20.133,2021-07-03,free,1971.83,471,true,
+CUST-0108,Kyle,Cherry,kylecherry108@example.com,(322) 968-8113,792-65-4098,4559193274520790,221.151.144.134,2021-07-17,free,137.73,459,true,Girl understand order public weight it international painting figure world draw training future.
+CUST-0109,Joseph,Baxter,josephbaxter109@example.com,(258) 763-7853,226-15-6365,4021028384725022,70.88.45.244,2022-01-18,free,128.20,468,true,
+CUST-0110,Kristy,Reynolds,kristyreynolds110@example.com,(336) 510-3856,100-99-2292,4193224462852786,71.253.63.139,2023-09-15,pro,261.92,1,true,Yeah environment year feel future politics firm.
+CUST-0111,Claire,Vega,clairevega111@example.com,(878) 927-7366,576-37-1703,4620396323968929,124.229.44.91,2024-06-13,enterprise,158.36,48,false,Visit issue attorney while two draw prevent every idea degree team determine.
+CUST-0112,Kristopher,Aguirre,kristopheraguirre112@example.com,(596) 638-3849,774-08-5757,4644448920900508,208.188.254.191,2022-01-15,enterprise,1323.25,230,false,Yet describe should at decade step plant.
+CUST-0113,Adrian,Cook,adriancook113@example.com,(637) 653-4477,034-49-3267,4627977377755701,223.159.93.34,2023-08-15,free,310.95,271,false,Artist according pass join side power tree camera through establish consider.
+CUST-0114,Darlene,Lambert,darlenelambert114@example.com,(992) 481-2379,712-74-9403,4357336451747462,24.187.136.35,2022-12-04,free,799.67,228,true,Win camera minute summer official school product reveal manage sound some good enough.
+CUST-0115,Cristina,Mullen,cristinamullen115@example.com,(294) 324-6878,678-11-7981,4683617530206330,205.221.185.115,2024-11-05,pro,724.74,69,true,
+CUST-0116,Ernest,Sexton,ernestsexton116@example.com,(367) 502-6215,559-93-9801,4467173154572633,158.205.232.33,2024-04-13,pro,63.78,299,true,
+CUST-0117,Nicole,Petty,nicolepetty117@example.com,(294) 540-0257,040-95-3173,4787953504139446,202.114.128.143,2022-06-06,enterprise,769.76,405,false,
+CUST-0118,Charlene,Orozco,charleneorozco118@example.com,(394) 527-3550,739-36-8464,4198893359066653,20.146.142.161,2021-06-19,pro,64.49,337,false,Practice who particularly girl exactly maintain perform case describe certain need total drive.
+CUST-0119,Miguel,Dillon,migueldillon119@example.com,(856) 470-8431,125-35-3262,4222294929622085,196.209.135.177,2021-11-23,free,229.59,427,false,Finish tough forget of woman whether safe too simple.
+CUST-0120,Amanda,Holloway,amandaholloway120@example.com,(958) 472-8370,051-93-3778,4535900150208301,80.139.52.239,2023-06-29,free,129.57,404,true,Feeling goal suffer also whatever attack.
+CUST-0121,Earl,Davis,earldavis121@example.com,(212) 754-8619,344-45-3103,4558187179684157,40.103.120.82,2021-03-05,free,218.88,115,false,Song expert drive election democratic quickly order mouth.
+CUST-0122,Brandi,Salinas,brandisalinas122@example.com,(627) 571-0607,589-22-3186,4317915799729768,107.128.133.166,2022-12-24,pro,238.75,281,true,Appear create itself street seat pay among quality structure.
+CUST-0123,Sandy,Snow,sandysnow123@example.com,(800) 424-5680,077-17-4451,4790739497503994,116.240.159.149,2022-04-29,pro,75.61,483,true,Lay this security quite analysis goal Democrat.
+CUST-0124,Walter,Mcclain,waltermcclain124@example.com,(844) 668-7277,210-80-2717,4997735478743717,125.161.199.162,2023-04-03,enterprise,479.76,256,true,Factor nation moment modern what play environment share style forget body.
+CUST-0125,Benjamin,Schneider,benjaminschneider125@example.com,(554) 276-7064,066-18-5167,4948195514307268,86.125.120.179,2023-07-15,free,320.29,169,false,
+CUST-0126,Evan,Erickson,evanerickson126@example.com,(549) 794-9496,038-91-2190,4128891186746658,75.216.189.132,2022-12-05,enterprise,123.23,413,false,Likely concern most whose center get guess every.
+CUST-0127,Andre,Reilly,andrereilly127@example.com,(771) 605-6281,648-12-6558,4410936594707037,115.24.179.117,2022-07-05,enterprise,473.51,39,true,So few because what base fly.
+CUST-0128,Allen,Hardin,allenhardin128@example.com,(246) 723-8895,075-22-3333,4561075943005137,163.252.255.158,2021-09-14,free,62.06,426,false,So skill south maybe decade lay billion.
+CUST-0129,Joy,Costa,joycosta129@example.com,(376) 803-2551,843-42-1872,4162150312633117,88.189.70.121,2023-03-06,pro,20.00,500,false,Husband company despite relate attention some about write amount by course analysis.
+CUST-0130,Tristan,Dixon,tristandixon130@example.com,(583) 311-9838,323-63-0756,4577735079555351,141.61.253.131,2024-01-18,enterprise,133.83,373,false,
+CUST-0131,Todd,Carpenter,toddcarpenter131@example.com,(444) 407-7744,288-73-0127,4482419425502391,198.189.246.74,2021-11-04,pro,20.00,196,true,North garden parent party them certain catch body drive bit party majority.
+CUST-0132,Jorge,Hull,jorgehull132@example.com,(718) 369-0617,324-26-9042,4337474359424390,189.8.76.157,2022-03-01,pro,119.13,361,true,Week tough city artist probably heart culture.
+CUST-0133,Annette,Sparks,annettesparks133@example.com,(853) 496-0437,295-30-1938,4655084798654871,165.5.196.211,2023-05-29,free,300.00,487,false,
+CUST-0134,Maria,Dougherty,mariadougherty134@example.com,(969) 263-0321,043-28-8301,4775946090423632,176.154.22.173,2024-03-26,enterprise,808.23,417,false,Five safe office yard resource point understand.
+CUST-0135,Kaitlin,Martin,kaitlinmartin135@example.com,(779) 577-2194,739-37-3852,4155017469119522,150.103.162.168,2022-07-05,free,151.25,232,true,People yeah school technology painting miss spring blue third.
+CUST-0136,Alice,Foster,alicefoster136@example.com,(337) 239-6922,077-73-2318,4346402242104993,88.94.237.160,2021-01-28,free,241.40,72,true,Network best science there second inside field surface store.
+CUST-0137,Alicia,Quinn,aliciaquinn137@example.com,(255) 555-3472,098-84-3402,4131982501323250,172.225.69.39,2024-08-04,free,511.03,260,true,
+CUST-0138,Ralph,Frost,ralphfrost138@example.com,(409) 559-2974,711-97-2103,4974274184337579,105.204.4.220,2023-06-27,pro,23.64,328,false,Available dark situation within arm family.
+CUST-0139,Kristen,Barber,kristenbarber139@example.com,(700) 705-0354,623-33-8626,4103302669637082,140.179.214.61,2023-10-19,free,248.77,168,false,Material soon court seat agree campaign ask keep market suggest sure activity.
+CUST-0140,Gabriella,Mccann,gabriellamccann140@example.com,(588) 424-8286,509-03-7095,4169191987397938,201.132.53.207,2021-11-03,pro,84.27,91,false,
+CUST-0141,Neil,Robbins,neilrobbins141@example.com,(866) 464-2888,241-34-4034,4674615123613491,200.146.97.9,2024-08-03,pro,289.40,313,false,Power single production forward relationship wife election strong college.
+CUST-0142,Shelby,Gamble,shelbygamble142@example.com,(855) 724-2712,448-93-7368,4355153900591355,177.36.25.109,2023-12-14,free,286.93,51,false,American kid education few church control fall become coach weight.
+CUST-0143,Guy,Raymond,guyraymond143@example.com,(911) 705-9320,293-48-0409,4540599680699238,27.217.133.231,2023-09-13,free,416.16,313,false,Mouth health send little leave value remember factor deep force rate buy.
+CUST-0144,Marcus,Curtis,marcuscurtis144@example.com,(298) 762-9551,318-77-0432,4310657413265038,112.236.210.128,2024-01-15,free,57.00,341,true,Show thing nor although so government green main present forward.
+CUST-0145,Melissa,Barr,melissabarr145@example.com,(443) 759-8483,825-57-3645,4107409326214795,169.44.24.170,2023-10-11,free,145.68,451,true,Movement great return effort charge natural piece right senior something boy scene.
+CUST-0146,Meagan,Sellers,meagansellers146@example.com,(764) 526-4822,517-07-9737,4402108798754815,29.114.4.95,2023-03-16,enterprise,342.64,488,false,Network food risk phone production generation less no science answer.
+CUST-0147,Darryl,Mayo,darrylmayo147@example.com,(853) 793-0321,261-33-4752,4416013917128350,183.172.112.247,2024-10-12,enterprise,134.62,289,true,Seat upon management past feeling so five help home cell whether national.
+CUST-0148,Faith,Brooks,faithbrooks148@example.com,(960) 472-9991,364-35-1112,4432614994101341,98.1.179.234,2024-06-06,free,20.36,227,true,We Mrs chair story put share nice how cut recently do left.
+CUST-0149,Sheila,Mccarty,sheilamccarty149@example.com,(590) 334-4155,606-64-0233,4855650826943797,203.89.31.198,2023-04-08,pro,119.97,173,false,Check available herself always mission daughter what water whose feeling.
+CUST-0150,Julian,Parrish,julianparrish150@example.com,(588) 789-0880,843-80-5774,4525020221478890,85.37.246.140,2021-03-25,free,52.46,444,true,

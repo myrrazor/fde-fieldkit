@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mimic — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">fieldkit</a>
+      <span class="sep">/</span>
+      <span class="tool-name">mimic</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>processed locally — nothing leaves this machine</span>
+      <span><code>fieldkit mimic generate SPEC -n 1000</code></span>
+    </p>
+
+    <h1 class="page-title">Demo data that looks real.</h1>
+    <p class="page-sub">
+      Learn a generation spec from a sample file, tweak it if you like, and generate
+      as many rows as you need. PII columns use independent Faker providers; inspect
+      generated data before sharing it.
+    </p>
+
+    <section>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="choose a sample data file">
+        <input type="file" accept=".csv,.tsv,.xlsx,.json,.jsonl,.ndjson">
+        <strong>Drop a sample file here</strong> or click to browse
+        <p class="hint">it learns column types, pools, and distributions from the sample</p>
+      </div>
+      <span class="file-chip" hidden><span></span><button type="button" aria-label="clear file">×</button></span>
+    </section>
+
+    <section id="spec-section" hidden>
+      <p class="label-eng">learned spec — edit freely</p>
+      <textarea id="spec" rows="16" spellcheck="false" aria-label="generation spec yaml"></textarea>
+      <div class="controls">
+        <div class="field">
+          <label for="n">rows</label>
+          <input type="number" id="n" value="1000" min="1" max="100000">
+        </div>
+        <div class="field">
+          <label for="seed">seed</label>
+          <input type="number" id="seed" value="0">
+        </div>
+        <div class="field">
+          <label for="fmt">format</label>
+          <select id="fmt">
+            <option value="csv">csv</option>
+            <option value="jsonl">jsonl</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="go">Generate</button>
+      </div>
+    </section>
+
+    <section id="result" aria-live="polite"></section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

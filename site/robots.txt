@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fde-tools.vercel.app/sitemap.xml

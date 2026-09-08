@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>netwatch docs — monitor and control agent traffic</title>
+    <meta
+      name="description"
+      content="How to use fieldkit netwatch: audit AI coding-agent destinations, enforce host and IP policy, inspect local reports, and understand proxy coverage limits."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/netwatch.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="netwatch docs — monitor and control agent traffic">
+    <meta
+      property="og:description"
+      content="Metadata-only network evidence and destination policy for AI coding agents."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/netwatch.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="netwatch docs — FDE Tools">
+    <meta name="twitter:description" content="Audit and enforce network destinations for AI coding agents.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to netwatch docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 07 Observe</p>
+      <h1>netwatch</h1>
+      <p class="docs-page__dek">
+        netwatch shows which network destinations an AI coding agent reaches. It
+        launches a command through local HTTP and SOCKS5 proxies, stores metadata in
+        SQLite, groups endpoints by service and host, and gives you a local control
+        room for capture, policy, reports, and coverage diagnostics.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>Coverage before counts</strong>
+          Run mode sees traffic routed through its proxies. HTTPS content stays encrypted.
+          Attach mode samples established TCP sockets and cannot block. DNS, UDP/QUIC,
+          and direct sockets that bypass the proxies are not captured.
+        </p>
+      </div>
+
+      <h2>Meet the local control room</h2>
+      <p>
+        Run <code>fieldkit serve</code> and open netwatch from the Fieldkit hub. The
+        dashboard keeps the active coverage lane visible, separates proxy requests,
+        tunnels, socket observations, and supported tool actions, and marks every
+        total with its real unit. It reads the same SQLite evidence as the CLI.
+      </p>
+      <figure class="product-shot">
+        <img
+          src="../assets/netwatch-dashboard.png"
+          alt="Netwatch local control room showing sample sessions, capture sources, destinations, and policy outcomes"
+          loading="lazy"
+          decoding="async"
+        >
+        <figcaption>
+          Product view with generated sample evidence. The hosts and totals demonstrate
+          layout and states; they are not customer traffic, telemetry, usage claims, or
+          benchmark results.
+        </figcaption>
+      </figure>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Workspace</th>
+              <th scope="col">What you can do</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Overview</td>
+              <td>Compare saved sessions, agent classes, capture sources, destinations, outcomes, and relayed bytes.</td>
+            </tr>
+            <tr>
+              <td>Live traffic</td>
+              <td>Filter one session by destination, service, decision, capture path, or network scope; inspect grouped and raw evidence; export JSON or CSV; stop a run owned by this server; delete stopped evidence.</td>
+            </tr>
+            <tr>
+              <td>Agents &amp; capture</td>
+              <td>Discover Codex and Claude Code processes, launch a noninteractive direct-argument command in audit or enforce mode, attach by PID, or copy the terminal command for an interactive agent.</td>
+            </tr>
+            <tr>
+              <td>Policies</td>
+              <td>Set the default action; add, edit, reorder, or remove rules; turn a destination into a future allow or deny rule; import, export, and save JSON; simulate a decision before a run.</td>
+            </tr>
+            <tr>
+              <td>Diagnostics</td>
+              <td>Check local proxy, attachment, Codex, and Claude capabilities and read the evidence contract and blind spots on the current machine.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="docs-callout">
+        <p>
+          <strong>Local controls have a hard boundary</strong>
+          Mutations require a direct loopback browser, loopback Host, same-origin JSON,
+          and a per-process control token. Non-loopback serving leaves netwatch as a
+          read-only evidence viewer. The browser accepts neither arbitrary database nor
+          policy paths, and it can stop only work started by the current server process.
+        </p>
+      </div>
+
+      <h2>Install and audit an agent</h2>
+      <p>
+        Add the plugin to an existing Fieldkit installation, check the local capture
+        paths, then launch Codex in audit mode. Audit is the default and never blocks.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool and start an audit</span>
+          <button class="copy-button" type="button" data-copy-target="netwatch-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="netwatch-docs-install">fieldkit plugin add netwatch
+fieldkit netwatch doctor
+fieldkit netwatch run -- codex</code></pre>
+      </div>
+      <p>
+        From a repository checkout, <a href="https://docs.astral.sh/uv/">uv</a>
+        installs the core and every plugin editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="netwatch-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="netwatch-docs-dev">uv sync
+uv run fieldkit netwatch doctor
+uv run fieldkit netwatch run -- claude</code></pre>
+      </div>
+
+      <h2>What a run captures</h2>
+      <p>
+        Every supervised command receives upper- and lower-case HTTP, HTTPS, and ALL
+        proxy variables. Supported Codex builds also receive an invocation-only sandbox
+        network-proxy override. Supported Claude Code builds receive an invocation-only,
+        fail-closed sandbox configuration and a hook that reports sanitized tool metadata.
+        Neither integration edits a global settings file.
+      </p>
+      <p>
+        The database keeps the session and executable name but drops every command argument.
+        It stores destination host and resolved IP, port, protocol, IP scope, decision,
+        matching rule, timing, and byte totals. A plaintext HTTP request can add its method
+        and sanitized path. URL queries, headers, bodies, prompts, Bash commands, and search
+        queries are never stored. HTTPS contributes only its CONNECT or SOCKS destination
+        unless a supported agent hook provides a sanitized URL.
+      </p>
+
+      <h2>Build and enforce a policy</h2>
+      <p>
+        Policies are versioned JSON with an explicit default action. Start from a policy
+        that allows loopback and denies everything else, append only the services the
+        agent needs, then check a destination before running in enforce mode.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Deny by default</span>
+          <button class="copy-button" type="button" data-copy-target="netwatch-docs-policy">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="netwatch-docs-policy">fieldkit netwatch policy init policy.json
+fieldkit netwatch policy add policy.json --action allow --id anthropic-api --host api.anthropic.com --port 443 --protocol https
+fieldkit netwatch policy add policy.json --action deny --id telemetry --host '*.sentry.io'
+fieldkit netwatch policy check policy.json https://api.anthropic.com
+fieldkit netwatch run --mode enforce --policy policy.json -- claude</code></pre>
+      </div>
+      <p>
+        A rule can match exact or wildcard hosts, IP addresses or CIDRs, ports, and
+        protocols. Categories combine with AND; repeated values within one category are
+        alternatives. Deny wins when rules conflict. Private, loopback, link-local, and
+        reserved destinations need a matching allow rule with
+        <code>allow_private: true</code>.
+      </p>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Host pattern</th>
+              <th scope="col">Matches</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>api.example.com</code></td><td>That exact host.</td></tr>
+            <tr><td><code>*.example.com</code></td><td>Subdomains, not the apex.</td></tr>
+            <tr><td><code>**.example.com</code></td><td>The apex and every subdomain.</td></tr>
+            <tr><td><code>*</code></td><td>Every host.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Inspect and control sessions</h2>
+      <p>
+        Select a session for destination groups, raw captured events, supported agent
+        tool actions, and exact coverage notes. The dashboard can export JSON or CSV,
+        stop a supervised run or attachment it owns, and delete a stopped session after
+        confirmation. It never labels tool actions as the cause of nearby connections.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Saved evidence</span>
+          <button class="copy-button" type="button" data-copy-target="netwatch-docs-reports">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="netwatch-docs-reports">fieldkit netwatch sessions
+fieldkit netwatch report SESSION_ID
+fieldkit serve</code></pre>
+      </div>
+
+      <h2>Attach to an existing process</h2>
+      <p>
+        <code>agents</code> finds running Codex and Claude processes. <code>attach</code>
+        samples established TCP sockets for a PID and all visible descendants with
+        <code>lsof</code>. Repeated snapshots are deduplicated. They remain socket
+        observations, not request counts, and attachment cannot enforce policy.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Observation-only attachment</span>
+          <button class="copy-button" type="button" data-copy-target="netwatch-docs-attach">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="netwatch-docs-attach">fieldkit netwatch agents
+fieldkit netwatch attach 12345
+fieldkit netwatch attach 12345 --follow</code></pre>
+      </div>
+
+      <h2>Command reference</h2>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Command</th>
+              <th scope="col">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>doctor [--json]</code></td><td>Report capture and agent-integration availability without network access.</td></tr>
+            <tr><td><code>agents [--json]</code></td><td>Find running Codex and Claude processes.</td></tr>
+            <tr><td><code>run [--mode] [--policy] [--db] -- COMMAND</code></td><td>Supervise one command through the local proxies.</td></tr>
+            <tr><td><code>attach PID [--follow] [--interval] [--db]</code></td><td>Sample established TCP sockets; observation only.</td></tr>
+            <tr><td><code>sessions [--json] [--db]</code></td><td>List saved sessions.</td></tr>
+            <tr><td><code>report SESSION [--json] [--db]</code></td><td>Show grouped destinations and raw evidence.</td></tr>
+            <tr><td><code>policy init PATH</code></td><td>Write the loopback-only starter policy.</td></tr>
+            <tr><td><code>policy add PATH</code></td><td>Append a validated allow or deny rule.</td></tr>
+            <tr><td><code>policy check PATH DESTINATION</code></td><td>Explain the decision before a run.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Hard boundary</h2>
+      <p>
+        A local proxy can enforce only traffic that reaches it. Universal blocking of
+        arbitrary direct sockets on macOS needs a separately signed Network Extension.
+        Netwatch does not install one, does not install a certificate authority, and does
+        not claim whole-machine visibility. Use <code>doctor --json</code> as the source of
+        truth for the active machine.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__row">
+          <p>FDE Tools / coverage stated before counts.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

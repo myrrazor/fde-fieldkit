@@ -1,0 +1,6 @@
+interface:
+  display_name: "FDE Blueprint"
+  short_description: "Design implementation-ready FDE capability blueprints"
+  default_prompt: "Use $fde-blueprint to interview me and produce a verified, implementation-ready capability blueprint."
+policy:
+  allow_implicit_invocation: true

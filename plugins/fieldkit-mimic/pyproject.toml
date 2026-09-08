@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fieldkit-mimic"
+version = "0.2.0"
+readme = "README.md"
+authors = [{ name = "FDE Fieldkit contributors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+description = "Generate realistic fake datasets"
+requires-python = ">=3.12"
+dependencies = [
+    "fieldkit",
+    "faker>=37,<38",
+    "pyyaml>=6",
+]
+
+[project.urls]
+Homepage = "https://fde-tools.vercel.app"
+Documentation = "https://fde-tools.vercel.app/docs/"
+Repository = "https://github.com/myrrazor/fde-fieldkit"
+Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
+Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"
+
+[project.entry-points."fieldkit.plugins"]
+mimic = "fieldkit_mimic.cli:app"
+
+[project.entry-points."fieldkit.web"]
+mimic = "fieldkit_mimic.web"
+
+[tool.uv.sources]
+fieldkit = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fieldkit_mimic"]

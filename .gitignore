@@ -1,0 +1,30 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+.DS_Store
+# scrub artifacts — mapping files are sensitive, never commit
+*.mapping.json
+map.json
+.fieldkit-salt
+.gstack/
+site/evidence/
+site/TEST_STDOUT.log
+TEST_STDOUT*.log
+# Local credentials and data exports
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.p12
+.vercel/
+site/.vercel/
+requirements-audit.txt

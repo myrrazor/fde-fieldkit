@@ -1,0 +1,1252 @@
+{
+  "catalog_version": "1.0",
+  "researched_on": "2026-08-10",
+  "purpose": "Decision support and provenance only. A catalog entry never grants procurement, dependency, license, egress, or code-copy approval.",
+  "license_classes": {
+    "standard": "Open specification or interoperability standard; verify each implementation separately.",
+    "permissive": "Permissive open-source license. Retain notices and inspect exact files before adapting code.",
+    "copyleft": "Open-source license with reciprocal obligations. Owner and legal review may be required.",
+    "source-available": "Source is visible but use, hosting, redistribution, or competition may be restricted.",
+    "commercial": "Proprietary managed service or product; integrate through approved contracts and APIs.",
+    "mixed": "Repository contains multiple licenses or separately licensed enterprise areas. Review at file level."
+  },
+  "reuse_modes": {
+    "implement-standard": "Implement the published standard or use an independently reviewed compatible library.",
+    "inspect-and-adapt": "Potential code reference after exact revision, license, maintenance, tests, and notices are reviewed.",
+    "integrate-via-api": "Use documented APIs or SDKs under the customer's approved account and data policy.",
+    "reference-only": "Use architecture and UX ideas only; do not copy source into generated scaffolds.",
+    "owner-review": "Stop for explicit owner and license review before selecting or adapting the component.",
+    "maintenance-only": "Existing use may be supported, but do not select for a new foundation without an explicit reason."
+  },
+  "language_profiles": [
+    {
+      "id": "typescript",
+      "frameworks": ["Fastify", "NestJS", "Next.js route handlers", "Express"],
+      "package_managers": ["pnpm", "npm", "yarn", "bun"],
+      "verification": ["typecheck", "lint", "unit tests", "contract tests"],
+      "source": "https://fastify.dev/docs/latest/Guides/Getting-Started/"
+    },
+    {
+      "id": "python",
+      "frameworks": ["FastAPI", "Django", "Flask"],
+      "package_managers": ["uv", "poetry", "pip-tools", "pip"],
+      "verification": ["typecheck", "lint", "pytest", "contract tests"],
+      "source": "https://fastapi.tiangolo.com/tutorial/"
+    },
+    {
+      "id": "go",
+      "frameworks": ["net/http", "chi", "Gin", "Fiber"],
+      "package_managers": ["go modules"],
+      "verification": ["go vet", "staticcheck", "go test", "contract tests"],
+      "source": "https://go.dev/doc/tutorial/web-service-gin"
+    },
+    {
+      "id": "java",
+      "frameworks": ["Spring Boot", "Quarkus", "Micronaut"],
+      "package_managers": ["Maven", "Gradle"],
+      "verification": ["compile", "static analysis", "unit tests", "integration tests"],
+      "source": "https://spring.io/projects/spring-boot"
+    },
+    {
+      "id": "dotnet",
+      "frameworks": ["ASP.NET Core Minimal APIs", "ASP.NET Core controllers"],
+      "package_managers": ["NuGet"],
+      "verification": ["dotnet format", "dotnet build", "dotnet test", "contract tests"],
+      "source": "https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/overview"
+    },
+    {
+      "id": "ruby",
+      "frameworks": ["Rails", "Sinatra", "Hanami"],
+      "package_managers": ["Bundler"],
+      "verification": ["RuboCop", "unit tests", "request tests", "contract tests"],
+      "source": "https://guides.rubyonrails.org/getting_started.html"
+    },
+    {
+      "id": "rust",
+      "frameworks": ["Axum", "Actix Web"],
+      "package_managers": ["Cargo"],
+      "verification": ["cargo fmt", "cargo clippy", "cargo test", "contract tests"],
+      "source": "https://docs.rs/axum/latest/axum/"
+    }
+  ],
+  "products": [
+    {
+      "id": "workos",
+      "name": "WorkOS",
+      "categories": ["enterprise-sso", "directory-sync", "admin-portal"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["SAML", "OIDC", "SCIM", "OAuth 2.0", "webhooks"],
+      "fit": "Managed enterprise identity broker with SDKs across major server languages.",
+      "sources": [
+        {"kind": "docs", "url": "https://workos.com/docs/sso/guide", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "docs", "url": "https://workos.com/docs/directory-sync/guide", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "auth0",
+      "name": "Auth0",
+      "categories": ["authentication", "enterprise-sso", "organizations"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "SCIM through supported plans/integrations"],
+      "fit": "Managed application identity with broad SDK and enterprise connection coverage.",
+      "sources": [{"kind": "docs", "url": "https://auth0.com/docs", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "okta",
+      "name": "Okta",
+      "categories": ["identity-provider", "enterprise-sso", "scim-client"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "SCIM 1.1", "SCIM 2.0"],
+      "fit": "Common enterprise IdP and provisioning client; useful for conformance testing.",
+      "sources": [{"kind": "docs", "url": "https://developer.okta.com/docs/guides/scim-provisioning-integration-connect/main/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "microsoft-entra",
+      "name": "Microsoft Entra ID",
+      "categories": ["identity-provider", "enterprise-sso", "scim-client"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "SCIM 2.0", "workload identity"],
+      "fit": "Enterprise identity and provisioning source for Microsoft-centric customers.",
+      "sources": [{"kind": "docs", "url": "https://learn.microsoft.com/en-us/entra/identity/app-provisioning/use-scim-to-provision-users-and-groups", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "keycloak",
+      "name": "Keycloak",
+      "categories": ["self-hosted-identity", "enterprise-sso", "federation"],
+      "delivery": "self-hosted",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "identity brokering"],
+      "fit": "Mature self-hosted identity provider when customers accept operating an identity control plane.",
+      "sources": [
+        {"kind": "repo", "url": "https://github.com/keycloak/keycloak", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/keycloak/keycloak/main/LICENSE.txt", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "ory-hydra",
+      "name": "Ory Hydra",
+      "categories": ["self-hosted-identity", "oauth-server", "oidc-provider"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["OAuth 2.0", "OIDC"],
+      "fit": "Protocol-focused authorization server; pair with a separate identity and login system.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/ory/hydra/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "authentik",
+      "name": "authentik",
+      "categories": ["self-hosted-identity", "enterprise-sso", "proxy"],
+      "delivery": "self-hosted",
+      "license_class": "mixed",
+      "license_id": "MIT core plus separately licensed enterprise areas",
+      "reuse": "owner-review",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "LDAP", "proxy auth"],
+      "fit": "Self-hosted identity platform with broad protocol support; review file-level licensing.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/goauthentik/authentik/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "supertokens",
+      "name": "SuperTokens",
+      "categories": ["application-auth", "session-management", "self-hosted-identity"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "mixed",
+      "license_id": "Apache-2.0 core plus separately licensed enterprise areas",
+      "reuse": "owner-review",
+      "methods": ["passwordless", "social login", "sessions", "multi-tenancy by product tier"],
+      "fit": "Application authentication and session foundation; verify enterprise feature boundaries.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/supertokens/supertokens-core/master/LICENSE.md", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "logto",
+      "name": "Logto",
+      "categories": ["application-auth", "self-hosted-identity", "organizations"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "copyleft",
+      "license_id": "MPL-2.0",
+      "reuse": "owner-review",
+      "methods": ["OIDC", "OAuth 2.0", "organizations", "RBAC"],
+      "fit": "Modern application identity option; reciprocal file-level terms require review.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/logto-io/logto/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "zitadel",
+      "name": "ZITADEL",
+      "categories": ["application-auth", "enterprise-sso", "self-hosted-identity"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "copyleft",
+      "license_id": "AGPL-3.0",
+      "reuse": "owner-review",
+      "methods": ["OIDC", "OAuth 2.0", "SAML", "organizations"],
+      "fit": "Identity platform with cloud and self-hosted modes; AGPL obligations require explicit review.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/zitadel/zitadel/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "nango",
+      "name": "Nango",
+      "categories": ["connector-platform", "oauth-broker", "sync-runtime"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "source-available",
+      "license_id": "Elastic-2.0",
+      "reuse": "reference-only",
+      "methods": ["OAuth", "API keys", "TypeScript functions", "syncs", "actions", "webhooks", "MCP"],
+      "fit": "Strong reference for code-owned product integrations, credential handling, and tenant isolation.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.nango.dev/introduction", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/NangoHQ/nango/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "airbyte",
+      "name": "Airbyte",
+      "categories": ["data-connectors", "elt", "connector-builder"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "source-available",
+      "license_id": "Elastic-2.0",
+      "reuse": "reference-only",
+      "methods": ["declarative YAML connectors", "Python CDK", "REST", "GraphQL", "incremental sync"],
+      "fit": "Broad data movement and connector-builder reference; not a drop-in permissive source library.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.airbyte.com/platform/connector-development/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/airbytehq/airbyte/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "meltano-singer-sdk",
+      "name": "Meltano Singer SDK",
+      "categories": ["data-connectors", "elt", "connector-sdk"],
+      "delivery": "library",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["Singer taps", "Singer targets", "REST", "GraphQL", "SQL", "incremental replication"],
+      "fit": "Python-first extract/load connectors with open protocol and testable stream abstractions.",
+      "sources": [{"kind": "docs", "url": "https://sdk.meltano.com/en/latest/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "composio",
+      "name": "Composio",
+      "categories": ["agent-tools", "connector-platform", "oauth-broker"],
+      "delivery": "library-and-managed-service",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["toolkits", "per-user sessions", "OAuth", "triggers", "MCP", "TypeScript", "Python"],
+      "fit": "Agent-oriented integration reference with tool discovery and per-user connection concepts.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.composio.dev/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/ComposioHQ/composio/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "merge",
+      "name": "Merge",
+      "categories": ["unified-api", "connector-platform"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["hosted link", "linked accounts", "common models", "scheduled sync", "webhooks"],
+      "fit": "Managed unified APIs for categories such as HRIS, CRM, accounting, and ticketing.",
+      "sources": [{"kind": "docs", "url": "https://docs.merge.dev/get-started/introduction/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "paragon",
+      "name": "Paragon",
+      "categories": ["connector-platform", "managed-sync", "workflow-automation", "embedded-integrations"],
+      "delivery": "managed-or-customer-hosted",
+      "license_class": "commercial",
+      "license_id": "Paragon service and deployment terms",
+      "reuse": "integrate-via-api",
+      "methods": ["ActionKit", "managed sync", "workflows", "OAuth", "webhooks", "customer-hosted deployment"],
+      "fit": "Integration infrastructure with action, sync, workflow, monitoring, and several hosting models.",
+      "sources": [{"kind": "docs", "url": "https://docs.useparagon.com/overview", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "pipedream",
+      "name": "Pipedream",
+      "categories": ["connector-platform", "workflow-automation", "eventing"],
+      "delivery": "managed",
+      "license_class": "mixed",
+      "license_id": "service terms plus component-specific licenses",
+      "reuse": "reference-only",
+      "methods": ["OAuth", "components", "workflows", "event sources", "actions"],
+      "fit": "Large integration catalog and workflow reference; inspect each component and service term separately.",
+      "sources": [{"kind": "docs", "url": "https://pipedream.com/docs/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+
+    {
+      "id": "standard-webhooks",
+      "name": "Standard Webhooks",
+      "categories": ["webhook-standard", "signatures", "interoperability"],
+      "delivery": "standard-and-libraries",
+      "license_class": "standard",
+      "license_id": "Apache-2.0",
+      "reuse": "implement-standard",
+      "methods": ["signed payloads", "timestamps", "message IDs", "multi-language libraries"],
+      "fit": "Default interoperability baseline for webhook signing and replay resistance.",
+      "sources": [
+        {"kind": "docs", "url": "https://www.standardwebhooks.com/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/standard-webhooks/standard-webhooks/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "svix",
+      "name": "Svix",
+      "categories": ["webhook-platform", "signatures", "delivery"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["raw-body verification", "delivery retries", "endpoint management", "multi-language libraries"],
+      "fit": "Webhook send/receive implementation reference and hosted delivery option.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.svix.com/receiving/verifying-payloads/how", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/svix/svix-webhooks/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "hookdeck",
+      "name": "Hookdeck",
+      "categories": ["webhook-gateway", "delivery-observability", "replay"],
+      "delivery": "managed-and-self-hosted-options",
+      "license_class": "mixed",
+      "license_id": "verify exact component",
+      "reuse": "reference-only",
+      "methods": ["gateway", "rate limiting", "retry", "replay", "observability"],
+      "fit": "Operational webhook gateway and observability reference.",
+      "sources": [{"kind": "docs", "url": "https://hookdeck.com/docs", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "cloudevents",
+      "name": "CloudEvents",
+      "categories": ["event-standard", "interoperability"],
+      "delivery": "standard-and-sdks",
+      "license_class": "standard",
+      "license_id": "Apache-2.0 project",
+      "reuse": "implement-standard",
+      "methods": ["common event envelope", "HTTP bindings", "SDKs across major languages"],
+      "fit": "Portable event envelope for queues, webhooks, metering, and workflow triggers.",
+      "sources": [{"kind": "docs", "url": "https://cloudevents.io/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "asyncapi",
+      "name": "AsyncAPI",
+      "categories": ["event-contract", "api-description", "documentation"],
+      "delivery": "standard-and-tooling",
+      "license_class": "standard",
+      "license_id": "Apache-2.0 project",
+      "reuse": "implement-standard",
+      "methods": ["channel contracts", "message schemas", "bindings", "code generation"],
+      "fit": "Versioned contract for asynchronous channels and messages.",
+      "sources": [{"kind": "docs", "url": "https://www.asyncapi.com/docs/concepts", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "temporal",
+      "name": "Temporal",
+      "categories": ["durable-workflow", "retries", "orchestration"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["durable workflows", "activities", "event history", "replay", "multi-language SDKs"],
+      "fit": "Long-running, failure-resilient workflows for onboarding, connectors, and incident automation.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.temporal.io/temporal", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/temporalio/temporal/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+
+    {
+      "id": "amazon-sqs",
+      "name": "Amazon SQS",
+      "categories": ["managed-queue", "dead-letter-queue"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "AWS service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["standard queues", "FIFO queues", "visibility timeout", "dead-letter queues", "KMS encryption"],
+      "fit": "AWS-native durable queue with standard and FIFO modes.",
+      "sources": [{"kind": "docs", "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "google-pubsub",
+      "name": "Google Cloud Pub/Sub",
+      "categories": ["managed-pubsub", "event-bus"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Google Cloud service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["topics", "subscriptions", "dead-letter topics", "filters", "streaming"],
+      "fit": "GCP-native asynchronous messaging and event distribution.",
+      "sources": [{"kind": "docs", "url": "https://cloud.google.com/pubsub/docs/overview", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "azure-service-bus",
+      "name": "Azure Service Bus",
+      "categories": ["managed-queue", "managed-pubsub", "enterprise-messaging"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Microsoft Azure service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["queues", "topics", "subscriptions", "transactions", "sessions", "dead-letter queues"],
+      "fit": "Azure-native enterprise messaging with ordering and transactional coordination options.",
+      "sources": [{"kind": "docs", "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "apache-kafka",
+      "name": "Apache Kafka",
+      "categories": ["event-stream", "durable-log", "event-bus"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["partitioned event log", "consumer groups", "retention", "Kafka Connect", "stream processing"],
+      "fit": "High-throughput durable event streams when operational complexity is justified.",
+      "sources": [
+        {"kind": "docs", "url": "https://kafka.apache.org/documentation/#intro_concepts_and_terms", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/apache/kafka/trunk/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "nats-jetstream",
+      "name": "NATS JetStream",
+      "categories": ["event-stream", "queue", "pubsub"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["subjects", "streams", "durable consumers", "acknowledgements", "replay"],
+      "fit": "Compact messaging and persistence layer with broad language clients.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.nats.io/nats-concepts/jetstream", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/nats-io/nats-server/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "rabbitmq",
+      "name": "RabbitMQ",
+      "categories": ["message-broker", "queue", "pubsub"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "copyleft",
+      "license_id": "MPL-2.0 core",
+      "reuse": "owner-review",
+      "methods": ["AMQP", "queues", "exchanges", "consumer acknowledgements", "publisher confirms"],
+      "fit": "Traditional broker with rich routing and explicit delivery confirmations.",
+      "sources": [
+        {"kind": "docs", "url": "https://www.rabbitmq.com/docs/confirms", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "valkey",
+      "name": "Valkey",
+      "categories": ["cache", "streams", "queue-foundation"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "BSD-3-Clause",
+      "reuse": "inspect-and-adapt",
+      "methods": ["streams", "consumer groups", "cache", "sorted sets", "pubsub"],
+      "fit": "Permissive Redis-compatible foundation for compact queues, caches, and coordination.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/valkey-io/valkey/unstable/COPYING", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "pgvector",
+      "name": "pgvector",
+      "categories": ["vector-store", "postgres-extension", "rag"],
+      "delivery": "self-hosted-or-managed-postgres",
+      "license_class": "permissive",
+      "license_id": "PostgreSQL",
+      "reuse": "inspect-and-adapt",
+      "methods": ["exact search", "HNSW", "IVFFlat", "SQL filters", "PostgreSQL transactions"],
+      "fit": "Use when PostgreSQL is already authoritative and vector scale fits the database plan.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/pgvector/pgvector/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "categories": ["vector-store", "rag", "multitenancy"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["payload filters", "tenant payload index", "sharding", "hybrid search"],
+      "fit": "Dedicated vector engine with documented payload, shard, and tiered tenancy models.",
+      "sources": [
+        {"kind": "docs", "url": "https://qdrant.tech/documentation/guides/multitenancy/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/qdrant/qdrant/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "categories": ["managed-vector-store", "rag", "multitenancy"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["namespaces", "metadata filters", "serverless indexes"],
+      "fit": "Managed vector database with namespace-per-tenant guidance.",
+      "sources": [{"kind": "docs", "url": "https://docs.pinecone.io/guides/index-data/implement-multitenancy", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "weaviate",
+      "name": "Weaviate",
+      "categories": ["vector-store", "hybrid-search", "rag"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "BSD-3-Clause",
+      "reuse": "inspect-and-adapt",
+      "methods": ["vector search", "keyword search", "hybrid search", "multi-tenancy"],
+      "fit": "Dedicated search and vector engine with managed and self-hosted choices.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/weaviate/weaviate/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "milvus",
+      "name": "Milvus",
+      "categories": ["vector-store", "distributed-search", "rag"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["distributed vector search", "partitions", "scalar filtering", "hybrid search"],
+      "fit": "Distributed vector workloads where dedicated cluster operations are acceptable.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/milvus-io/milvus/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "opensearch",
+      "name": "OpenSearch",
+      "categories": ["search", "vector-store", "observability"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["keyword search", "vector search", "filters", "aggregations"],
+      "fit": "Combined text, vector, and analytics search when operating a search cluster is justified.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/opensearch-project/OpenSearch/main/LICENSE.txt", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "azure-ai-search",
+      "name": "Azure AI Search",
+      "categories": ["managed-search", "vector-store", "security-trimming"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Microsoft Azure service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["document ACL fields", "OData security filters", "vector search", "hybrid search"],
+      "fit": "Azure-native retrieval with documented document-level security filtering patterns.",
+      "sources": [{"kind": "docs", "url": "https://learn.microsoft.com/en-us/azure/search/search-security-trimming-for-azure-search", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "llamaindex",
+      "name": "LlamaIndex",
+      "categories": ["rag-framework", "ingestion", "retrieval"],
+      "delivery": "library-and-managed-options",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["loaders", "indexes", "retrievers", "query engines", "evaluation"],
+      "fit": "RAG orchestration reference; authorization remains the application designer's responsibility.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/run-llama/llama_index/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "categories": ["llm-framework", "rag-framework", "agents"],
+      "delivery": "library-and-managed-options",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["retrievers", "tools", "chains", "agents", "tracing integrations"],
+      "fit": "Broad orchestration ecosystem; keep security and authorization in deterministic application code.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/langchain-ai/langchain/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "unstructured",
+      "name": "Unstructured",
+      "categories": ["document-ingestion", "parsing", "rag"],
+      "delivery": "library-and-managed-service",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["document parsing", "partitioning", "chunking", "OCR integrations"],
+      "fit": "Document ingestion reference for heterogeneous files; inspect model and service egress separately.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/LICENSE.md", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "presidio",
+      "name": "Presidio",
+      "categories": ["pii-detection", "anonymization", "image-redaction"],
+      "delivery": "library-or-self-hosted-service",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "inspect-and-adapt",
+      "methods": ["NER", "regex", "rules", "checksums", "custom recognizers", "text and image redaction"],
+      "fit": "Extensible local PII analysis and anonymization; documentation explicitly warns detection is not complete.",
+      "sources": [
+        {"kind": "docs", "url": "https://data-privacy-stack.github.io/presidio/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/microsoft/presidio/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "google-sensitive-data-protection",
+      "name": "Google Sensitive Data Protection",
+      "categories": ["managed-pii-detection", "dlp", "transformation"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Google Cloud service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["infoType detectors", "inspection", "de-identification", "risk analysis"],
+      "fit": "Managed detector catalog with broad regional entity coverage; validate accuracy and egress policy.",
+      "sources": [{"kind": "docs", "url": "https://cloud.google.com/sensitive-data-protection/docs/infotypes-reference", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "aws-comprehend",
+      "name": "Amazon Comprehend PII",
+      "categories": ["managed-pii-detection", "text-analysis"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "AWS service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["PII entities", "confidence scores", "offsets", "batch redaction"],
+      "fit": "AWS-native text PII location and redaction for supported languages and entity types.",
+      "sources": [{"kind": "docs", "url": "https://docs.aws.amazon.com/comprehend/latest/dg/how-pii.html", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "azure-language-pii",
+      "name": "Azure Language PII",
+      "categories": ["managed-pii-detection", "text", "conversation", "document-redaction"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Microsoft Azure service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["text PII", "conversation PII", "document PII", "confidence scores", "redaction"],
+      "fit": "Azure-native PII across strings, transcripts, and native documents.",
+      "sources": [{"kind": "docs", "url": "https://learn.microsoft.com/en-us/azure/ai-services/language-service/personally-identifiable-information/overview", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "detect-secrets",
+      "name": "detect-secrets",
+      "categories": ["secret-scanning", "pre-commit", "baselines"],
+      "delivery": "cli-and-library",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["plugin detectors", "entropy", "baselines", "audit workflow", "pre-commit"],
+      "fit": "Secret-prevention and baseline workflow for code and configuration repositories.",
+      "sources": [{"kind": "repo", "url": "https://github.com/Yelp/detect-secrets", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "gitleaks",
+      "name": "Gitleaks",
+      "categories": ["secret-scanning", "git-history", "ci"],
+      "delivery": "cli",
+      "license_class": "permissive",
+      "license_id": "MIT",
+      "reuse": "maintenance-only",
+      "methods": ["git scanning", "directory scanning", "SARIF", "pre-commit", "CI"],
+      "fit": "Existing secret scanning deployments; repository currently states feature development is complete and security fixes continue.",
+      "sources": [{"kind": "repo", "url": "https://github.com/gitleaks/gitleaks", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "docker-compose",
+      "name": "Docker Compose",
+      "categories": ["deployment", "local-stack", "single-host"],
+      "delivery": "cli-and-specification",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0 project",
+      "reuse": "inspect-and-adapt",
+      "methods": ["services", "networks", "volumes", "profiles", "health checks"],
+      "fit": "Local, development, evaluation, and controlled single-host deployments.",
+      "sources": [{"kind": "docs", "url": "https://docs.docker.com/compose/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "categories": ["deployment", "orchestration", "customer-cloud"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["deployments", "jobs", "services", "network policies", "operators", "RBAC"],
+      "fit": "Customer-standard cluster deployments when operational maturity exists.",
+      "sources": [{"kind": "docs", "url": "https://kubernetes.io/docs/home/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "helm",
+      "name": "Helm",
+      "categories": ["deployment", "kubernetes-packaging"],
+      "delivery": "cli-and-chart-format",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["charts", "values", "templates", "releases", "hooks"],
+      "fit": "Versioned Kubernetes application packaging with customer-specific values contracts.",
+      "sources": [{"kind": "docs", "url": "https://helm.sh/docs/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "k3s",
+      "name": "K3s",
+      "categories": ["deployment", "edge", "lightweight-kubernetes"],
+      "delivery": "self-hosted",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["single binary", "embedded components", "edge", "ARM", "lightweight clusters"],
+      "fit": "Edge or constrained customer environments that still require conformant Kubernetes.",
+      "sources": [{"kind": "repo", "url": "https://github.com/k3s-io/k3s", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "opentofu",
+      "name": "OpenTofu",
+      "categories": ["infrastructure-as-code", "deployment"],
+      "delivery": "cli",
+      "license_class": "copyleft",
+      "license_id": "MPL-2.0",
+      "reuse": "owner-review",
+      "methods": ["declarative resources", "plan", "apply", "state", "providers", "modules"],
+      "fit": "Open infrastructure-as-code workflow with a broad provider ecosystem.",
+      "sources": [
+        {"kind": "docs", "url": "https://opentofu.org/docs/intro/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://github.com/opentofu/opentofu", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "categories": ["infrastructure-as-code", "deployment"],
+      "delivery": "cli-and-managed-options",
+      "license_class": "source-available",
+      "license_id": "BUSL-1.1",
+      "reuse": "reference-only",
+      "methods": ["declarative resources", "plan", "apply", "state", "providers", "modules"],
+      "fit": "Common customer standard; source reuse and competitive hosting are license-sensitive.",
+      "sources": [{"kind": "repo", "url": "https://github.com/hashicorp/terraform", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "pulumi",
+      "name": "Pulumi",
+      "categories": ["infrastructure-as-code", "deployment", "automation-api"],
+      "delivery": "cli-library-and-managed-options",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0 core",
+      "reuse": "inspect-and-adapt",
+      "methods": ["TypeScript", "Python", "Go", "C#", "Java", "YAML", "Automation API"],
+      "fit": "Infrastructure as code in application languages and embedded deployment workflows.",
+      "sources": [{"kind": "repo", "url": "https://github.com/pulumi/pulumi", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "sops",
+      "name": "SOPS",
+      "categories": ["secret-management", "encrypted-config", "gitops"],
+      "delivery": "cli",
+      "license_class": "copyleft",
+      "license_id": "MPL-2.0",
+      "reuse": "owner-review",
+      "methods": ["KMS", "PGP", "age", "encrypted YAML/JSON/ENV/INI", "GitOps"],
+      "fit": "Encrypted configuration files when customer key management and GitOps policy permit them.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/getsops/sops/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "vault",
+      "name": "HashiCorp Vault",
+      "categories": ["secret-management", "dynamic-credentials", "pki"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "source-available",
+      "license_id": "BUSL-1.1 for current covered versions",
+      "reuse": "reference-only",
+      "methods": ["secret engines", "dynamic credentials", "PKI", "leases", "auth methods"],
+      "fit": "Customer-standard secret control plane; review current license and operating burden.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/hashicorp/vault/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "infisical",
+      "name": "Infisical",
+      "categories": ["secret-management", "machine-identities", "pki"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "mixed",
+      "license_id": "MIT core plus separately licensed enterprise areas",
+      "reuse": "owner-review",
+      "methods": ["secrets", "machine identities", "dynamic secrets", "PKI", "KMS"],
+      "fit": "Modern secret-management option with cloud and self-hosted delivery; review feature licensing.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/Infisical/infisical/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "external-secrets",
+      "name": "External Secrets Operator",
+      "categories": ["secret-management", "kubernetes", "secret-sync"],
+      "delivery": "kubernetes-operator",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["external providers", "Kubernetes secrets", "refresh", "workload identities"],
+      "fit": "Bridge approved external secret managers into Kubernetes workloads.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/external-secrets/external-secrets/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "opentelemetry",
+      "name": "OpenTelemetry",
+      "categories": ["observability", "telemetry-standard", "collector"],
+      "delivery": "standard-sdks-and-collector",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["traces", "metrics", "logs", "OTLP", "semantic conventions", "collector"],
+      "fit": "Vendor-neutral instrumentation and export contract across supported stacks.",
+      "sources": [
+        {"kind": "docs", "url": "https://opentelemetry.io/docs/what-is-opentelemetry/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-specification/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "categories": ["error-tracking", "alerts", "performance"],
+      "delivery": "managed-and-self-hosted-options",
+      "license_class": "source-available",
+      "license_id": "verify current Sentry component license",
+      "reuse": "integrate-via-api",
+      "methods": ["errors", "traces", "releases", "alerts", "webhooks", "ticket integrations"],
+      "fit": "Error and performance signal source with alert routing and release context.",
+      "sources": [{"kind": "docs", "url": "https://docs.sentry.io/product/alerts/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "pagerduty",
+      "name": "PagerDuty",
+      "categories": ["on-call", "incident-response", "events-api"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "proprietary",
+      "reuse": "integrate-via-api",
+      "methods": ["Events API", "schedules", "escalation policies", "incidents", "webhooks"],
+      "fit": "Managed on-call and incident routing control plane.",
+      "sources": [{"kind": "docs", "url": "https://developer.pagerduty.com/docs/events-api-v2/overview/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "posthog",
+      "name": "PostHog",
+      "categories": ["product-analytics", "customer-health", "session-replay", "feature-flags"],
+      "delivery": "managed-and-hobby-self-hosted",
+      "license_class": "mixed",
+      "license_id": "MIT core with separately licensed enterprise directory",
+      "reuse": "owner-review",
+      "methods": ["events", "funnels", "retention", "group analytics", "API", "warehouse", "alerts"],
+      "fit": "Product usage signal source and customer-health input; separate OSS and paid feature boundaries.",
+      "sources": [
+        {"kind": "docs", "url": "https://posthog.com/docs/product-analytics", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "license", "url": "https://raw.githubusercontent.com/PostHog/posthog/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "apache-superset",
+      "name": "Apache Superset",
+      "categories": ["business-intelligence", "dashboards", "customer-health"],
+      "delivery": "self-hosted",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["SQL analytics", "semantic layer", "dashboards", "RBAC", "REST API", "embedded SDK"],
+      "fit": "Self-hosted BI layer for SQL-backed health and operational dashboards.",
+      "sources": [{"kind": "repo", "url": "https://github.com/apache/superset", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "stripe-billing",
+      "name": "Stripe Billing",
+      "categories": ["billing", "usage-metering", "payments"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Stripe service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["subscriptions", "usage events", "meters", "credits", "invoices", "webhooks"],
+      "fit": "Managed payment and billing source of truth; current guidance routes many new usage cases to Metronome.",
+      "sources": [{"kind": "docs", "url": "https://docs.stripe.com/billing/subscriptions/usage-based", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "metronome",
+      "name": "Metronome",
+      "categories": ["usage-metering", "billing", "pricing", "invoicing"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Metronome service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["usage ingestion", "meters", "pricing", "credits", "invoices", "customer configuration"],
+      "fit": "Managed usage-based billing platform and a current integration path for new Stripe usage cases.",
+      "sources": [{"kind": "docs", "url": "https://docs.metronome.com/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "orb",
+      "name": "Orb",
+      "categories": ["usage-metering", "billing", "pricing", "invoicing"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "Orb service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["event ingestion", "metrics", "plans", "credits", "invoices", "webhooks"],
+      "fit": "Managed usage-based billing candidate with event, pricing, and invoicing APIs.",
+      "sources": [{"kind": "docs", "url": "https://docs.withorb.com/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "openmeter",
+      "name": "OpenMeter",
+      "categories": ["usage-metering", "billing", "entitlements"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["CloudEvents", "meters", "entitlements", "limits", "billing", "customer portal"],
+      "fit": "Open event-based metering and billing foundation with SDKs and self-hosting.",
+      "sources": [
+        {"kind": "docs", "url": "https://openmeter.io/docs", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "repo", "url": "https://github.com/openmeterio/openmeter", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "lago",
+      "name": "Lago",
+      "categories": ["usage-metering", "billing", "invoicing", "entitlements"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "copyleft",
+      "license_id": "AGPL-3.0",
+      "reuse": "owner-review",
+      "methods": ["metering", "subscriptions", "hybrid pricing", "invoices", "payment orchestration"],
+      "fit": "Broad open billing platform; AGPL obligations and default self-host telemetry require explicit review.",
+      "sources": [{"kind": "repo", "url": "https://github.com/getlago/lago", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "kill-bill",
+      "name": "Kill Bill",
+      "categories": ["subscription-billing", "payments", "invoicing"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["catalogs", "subscriptions", "usage", "invoices", "payments", "plugins"],
+      "fit": "Mature modular subscription billing platform for complex self-hosted requirements.",
+      "sources": [{"kind": "repo", "url": "https://github.com/killbill/killbill", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "categories": ["workflow-automation", "connectors", "onboarding"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "source-available",
+      "license_id": "Sustainable Use License plus enterprise areas",
+      "reuse": "reference-only",
+      "methods": ["visual workflows", "connectors", "triggers", "webhooks", "credentials"],
+      "fit": "Low-code workflow reference; license restrictions make it unsuitable as a generic permissive code source.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/n8n-io/n8n/master/LICENSE.md", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "windmill",
+      "name": "Windmill",
+      "categories": ["workflow-automation", "scripts", "internal-tools"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "mixed",
+      "license_id": "AGPL-3.0, Apache-2.0, and proprietary areas",
+      "reuse": "owner-review",
+      "methods": ["scripts", "flows", "apps", "schedules", "webhooks", "workers"],
+      "fit": "Developer-oriented workflows and internal tools; file-level licensing must be reviewed.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/windmill-labs/windmill/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "kestra",
+      "name": "Kestra",
+      "categories": ["workflow-orchestration", "data-workflows", "onboarding"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0 core",
+      "reuse": "inspect-and-adapt",
+      "methods": ["declarative workflows", "triggers", "tasks", "retries", "backfills"],
+      "fit": "Declarative orchestration for integration-heavy and scheduled workflows.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/kestra-io/kestra/develop/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "dagster",
+      "name": "Dagster",
+      "categories": ["data-orchestration", "assets", "onboarding"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["software-defined assets", "jobs", "sensors", "schedules", "partitions"],
+      "fit": "Data-asset orchestration and lineage-heavy workflows.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/dagster-io/dagster/master/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "prefect",
+      "name": "Prefect",
+      "categories": ["workflow-orchestration", "python", "onboarding"],
+      "delivery": "self-hosted-or-managed",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0",
+      "reuse": "inspect-and-adapt",
+      "methods": ["Python flows", "tasks", "retries", "deployments", "workers"],
+      "fit": "Python-native workflow orchestration for teams that prefer code-first flows.",
+      "sources": [{"kind": "license", "url": "https://raw.githubusercontent.com/PrefectHQ/prefect/main/LICENSE", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "slsa",
+      "name": "SLSA",
+      "categories": ["supply-chain", "provenance", "security-standard"],
+      "delivery": "standard",
+      "license_class": "standard",
+      "license_id": "community specification",
+      "reuse": "implement-standard",
+      "methods": ["build track", "source track", "provenance", "verification summaries"],
+      "fit": "Incremental supply-chain security and artifact provenance requirements.",
+      "sources": [{"kind": "spec", "url": "https://slsa.dev/spec/v1.2/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "openssf-scorecard",
+      "name": "OpenSSF Scorecard",
+      "categories": ["supply-chain", "dependency-review", "security-posture"],
+      "delivery": "cli-and-ci",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0 project",
+      "reuse": "inspect-and-adapt",
+      "methods": ["automated checks", "dependency risk", "CI", "maintainer and build practices"],
+      "fit": "One input to OSS intake; score findings require human interpretation.",
+      "sources": [{"kind": "docs", "url": "https://securityscorecards.dev/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "cyclonedx",
+      "name": "CycloneDX",
+      "categories": ["sbom", "supply-chain", "vulnerability-management"],
+      "delivery": "standard-and-tooling",
+      "license_class": "standard",
+      "license_id": "OWASP specification",
+      "reuse": "implement-standard",
+      "methods": ["SBOM", "SaaSBOM", "VEX", "attestations", "BOM-Link"],
+      "fit": "Machine-readable component, service, dependency, and vulnerability inventory.",
+      "sources": [{"kind": "docs", "url": "https://cyclonedx.org/capabilities/sbom/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "spdx",
+      "name": "SPDX",
+      "categories": ["sbom", "license-data", "supply-chain"],
+      "delivery": "standard-and-tooling",
+      "license_class": "standard",
+      "license_id": "ISO/IEC 5962:2021 standard",
+      "reuse": "implement-standard",
+      "methods": ["SBOM", "license identifiers", "relationships", "provenance"],
+      "fit": "Standardized software component and license information exchange.",
+      "sources": [{"kind": "spec", "url": "https://spdx.dev/use/specifications/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "sigstore",
+      "name": "Sigstore",
+      "categories": ["artifact-signing", "supply-chain", "transparency-log"],
+      "delivery": "cli-services-and-libraries",
+      "license_class": "permissive",
+      "license_id": "Apache-2.0 project",
+      "reuse": "inspect-and-adapt",
+      "methods": ["Cosign", "keyless signing", "Fulcio", "Rekor", "OIDC identity"],
+      "fit": "Identity-bound artifact signing and public transparency evidence.",
+      "sources": [{"kind": "docs", "url": "https://docs.sigstore.dev/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+
+    {
+      "id": "slack",
+      "name": "Slack Platform",
+      "categories": ["provider-api", "chat", "incident-response", "onboarding"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Slack platform terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth 2.0", "bot and user scopes", "Events API", "Socket Mode", "webhooks"],
+      "fit": "Workspace-scoped chat actions and event subscriptions with granular scopes.",
+      "sources": [
+        {"kind": "docs", "url": "https://docs.slack.dev/authentication/installing-with-oauth/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "docs", "url": "https://docs.slack.dev/apis/events-api/", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "microsoft-graph",
+      "name": "Microsoft Graph",
+      "categories": ["provider-api", "microsoft-365", "directory", "collaboration"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Microsoft API terms",
+      "reuse": "integrate-via-api",
+      "methods": ["delegated OAuth", "app-only OAuth", "change notifications", "delta queries", "webhooks", "Event Hubs"],
+      "fit": "Microsoft 365 and Entra data with explicit delegated versus application permissions.",
+      "sources": [
+        {"kind": "docs", "url": "https://learn.microsoft.com/en-us/graph/auth/auth-concepts", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "docs", "url": "https://learn.microsoft.com/en-us/graph/change-notifications-overview", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "google-apis",
+      "name": "Google APIs and Workspace",
+      "categories": ["provider-api", "workspace", "drive", "calendar", "directory"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Google API terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth 2.0", "incremental authorization", "service accounts", "domain-wide delegation", "push notifications"],
+      "fit": "Google Workspace and Cloud integrations; request scopes incrementally and separate user from service access.",
+      "sources": [{"kind": "docs", "url": "https://developers.google.com/identity/protocols/oauth2", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "github-apps",
+      "name": "GitHub Apps",
+      "categories": ["provider-api", "source-control", "developer-tools"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "GitHub terms",
+      "reuse": "integrate-via-api",
+      "methods": ["installation tokens", "user access tokens", "fine-grained permissions", "webhooks", "repository selection"],
+      "fit": "Preferred GitHub integration boundary for narrow permissions and short-lived installation tokens.",
+      "sources": [{"kind": "docs", "url": "https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce Platform",
+      "categories": ["provider-api", "crm", "customer-health"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Salesforce platform terms",
+      "reuse": "integrate-via-api",
+      "methods": ["connected apps", "OAuth 2.0", "REST", "Bulk API", "Platform Events", "Change Data Capture"],
+      "fit": "CRM and customer lifecycle integration; API limits and org-specific schemas are first-class design inputs.",
+      "sources": [{"kind": "docs", "url": "https://developer.salesforce.com/docs/", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "categories": ["provider-api", "crm", "marketing", "customer-health"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "HubSpot developer terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth authorization code", "scopes", "refresh tokens", "webhooks", "CRM objects"],
+      "fit": "CRM and marketing integration with account installs and scoped OAuth.",
+      "sources": [{"kind": "docs", "url": "https://developers.hubspot.com/docs/apps/legacy-apps/authentication/oauth-quickstart-guide", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "jira",
+      "name": "Jira Cloud Platform",
+      "categories": ["provider-api", "issue-tracking", "incident-response", "onboarding"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Atlassian developer terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth 2.0 3LO", "Forge", "REST", "JQL", "webhooks"],
+      "fit": "Issue and project workflows; new apps should account for Atlassian's Forge direction and Connect deprecation path.",
+      "sources": [
+        {"kind": "docs", "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "docs", "url": "https://developer.atlassian.com/cloud/jira/platform/webhooks/", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "servicenow",
+      "name": "ServiceNow",
+      "categories": ["provider-api", "itsm", "incident-response", "onboarding"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "ServiceNow developer terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth", "REST", "Table API", "Scripted REST", "IntegrationHub"],
+      "fit": "Enterprise ITSM integration; customer instance customization and ACLs require live contract testing.",
+      "sources": [{"kind": "docs", "url": "https://developer.servicenow.com/dev.do", "checked": "2026-08-10", "status": "cataloged"}]
+    },
+    {
+      "id": "zendesk",
+      "name": "Zendesk",
+      "categories": ["provider-api", "support", "customer-health"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Zendesk developer terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth", "API tokens", "REST", "incremental exports", "webhooks"],
+      "fit": "Support ticket and customer signal source; choose user-scoped OAuth versus broad server token deliberately.",
+      "sources": [{"kind": "docs", "url": "https://developer.zendesk.com/documentation/ticketing/working-with-oauth/using-oauth-to-authenticate-zendesk-api-requests-in-a-web-app/", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify",
+      "categories": ["provider-api", "commerce", "billing"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Shopify API terms",
+      "reuse": "integrate-via-api",
+      "methods": ["managed installation", "token exchange", "authorization code", "session tokens", "webhooks"],
+      "fit": "Commerce integration with official scaffolding and app installation flows.",
+      "sources": [{"kind": "docs", "url": "https://shopify.dev/docs/apps/build/authentication-authorization", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe API",
+      "categories": ["provider-api", "payments", "commerce", "connector"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Stripe service and developer terms",
+      "reuse": "integrate-via-api",
+      "methods": ["API keys", "OAuth for Connect", "REST", "idempotency keys", "webhooks"],
+      "fit": "Payments and connected-account integration; model platform, connected account, keys, idempotency, and webhook ownership explicitly.",
+      "sources": [{"kind": "docs", "url": "https://docs.stripe.com/api", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "categories": ["provider-api", "issue-tracking", "developer-tools"],
+      "delivery": "managed-api",
+      "license_class": "commercial",
+      "license_id": "Linear API terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth 2.0", "PKCE", "GraphQL", "webhooks", "app actor"],
+      "fit": "Issue and project integration with user or app actors, scoped OAuth, and signed webhooks.",
+      "sources": [
+        {"kind": "docs", "url": "https://linear.app/developers/oauth-2-0-authentication", "checked": "2026-08-10", "status": "reviewed"},
+        {"kind": "docs", "url": "https://linear.app/developers/webhooks", "checked": "2026-08-10", "status": "reviewed"}
+      ]
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "categories": ["provider-api", "data-warehouse", "customer-health", "connector"],
+      "delivery": "managed-api-and-drivers",
+      "license_class": "commercial",
+      "license_id": "Snowflake terms",
+      "reuse": "integrate-via-api",
+      "methods": ["OAuth", "key-pair JWT", "workload identity", "SQL API", "drivers", "connectors"],
+      "fit": "Customer warehouse integration with OAuth, key-pair, or workload identity authentication.",
+      "sources": [{"kind": "docs", "url": "https://docs.snowflake.com/en/developer-guide/sql-api/authenticating", "checked": "2026-08-10", "status": "reviewed"}]
+    },
+    {
+      "id": "aws-eventbridge",
+      "name": "Amazon EventBridge",
+      "categories": ["event-bus", "saas-events", "integration"],
+      "delivery": "managed",
+      "license_class": "commercial",
+      "license_id": "AWS service terms",
+      "reuse": "integrate-via-api",
+      "methods": ["custom event buses", "partner event sources", "rules", "archive", "replay"],
+      "fit": "AWS-native event routing and supported SaaS partner event sources.",
+      "sources": [{"kind": "docs", "url": "https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-saas.html", "checked": "2026-08-10", "status": "reviewed"}]
+    }
+  ]
+}
