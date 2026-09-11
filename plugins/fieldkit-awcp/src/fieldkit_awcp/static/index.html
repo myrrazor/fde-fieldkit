@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>awcp — fieldkit</title>
+  <link rel="stylesheet" href="/fieldkit.css">
+  <style>
+    .mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+    .mode-row button {
+      min-height: 44px; padding: 8px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface); color: var(--ink);
+      font-weight: 650; cursor: pointer;
+    }
+    .mode-row button[aria-pressed="true"] {
+      background: var(--ink); color: var(--surface);
+    }
+    .pane[hidden] { display: none; }
+    .note { margin-top: 12px; color: var(--muted); font-size: 13px; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">fieldkit</a>
+      <span class="sep">/</span>
+      <span class="tool-name">awcp</span>
+    </header>
+    <p class="local-strip">
+      <span><span class="dot">●</span>processed locally — nothing leaves this machine</span>
+      <span><code>fieldkit awcp check SPEC</code></span>
+    </p>
+
+    <h1 class="page-title">Is this workload spec honest enough to share?</h1>
+    <p class="page-sub">
+      Validate a WorkloadSpec, diff two versions, or score a recorded golden suite.
+      This does not call a model, run promptfoo, or talk to a control plane.
+    </p>
+
+    <div class="mode-row" role="tablist" aria-label="awcp mode">
+      <button type="button" id="mode-check" aria-pressed="true">Check</button>
+      <button type="button" id="mode-diff" aria-pressed="false">Diff</button>
+      <button type="button" id="mode-eval" aria-pressed="false">Eval</button>
+    </div>
+
+    <section id="pane-check" class="pane">
+      <div class="drop" id="drop-check" tabindex="0" role="button" aria-label="choose a workload spec">
+        <input type="file" accept=".yaml,.yml,.json">
+        <strong>Drop a WorkloadSpec</strong>
+        <p class="hint">YAML or JSON · or click to browse</p>
+      </div>
+      <span class="file-chip" hidden><span></span><button type="button" aria-label="clear spec">×</button></span>
+    </section>
+
+    <section id="pane-diff" class="pane" hidden>
+      <div class="drop-row">
+        <div>
+          <p class="label-eng">before</p>
+          <div class="drop" id="drop-before" tabindex="0" role="button" aria-label="choose the earlier spec">
+            <input type="file" accept=".yaml,.yml,.json">
+            <strong>Drop the earlier spec</strong>
+            <p class="hint">or click to browse</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear before">×</button></span>
+        </div>
+        <div>
+          <p class="label-eng">after</p>
+          <div class="drop" id="drop-after" tabindex="0" role="button" aria-label="choose the later spec">
+            <input type="file" accept=".yaml,.yml,.json">
+            <strong>Drop the later spec</strong>
+            <p class="hint">or click to browse</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear after">×</button></span>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="go-diff" disabled>Diff them</button>
+      </div>
+    </section>
+
+    <section id="pane-eval" class="pane" hidden>
+      <div class="drop-row">
+        <div>
+          <p class="label-eng">workload spec</p>
+          <div class="drop" id="drop-eval-spec" tabindex="0" role="button" aria-label="choose a workload spec">
+            <input type="file" accept=".yaml,.yml,.json">
+            <strong>Drop the spec</strong>
+            <p class="hint">or click to browse</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear spec">×</button></span>
+        </div>
+        <div>
+          <p class="label-eng">golden suite</p>
+          <div class="drop" id="drop-eval-suite" tabindex="0" role="button" aria-label="choose a golden suite">
+            <input type="file" accept=".yaml,.yml,.json">
+            <strong>Drop the suite</strong>
+            <p class="hint">recorded cases, not a live model run</p>
+          </div>
+          <span class="file-chip" hidden><span></span><button type="button" aria-label="clear suite">×</button></span>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="go-eval" disabled>Score locally</button>
+      </div>
+    </section>
+
+    <section id="result" aria-live="polite"></section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

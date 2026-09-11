@@ -3,7 +3,7 @@
 ## Product
 
 - **Purpose:** Help forward-deployed engineers choose and run the right local utility for an immediate field problem.
-- **Maturity:** fieldkit is working development software; AWCP is a v0.1 executable specification / local reference prototype.
+- **Maturity:** fieldkit is working development software with eight shipped plugins. awcp is the local spec-check slice, not a delivery control plane.
 - **Platform:** static website pointing to local CLI and browser software.
 - **Business model:** no accounts, payments, subscriptions, or hosted runtime on this site.
 
@@ -12,17 +12,18 @@
 - **Primary user:** a technically fluent FDE working under customer-data, access, and time constraints.
 - **Arrival question:** “Which tool handles the problem in front of me, and what is the real command?”
 - **Success:** the user finds the right tool, understands its limit, and copies a README-accurate command.
-- **Failure cost:** sharing unsafe data, reporting the wrong change, or overstating prototype maturity.
+- **Failure cost:** sharing unsafe data, reporting the wrong change, or overstating what a local check proves.
 - **Input modes:** keyboard, pointer, touch, and screen reader.
 
 ## Critical journey
 
-1. Scan seven shipped-plugin blocks and the separately labelled AWCP preview.
+1. Scan eight shipped-plugin blocks.
 2. Open one tool without losing the index.
-3. Read the capability and maturity note.
+3. Read the capability and its limit.
 4. For netwatch, inspect the real control-room surface and its coverage contract.
-5. Copy an install or example command.
-6. Move to the source repository when more context is needed.
+5. For awcp, see that eval scores recorded cases and does not call a model.
+6. Copy an install or example command.
+7. Move to the source repository when more context is needed.
 
 ## Constraints and voice
 

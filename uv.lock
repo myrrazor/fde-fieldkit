@@ -13,6 +13,7 @@ resolution-markers = [
 [manifest]
 members = [
     "fieldkit",
+    "fieldkit-awcp",
     "fieldkit-datadiff",
     "fieldkit-debrief",
     "fieldkit-mimic",
@@ -212,6 +213,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "fieldkit-awcp" },
     { name = "fieldkit-datadiff" },
     { name = "fieldkit-debrief" },
     { name = "fieldkit-mimic" },
@@ -237,6 +239,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "fieldkit-awcp", editable = "plugins/fieldkit-awcp" },
     { name = "fieldkit-datadiff", editable = "plugins/fieldkit-datadiff" },
     { name = "fieldkit-debrief", editable = "plugins/fieldkit-debrief" },
     { name = "fieldkit-mimic", editable = "plugins/fieldkit-mimic" },
@@ -246,6 +249,21 @@ dev = [
     { name = "fieldkit-xray", editable = "plugins/fieldkit-xray" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.6" },
+]
+
+[[package]]
+name = "fieldkit-awcp"
+version = "0.2.0"
+source = { editable = "plugins/fieldkit-awcp" }
+dependencies = [
+    { name = "fieldkit" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fieldkit", editable = "." },
+    { name = "pyyaml", specifier = ">=6" },
 ]
 
 [[package]]

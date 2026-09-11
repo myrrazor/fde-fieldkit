@@ -5,10 +5,11 @@
 The FDE toolkit: one install, then add the tools you need as plugins.
 
 It is built for forward-deployed engineers, for the days you get handed a
-mystery CSV, a locked-down laptop, and a Friday status deadline. Seven tools
+mystery CSV, a locked-down laptop, and a Friday status deadline. Eight tools
 ship today: profile a file, scrub the PII out of it, fake a demo dataset, diff
-two dumps, keep a running debrief, check a draft for AI tells, and watch what
-your coding agent connects to. The tools run locally by default, with no telemetry. Remote text
+two dumps, keep a running debrief, check a draft for AI tells, watch what
+your coding agent connects to, and check an AI workload spec before you share
+it. The tools run locally by default, with no telemetry. Remote text
 classifiers, model downloads, package installation, and supervised network relays
 require the explicit actions described below.
 
@@ -22,7 +23,7 @@ uv sync
 uv run fieldkit --help
 ```
 
-That one `uv sync` installs the core and all seven plugins, editable. Every
+That one `uv sync` installs the core and all eight plugins, editable. Every
 command below is `uv run fieldkit ...`; activate `.venv` if you would rather
 drop the prefix. Python 3.12 or newer.
 
@@ -235,6 +236,32 @@ ignores proxies are not seen. `netwatch attach <pid>` samples the sockets of a
 process that is already running and cannot block anything. Whole-machine
 enforcement on macOS would need a signed Network Extension, which this is not.
 
+### awcp: is this workload spec honest enough to share?
+
+```
+uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml
+uv run fieldkit awcp diff examples/awcp/support-ticket-triage.yaml examples/awcp/support-ticket-triage-v2.yaml
+uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examples/awcp/support-triage-golden.yaml
+```
+
+```
+support-ticket-triage · customer-success-ai · ok
+config  sha256:bada678688eef6c479f592f47f2f682541a8be62b4c5c6f0a1f9fb205b953839
+prompts 2 (system=content, userTemplate=content)
+┃ name                      ┃ approval ┃ risk                                  ┃
+│ jira.create_internal_note │ none     │ —                                     │
+│ zendesk.draft_reply       │ required │ —                                     │
+│ denied                    │ —        │ zendesk.send_reply, customer_db.write │
+local check only — no model, control plane, or network call
+```
+
+`check` loads a WorkloadSpec (YAML or JSON), validates the shape, fingerprints
+config and prompt files, and lists declared tools with approval and risk.
+`diff` is a categorized spec diff. `eval` scores a recorded golden suite
+against the spec's gates; it compares stored actual/expected values or explicit
+scores. It does not call a model, run promptfoo, or talk to a control plane.
+`--json PATH` and `--html PATH` write the same result for tickets and scripts.
+
 ## The plugin manager
 
 ```
@@ -282,7 +309,7 @@ who does not live in a terminal.
 | debrief | Turn field notes into reports | shipped |
 | tell | Inspect a draft's writing patterns, locally | shipped |
 | netwatch | Observe and control agent network access | shipped |
-| AWCP | Delivery control plane for AI workloads | prototype, separate repo, not shipped |
+| awcp | Check workload specs, diff versions, score golden evals | shipped |
 
 ## Site and docs
 
@@ -338,7 +365,7 @@ python3 site/check_site.py
 The repo is a uv workspace. The core in `src/fieldkit` is the CLI shell, shared
 table IO and PII scanning, the web hub, and the plugin manager. Each tool is its
 own package under `plugins/fieldkit-<tool>` with its own dependencies, web
-module, static page, and tests. An eighth tool is one new package there plus one
+module, static page, and tests. A ninth tool is one new package there plus one
 line in the registry in `src/fieldkit/plugins.py`. `AGENTS.md` has the house
 rules.
 

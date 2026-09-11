@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>awcp docs — check a workload spec locally</title>
+    <meta
+      name="description"
+      content="How to use fieldkit awcp: validate a WorkloadSpec, diff two versions, and score a recorded golden suite. Local only; it does not call a model or control plane."
+    >
+    <link rel="canonical" href="https://fde-tools.vercel.app/docs/awcp.html">
+    <meta name="theme-color" content="#f4f2ea">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FDE Tools">
+    <meta property="og:title" content="awcp docs — check a workload spec locally">
+    <meta
+      property="og:description"
+      content="Validate, diff, and score AI workload specs on your laptop."
+    >
+    <meta property="og:url" content="https://fde-tools.vercel.app/docs/awcp.html">
+    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="awcp docs — FDE Tools">
+    <meta name="twitter:description" content="Validate, diff, and score AI workload specs on your laptop.">
+    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to awcp docs</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="../index.html" aria-label="FDE Tools home">
+          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="../index.html#tools">Tools</a>
+          <a href="index.html" data-active-section="true">Docs</a>
+          <a href="plugins.html">Plugins</a>
+          <a
+            class="site-nav__github"
+            href="https://github.com/myrrazor/fde-fieldkit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell docs-page">
+      <p class="detail-kicker"><a href="index.html">Docs</a> / 08 Check a spec</p>
+      <h1>awcp</h1>
+      <p class="docs-page__dek">
+        Point awcp at a WorkloadSpec and it tells you whether the file is well-formed,
+        what changed since the last version, and whether a recorded golden suite still
+        clears the gates. It does not call a model, run promptfoo, or talk to a
+        control plane.
+      </p>
+
+      <div class="docs-callout">
+        <p>
+          <strong>When to reach for it</strong>
+          Someone hands you an AI workflow YAML and asks if it is safe to promote.
+          Run <code>check</code> first. You get structural errors, a config hash,
+          declared tools, and high-risk names that are missing an approval flag
+          before the spec leaves your laptop.
+        </p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>
+        Three commands, all local:
+      </p>
+      <ul>
+        <li>
+          <code>check</code> loads YAML or JSON, validates the WorkloadSpec shape
+          (metadata, schemas, model route, eval gates, policies, privacy flags,
+          tool declarations), fingerprints config and prompt files, and lists
+          allowed tools with approval and risk tokens.
+        </li>
+        <li>
+          <code>diff</code> walks two specs and labels each change as model,
+          prompt, tool, policy, retrieval, or config.
+        </li>
+        <li>
+          <code>eval</code> scores a golden suite file against the spec's gates.
+          Cases carry recorded <code>actual</code>/<code>expected</code> values or
+          an explicit <code>score</code>. Safety gates such as
+          <code>maxPiiLeakageRate</code> fail closed if a required measurement is
+          missing.
+        </li>
+      </ul>
+      <p>
+        This is the honest slice of AWCP: the local spec and golden-eval machinery
+        that was already complete. It is not a delivery control plane. There is no
+        org registry, no OIDC, no canary rollout, no LiteLLM call, and no network.
+      </p>
+
+      <h2>Install and run</h2>
+      <p>
+        Already running the <code>fieldkit</code> core? The tool is one
+        <a href="plugins.html">plugin add</a> away:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Add the tool, then check a spec</span>
+          <button class="copy-button" type="button" data-copy-target="awcp-docs-install">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="awcp-docs-install">fieldkit plugin add awcp
+fieldkit awcp check workload.yaml</code></pre>
+      </div>
+      <p>
+        Working from the <code>fde-fieldkit</code> repo instead? You need
+        <a href="https://docs.astral.sh/uv/">uv</a>; one <code>uv sync</code> installs
+        the core and every tool editable:
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Dev checkout</span>
+          <button class="copy-button" type="button" data-copy-target="awcp-docs-dev">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="awcp-docs-dev">uv sync
+uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml</code></pre>
+      </div>
+
+      <h2>Every flag</h2>
+      <h3>check</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SPEC</code></td>
+              <td>required</td>
+              <td>WorkloadSpec YAML or JSON file to validate and fingerprint.</td>
+            </tr>
+            <tr>
+              <td><code>--json PATH</code></td>
+              <td>off</td>
+              <td>Also write the check as JSON for scripts and agents.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Also write a printable HTML report.</td>
+            </tr>
+            <tr>
+              <td><code>--help</code></td>
+              <td></td>
+              <td>Show usage and exit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>diff</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>BEFORE</code></td>
+              <td>required</td>
+              <td>Earlier WorkloadSpec.</td>
+            </tr>
+            <tr>
+              <td><code>AFTER</code></td>
+              <td>required</td>
+              <td>Later WorkloadSpec.</td>
+            </tr>
+            <tr>
+              <td><code>--json PATH</code></td>
+              <td>off</td>
+              <td>Also write the categorized diff as JSON.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Also write a printable HTML report.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>eval</h3>
+      <div class="flag-table-wrap">
+        <table class="flag-table">
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Default</th>
+              <th scope="col">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SPEC</code></td>
+              <td>required</td>
+              <td>WorkloadSpec whose eval gates are applied.</td>
+            </tr>
+            <tr>
+              <td><code>--suite PATH</code></td>
+              <td>required</td>
+              <td>Golden suite YAML or JSON with recorded cases.</td>
+            </tr>
+            <tr>
+              <td><code>--artifact-dir DIR</code></td>
+              <td><code>.awcp-artifacts</code></td>
+              <td>Where the local <code>result.json</code> is written.</td>
+            </tr>
+            <tr>
+              <td><code>--json PATH</code></td>
+              <td>off</td>
+              <td>Also write the eval run as JSON.</td>
+            </tr>
+            <tr>
+              <td><code>--html PATH</code></td>
+              <td>off</td>
+              <td>Also write a printable HTML report.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Worked examples</h2>
+
+      <h3>1. First look at a workload spec</h3>
+      <p>
+        The plain run prints the name, project, config hash, prompt fingerprint
+        modes, and declared tools. Prompt refs under the spec's directory are
+        hashed as content; paths outside that directory stay <code>ref</code>
+        hashes and are not read.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="awcp-ex1">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="awcp-ex1">uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>support-ticket-triage · customer-success-ai · ok
+config  sha256:bada678688eef6c479f592f47f2f682541a8be62b4c5c6f0a1f9fb205b953839
+prompts 2 (system=content, userTemplate=content)
+┃ name                      ┃ approval ┃ risk ┃
+│ jira.create_internal_note │ none     │ —    │
+│ zendesk.draft_reply       │ required │ —    │
+local check only — no model, control plane, or network call</code></pre>
+      </div>
+
+      <h3>2. What changed between two versions</h3>
+      <p>
+        <code>diff</code> is for the “what did we actually change in this YAML”
+        conversation. Categories keep model, prompt, tool, policy, and retrieval
+        edits from collapsing into one blob.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="awcp-ex2">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="awcp-ex2">uv run fieldkit awcp diff examples/awcp/support-ticket-triage.yaml examples/awcp/support-ticket-triage-v2.yaml</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>support-ticket-triage.yaml → support-ticket-triage-v2.yaml
+Changes · 8
+┃ kind      ┃ path                      ┃
+│ model     │ spec.modelRoute.primary   │
+│ prompt    │ spec.prompts.system.version │
+│ retrieval │ spec.retrieval.freshnessDays │
+│ tool      │ spec.tools.allowed        │
+│ policy    │ spec.policies.requiredPacks │
+(8 rows; before/after columns trimmed for width)</code></pre>
+      </div>
+
+      <h3>3. Score a recorded golden suite</h3>
+      <p>
+        <code>eval</code> does not generate model output. The suite file already
+        contains scores or actual/expected pairs. Fieldkit averages those scores,
+        applies the stricter of the spec gates and the suite gates, and writes a
+        local artifact. If a safety gate is set and a case omits that measurement,
+        the run fails closed instead of treating the gap as zero.
+      </p>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Command</span>
+          <button class="copy-button" type="button" data-copy-target="awcp-ex3">Copy</button>
+          <span class="copy-status" aria-live="polite"></span>
+        </div>
+        <pre><code id="awcp-ex3">uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examples/awcp/support-triage-golden.yaml</code></pre>
+      </div>
+      <div class="command-box">
+        <div class="command-box__bar">
+          <span class="command-box__label">Abridged output</span>
+        </div>
+        <pre><code>support-triage-golden-v1 · passed · 0.93 · 2 cases
+┃ gate        ┃ value ┃ limit ┃
+│ overall     │  0.93 │  0.82 │
+│ p95 ms      │   620 │ 12000 │
+│ billing-priority │ 1.00 │ actual matched expected │
+│ login-help       │ 0.86 │ explicit score │
+scored locally from recorded cases — no model ran</code></pre>
+      </div>
+
+      <h2>Limits, stated plainly</h2>
+      <ul>
+        <li>No model is called. A <code>runner: promptfoo</code> label in a suite file is recorded, not executed.</li>
+        <li>No control-plane API, approvals, canary, or evidence bundle is shipped in this plugin.</li>
+        <li>Tool risk is a name/scope heuristic. It is not an authorization decision.</li>
+        <li>Prompt files are only read when the ref stays inside the spec's directory.</li>
+        <li>Detection of a valid spec is not a production-readiness claim.</li>
+      </ul>
+
+      <h2>Next steps</h2>
+      <p>
+        If the spec is about to be shared and still contains customer text, run
+        <a href="scrub.html">scrub</a> on the source files first. If you need to
+        see where a coding agent actually connected while you were editing the
+        spec, that is <a href="netwatch.html">netwatch</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. Star the repo so the next
+            engineer with a mystery spec can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-credit" href="https://github.com/myrrazor/fde-fieldkit">fde-fieldkit on GitHub</a>
+            <a class="support-credit" href="https://github.com/myrrazor">@myrrazor</a>
+          </div>
+        </div>
+        <div class="site-footer__row">
+          <p>FDE Tools / practical software for field constraints.</p>
+          <nav aria-label="Footer navigation">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Docs</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/myrrazor/fde-fieldkit">GitHub</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

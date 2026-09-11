@@ -23,6 +23,8 @@ publication is implied by that number.
   and an optional local model path.
 - Netwatch loopback proxies, destination policies, observation-only process
   attachment, local session evidence, and a browser control room.
+- awcp: local WorkloadSpec checks, version diffs, and golden-suite scoring.
+  It does not call a model or a delivery control plane.
 
 ### Public release preparation
 

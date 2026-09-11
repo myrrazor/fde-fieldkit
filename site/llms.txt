@@ -7,12 +7,12 @@
 Canonical site: https://fde-tools.vercel.app/
 Source: https://github.com/myrrazor/fde-fieldkit
 
-Toolkit model: one fieldkit core install; each of the seven shipped tools is a
-plugin package added with `fieldkit plugin add <tool>`. AWCP remains separate.
+Toolkit model: one fieldkit core install; each of the eight shipped tools is a
+plugin package added with `fieldkit plugin add <tool>`.
 Not on PyPI yet: plugins resolve from the repo checkout today, and PyPI installs
 arrive with the public release.
 
-## Seven shipped Fieldkit plugins
+## Eight shipped Fieldkit plugins
 
 - xray: local schema, type, null, outlier, and PII profiling for csv, tsv, xlsx, json, and jsonl.
 - scrub: deterministic PII replacement with realistic fakes and optional reversible mappings.
@@ -21,15 +21,15 @@ arrive with the public release.
 - debrief: turn a tagged engagement log into markdown or HTML stakeholder status.
 - tell: ten local stylometric checks, opt-in remote detector adapters, and deterministic slop cleanup.
 - netwatch: local metadata-only agent network evidence, destination policy, and a control room for supervised launch, observation-only attachment, reports, and managed policy.
-- AWCP: separate v0.1 executable specification / local reference prototype for AI workload delivery control; not a shipped Fieldkit plugin.
+- awcp: local WorkloadSpec checks, version diffs, and golden-suite scoring. Does not call a model or a control plane.
 
 ## Important limits
 
-- The seven shipped Fieldkit plugins run locally by default. Tell can contact remote detector
+- The eight shipped Fieldkit plugins run locally by default. Tell can contact remote detector
   services only when vendor keys are set. Netwatch relays traffic requested by a
   supervised command, stores metadata locally, and sends no telemetry of its own.
-- AWCP is a concept preview: not packaged and not pilot-ready, enterprise-ready,
-  or public-alpha-ready. It has no docs page here.
+- awcp scores recorded golden cases. It does not call a model, run promptfoo, or
+  provide a delivery control plane.
 - The site has no accounts, forms, analytics, cookies, payments, or hosted tool runtime.
 - Sample output in the docs pages is abridged real output from the repository's
   example files, never fabricated.
@@ -49,5 +49,6 @@ arrive with the public release.
 - debrief docs: https://fde-tools.vercel.app/docs/debrief.html
 - tell docs: https://fde-tools.vercel.app/docs/tell.html
 - netwatch docs: https://fde-tools.vercel.app/docs/netwatch.html
+- awcp docs: https://fde-tools.vercel.app/docs/awcp.html
 - Privacy: https://fde-tools.vercel.app/privacy.html
 - Terms: https://fde-tools.vercel.app/terms.html

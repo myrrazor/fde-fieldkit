@@ -1,8 +1,8 @@
 # fde-fieldkit — agent notes
 
 The FDE toolkit: a small `fieldkit` core (CLI shell, shared table IO + PII scanning,
-web hub, plugin manager) with seven tools shipped as plugin packages under
-`plugins/fieldkit-<tool>` (xray, scrub, mimic, datadiff, debrief, tell, netwatch). A uv
+web hub, plugin manager) with eight tools shipped as plugin packages under
+`plugins/fieldkit-<tool>` (xray, scrub, mimic, datadiff, debrief, tell, netwatch, awcp). A uv
 workspace ties them together; a dev `uv sync` installs everything, end users
 `fieldkit plugin add <tool>`. The suite runs local by default. Configured detector
 keys never authorize `tell` egress on their own: a CLI run needs `--remote`, a Python
@@ -14,7 +14,7 @@ explicitly runs through its loopback proxy, under the selected policy.
 ## Commands
 
 ```
-uv sync                  # workspace install: core + all seven plugins, editable
+uv sync                  # workspace install: core + all eight plugins, editable
 uv run pytest -q         # root tests + every plugin's tests; green before you're done
 uv run ruff check .      # must be clean before you're done
 uv run fieldkit --help
@@ -47,7 +47,8 @@ uv run fieldkit plugin list
   only for a destination requested by the supervised command and allowed by the selected
   policy.
   The optional `ml` extra may download model weights only after the user passes the
-  explicit `--ml` flag. Faker data generation is local.
+  explicit `--ml` flag. Faker data generation is local. `awcp` is fully local: spec
+  checks, diffs, and golden-suite scoring never open a network connection or call a model.
 
 ## Style
 

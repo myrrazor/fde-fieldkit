@@ -46,6 +46,7 @@ dev = [
     "fieldkit-debrief",
     "fieldkit-tell",
     "fieldkit-netwatch",
+    "fieldkit-awcp",
 ]
 
 [tool.uv.workspace]
@@ -59,6 +60,7 @@ fieldkit-datadiff = { workspace = true }
 fieldkit-debrief = { workspace = true }
 fieldkit-tell = { workspace = true }
 fieldkit-netwatch = { workspace = true }
+fieldkit-awcp = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit"]

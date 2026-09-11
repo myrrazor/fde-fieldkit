@@ -30,7 +30,7 @@ class KnownPlugin:
     summary: str
 
 
-# the seven field tools — a new tool is one line here plus its package under plugins/
+# the eight field tools — a new tool is one line here plus its package under plugins/
 REGISTRY: dict[str, KnownPlugin] = {
     plugin.name: plugin
     for plugin in (
@@ -41,6 +41,11 @@ REGISTRY: dict[str, KnownPlugin] = {
         KnownPlugin("debrief", "fieldkit-debrief", "Turn field notes into reports"),
         KnownPlugin("tell", "fieldkit-tell", "Spot AI-written text, locally"),
         KnownPlugin("netwatch", "fieldkit-netwatch", "Observe and control agent network access"),
+        KnownPlugin(
+            "awcp",
+            "fieldkit-awcp",
+            "Check AI workload specs, diff versions, and score golden evals locally",
+        ),
     )
 }
 

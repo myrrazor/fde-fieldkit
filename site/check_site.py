@@ -57,6 +57,7 @@ PAGE_RULES = {
     "docs/debrief.html": f"{ORIGIN}/docs/debrief.html",
     "docs/tell.html": f"{ORIGIN}/docs/tell.html",
     "docs/netwatch.html": f"{ORIGIN}/docs/netwatch.html",
+    "docs/awcp.html": f"{ORIGIN}/docs/awcp.html",
     "docs/plugins.html": f"{ORIGIN}/docs/plugins.html",
     "privacy.html": f"{ORIGIN}/privacy.html",
     "terms.html": f"{ORIGIN}/terms.html",
@@ -70,8 +71,7 @@ ALLOWED_EXTERNAL_LINKS = {
     "https://docs.astral.sh/uv/",
 }
 
-# The plugin-add flavor is the product story. Fieldkit examples stay README-verbatim;
-# AWCP is a separate repository, so its published block is pinned here and checked locally.
+# The plugin-add flavor is the product story. Command blocks stay README-verbatim.
 INSTALL_BLOCKS = {
     "xray-install": ("fieldkit plugin add xray\nfieldkit xray customers.csv"),
     "scrub-install": (
@@ -84,11 +84,7 @@ INSTALL_BLOCKS = {
     "debrief-install": ("fieldkit plugin add debrief\nfieldkit debrief report"),
     "tell-install": ("fieldkit plugin add tell\nfieldkit tell check draft.md"),
     "netwatch-install": ("fieldkit plugin add netwatch\nfieldkit netwatch run -- codex"),
-    "awcp-install": (
-        "make bootstrap\n"
-        "PYTHONPATH=src python3 -m awcp.cli validate "
-        "examples/workloads/support-ticket-triage.yaml"
-    ),
+    "awcp-install": ("fieldkit plugin add awcp\nfieldkit awcp check workload.yaml"),
 }
 
 EXAMPLE_BLOCKS = {
@@ -127,16 +123,12 @@ EXAMPLE_BLOCKS = {
         "uv run fieldkit netwatch run -- claude"
     ),
     "awcp-examples": (
-        "PYTHONPATH=src python3 -m awcp.cli validate "
-        "examples/workloads/support-ticket-triage.yaml\n"
-        "PYTHONPATH=src python3 -m awcp.cli validate "
-        "examples/workloads/support-ticket-triage.yaml --dry-run --json\n"
-        "PYTHONPATH=src python3 -m awcp.cli diff "
-        "examples/workloads/support-ticket-triage.yaml "
-        "examples/templates/support-ticket-triage.yaml --json\n"
-        "PYTHONPATH=src python3 -m awcp.cli eval run "
-        "examples/workloads/support-ticket-triage.yaml --suite "
-        "examples/eval-suites/support-triage-golden-v1.yaml --json"
+        "uv sync\n"
+        "uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml\n"
+        "uv run fieldkit awcp diff examples/awcp/support-ticket-triage.yaml "
+        "examples/awcp/support-ticket-triage-v2.yaml\n"
+        "uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml "
+        "--suite examples/awcp/support-triage-golden.yaml"
     ),
 }
 
@@ -148,7 +140,7 @@ PLUGIN_HINT = (
     "  fieldkit plugin add xray"
 )
 
-TOOL_DOC_PAGES = ("xray", "scrub", "mimic", "datadiff", "debrief", "tell", "netwatch")
+TOOL_DOC_PAGES = ("xray", "scrub", "mimic", "datadiff", "debrief", "tell", "netwatch", "awcp")
 
 
 class PageParser(HTMLParser):
@@ -324,8 +316,6 @@ def _check_commands(index: PageParser, errors: list[str]) -> None:
             errors.append(f"index.html: {block_id} has no copy button")
 
     for block_id, commands in EXAMPLE_BLOCKS.items():
-        if block_id.startswith("awcp-"):
-            continue
         for command in commands.splitlines():
             if command not in fieldkit_readme:
                 errors.append(f"{block_id}: source README is missing {command!r}")
@@ -414,6 +404,11 @@ def _check_plugin_story(parsed: dict[str, PageParser], errors: list[str]) -> Non
     if "not on PyPI yet" not in text:
         errors.append("docs/plugins.html: must say plainly that the packages are not on PyPI yet")
 
+    awcp_docs = (SITE_DIR / "docs" / "awcp.html").read_text(encoding="utf-8").lower()
+    for claim in ("does not call a model", "control plane", "fail closed"):
+        if claim not in awcp_docs:
+            errors.append(f"docs/awcp.html: missing honesty claim {claim!r}")
+
 
 def _check_netwatch_story(errors: list[str]) -> None:
     """Keep the public dashboard claims aligned with Netwatch's local contract."""
@@ -421,8 +416,10 @@ def _check_netwatch_story(errors: list[str]) -> None:
     index = (SITE_DIR / "index.html").read_text(encoding="utf-8")
     docs = (SITE_DIR / "docs" / "netwatch.html").read_text(encoding="utf-8")
 
-    if "Seven shipped plugins / one prototype" not in index:
-        errors.append("index.html: must distinguish seven shipped plugins from the AWCP prototype")
+    if "Eight shipped plugins" not in index:
+        errors.append("index.html: must describe eight shipped Fieldkit plugins")
+    if "Concept preview" in index or "not yet shipped" in index:
+        errors.append("index.html: AWCP is a shipped plugin and must not be labelled a preview")
     if 'src="assets/netwatch-dashboard.png"' not in index:
         errors.append("index.html: missing the Netwatch dashboard product capture")
     if 'src="../assets/netwatch-dashboard.png"' not in docs:
@@ -522,6 +519,8 @@ def _check_support_files(errors: list[str]) -> None:
         errors.append("llms.txt: canonical origin mismatch")
     if f"{ORIGIN}/docs/plugins.html" not in llms:
         errors.append("llms.txt: missing the plugins page")
+    if f"{ORIGIN}/docs/awcp.html" not in llms:
+        errors.append("llms.txt: missing the awcp docs page")
     if "fieldkit plugin add" not in llms:
         errors.append("llms.txt: missing the toolkit model note")
 

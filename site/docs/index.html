@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FDE Tools docs — the toolkit and all seven tools</title>
+    <title>FDE Tools docs — the toolkit and all eight tools</title>
     <meta
       name="description"
       content="Plain-language docs for the fieldkit toolkit: the plugin manager, what each tool does, every flag with defaults, and worked examples with abridged real output."
@@ -12,7 +12,7 @@
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FDE Tools">
-    <meta property="og:title" content="FDE Tools docs — the toolkit and all seven tools">
+    <meta property="og:title" content="FDE Tools docs — the toolkit and all eight tools">
     <meta
       property="og:description"
       content="What each fieldkit tool does, every flag, and worked examples."
@@ -21,7 +21,7 @@
     <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="FDE Tools docs">
     <meta name="twitter:description" content="What each fieldkit tool does, every flag, and worked examples.">
@@ -118,6 +118,13 @@
             <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
           </a>
         </li>
+        <li>
+          <a href="awcp.html">
+            <h2 class="docs-list__name">awcp</h2>
+            <p>Check a WorkloadSpec, diff two versions, and score a recorded golden suite. Local only.</p>
+            <span class="docs-list__go">Read <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
       </ul>
 
       <h2>Good to know before you start</h2>
@@ -126,19 +133,15 @@
         <code>fieldkit plugin add xray</code> puts a tool on the machine, and the
         <a href="plugins.html">plugins page</a> covers removal, updates, install
         sources, and writing your own. From a repo checkout, <code>uv sync</code>
-        installs the core and all seven tools editable, which is why the examples in
+        installs the core and all eight tools editable, which is why the examples in
         these docs use <code>uv run fieldkit &lt;tool&gt;</code>.
       </p>
       <p>
         If you would rather point and click, <code>fieldkit serve</code> starts a
         local web hub at <code>http://127.0.0.1:8765</code>. File tools provide their
-        drag-and-drop workbenches, and netwatch opens its local control room. Tools you
-        have not added sit dimmed with their <code>plugin add</code> command on the card.
-      </p>
-      <p>
-        AWCP, the eighth block on the home page, is a concept preview without a docs page.
-        It is a v0.1 executable specification that runs from its own source checkout today
-        and ships as a fieldkit plugin when it lands. This site labels it that way on purpose.
+        drag-and-drop workbenches, netwatch opens its local control room, and awcp
+        checks a dropped WorkloadSpec. Tools you have not added sit dimmed with their
+        <code>plugin add</code> command on the card.
       </p>
       <div class="docs-callout">
         <p>

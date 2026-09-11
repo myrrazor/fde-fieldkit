@@ -6,7 +6,7 @@
     <title>FDE Tools — Local utilities for field work</title>
     <meta
       name="description"
-      content="Seven shipped Fieldkit plugins plus the separate AWCP prototype: inspect data, remove PII, build demos, compare dumps, report, check drafts, and watch agents."
+      content="Eight shipped Fieldkit plugins: inspect data, remove PII, build demos, compare dumps, report, check drafts, watch agents, and check AI workload specs."
     >
     <link rel="canonical" href="https://fde-tools.vercel.app/">
     <meta name="theme-color" content="#f4f2ea">
@@ -15,18 +15,18 @@
     <meta property="og:title" content="FDE Tools — Local utilities for field work">
     <meta
       property="og:description"
-      content="Seven shipped Fieldkit plugins and one separately labelled AWCP control-plane prototype."
+      content="Eight shipped Fieldkit plugins for inspect, sanitize, synthesize, compare, report, draft checks, agent network evidence, and local workload-spec checks."
     >
     <meta property="og:url" content="https://fde-tools.vercel.app/">
     <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FDE Tools: seven shipped plugins and one AWCP prototype">
+    <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="FDE Tools — Local utilities for field work">
     <meta
       name="twitter:description"
-      content="Seven shipped Fieldkit plugins plus a separate AWCP prototype, described with real commands and explicit limits."
+      content="Eight shipped Fieldkit plugins, described with real commands and explicit limits."
     >
     <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
@@ -51,7 +51,7 @@
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "FDE Tools",
-        "description": "Seven shipped Fieldkit plugins plus one separate AWCP prototype for forward-deployed engineering work.",
+        "description": "Eight shipped Fieldkit plugins for forward-deployed engineering work.",
         "url": "https://fde-tools.vercel.app/",
         "numberOfItems": 8,
         "itemListElement": [
@@ -138,9 +138,8 @@
             "item": {
               "@type": "SoftwareApplication",
               "name": "AWCP",
-              "softwareVersion": "0.1 prototype",
               "applicationCategory": "DeveloperApplication",
-              "description": "API-first AI-workload control plane for specifications, gates, approvals, rollout, and evidence.",
+              "description": "Local WorkloadSpec checks, version diffs, and golden-suite scoring. Does not call a model or a control plane.",
               "url": "https://fde-tools.vercel.app/#tool-awcp"
             }
           }
@@ -178,9 +177,9 @@
           <p class="hero__kicker">Field utilities / local by default</p>
           <h1 id="page-title">FDE Tools</h1>
           <p class="hero__lede">
-            Seven local field utilities and one control-plane prototype for the work between
-            “we got the dump” and “the customer can trust the result”: inspect, sanitize,
-            synthesize, compare, report, check drafts, watch agent traffic, and govern
+            Eight local field utilities for the work between “we got the dump” and
+            “the customer can trust the result”: inspect, sanitize, synthesize, compare,
+            report, check drafts, watch agent traffic, and check an AI workload spec
             without sending customer data to a hosted service.
           </p>
           <p class="hero__toolkit">One install. Add the tools you need, and nothing you don't.</p>
@@ -189,7 +188,7 @@
         <aside class="hero__field-note" aria-label="Field kit facts">
           <p>FIELD NOTE / 001</p>
           <ul>
-            <li><strong>Install</strong><span>One fieldkit core with seven optional plugins; AWCP remains a separate prototype</span></li>
+            <li><strong>Install</strong><span>One fieldkit core with eight optional plugins</span></li>
             <li><strong>Runtime</strong><span>Local by default; tell needs vendor keys and an explicit remote run, and Netwatch's supervised relay is the other explicit egress</span></li>
             <li><strong>Input</strong><span>CSV, TSV, XLSX, JSON, JSONL, text, and agent processes</span></li>
             <li><strong>Output</strong><span>Local dashboards, CLI, JSON, CSV, markdown, and HTML</span></li>
@@ -200,15 +199,14 @@
       <section id="tools" class="tool-index" aria-labelledby="tools-title">
         <div class="section-heading">
           <div>
-            <p class="section-label">Seven shipped plugins / one prototype</p>
+            <p class="section-label">Eight shipped plugins</p>
             <h2 id="tools-title">Pick the job in front of you.</h2>
           </div>
           <p>
-            Select a block to open working notes, commands, and examples. The seven
-            shipped tools share one path: get the toolkit, run
+            Select a block to open working notes, commands, and examples. Every
+            shipped tool shares one path: get the toolkit, run
             <code>fieldkit plugin add</code>, use it. Plugins resolve from the repo
-            checkout today; PyPI installs arrive with the public release. AWCP stays
-            separately labelled as a source-checkout prototype. Each shipped tool
+            checkout today; PyPI installs arrive with the public release. Each tool
             links to its full docs page.
           </p>
         </div>
@@ -362,10 +360,10 @@
               </span>
               <span>
                 <h3>AWCP</h3>
-                <p>Prototype control plane for AI workload specs, gates, approvals, rollout, and evidence. Ships as a plugin when it lands.</p>
-                <span class="tool-block__chip">Concept preview / not yet shipped</span>
+                <p>Check a workload spec, diff two versions, and score a recorded golden suite. Local only.</p>
               </span>
             </a>
+            <a class="tool-cell__docs" href="docs/awcp.html">Docs <span aria-hidden="true">→</span></a>
           </div>
         </div>
 
@@ -685,45 +683,42 @@ uv run fieldkit netwatch run -- claude</code></pre>
 
           <article id="tool-awcp" class="tool-detail" tabindex="-1">
             <div class="tool-detail__intro">
-              <p class="detail-kicker">08 / Govern an AI workload</p>
+              <p class="detail-kicker">08 / Check an AI workload spec</p>
               <h3>AWCP</h3>
               <p>
-                AI Workload Control Plane is an API-first delivery control plane for
-                workload specs, eval gates, policy checks, approvals, rollout state,
-                telemetry, rollback, and evidence bundles. When it lands, it ships as
-                a Fieldkit plugin you add like the rest; today it runs only from its
-                own source checkout.
+                Validate a WorkloadSpec, fingerprint its config and prompts, list
+                declared tools with approval and risk, diff two versions, and score a
+                recorded golden suite against the spec's gates. YAML or JSON. Local
+                only: it does not call a model, run promptfoo, or talk to a control
+                plane.
               </p>
-              <p class="prototype-note">
-                Honest status: v0.1 executable specification / local reference prototype.
-                It is not pilot-ready, enterprise-ready, public-alpha-ready, or packaged.
-              </p>
+              <a class="tool-detail__docs" href="docs/awcp.html">Read the awcp docs <span aria-hidden="true">→</span></a>
             </div>
             <div class="tool-detail__commands">
               <section class="command-group" aria-labelledby="awcp-install-title">
-                <h4 id="awcp-install-title">Bootstrap and run from source</h4>
+                <h4 id="awcp-install-title">Install and run</h4>
                 <div class="command-box">
                   <div class="command-box__bar">
-                    <span class="command-box__label">From the AWCP checkout</span>
+                    <span class="command-box__label">Add the tool, then check a spec</span>
                     <button class="copy-button" type="button" data-copy-target="awcp-install">Copy</button>
                     <span class="copy-status" aria-live="polite"></span>
                   </div>
-                  <pre><code id="awcp-install">make bootstrap
-PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml</code></pre>
+                  <pre><code id="awcp-install">fieldkit plugin add awcp
+fieldkit awcp check workload.yaml</code></pre>
                 </div>
               </section>
               <section class="command-group" aria-labelledby="awcp-examples-title">
                 <h4 id="awcp-examples-title">Example uses</h4>
                 <div class="command-box">
                   <div class="command-box__bar">
-                    <span class="command-box__label">AWCP README commands</span>
+                    <span class="command-box__label">README commands</span>
                     <button class="copy-button" type="button" data-copy-target="awcp-examples">Copy</button>
                     <span class="copy-status" aria-live="polite"></span>
                   </div>
-                  <pre><code id="awcp-examples">PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml
-PYTHONPATH=src python3 -m awcp.cli validate examples/workloads/support-ticket-triage.yaml --dry-run --json
-PYTHONPATH=src python3 -m awcp.cli diff examples/workloads/support-ticket-triage.yaml examples/templates/support-ticket-triage.yaml --json
-PYTHONPATH=src python3 -m awcp.cli eval run examples/workloads/support-ticket-triage.yaml --suite examples/eval-suites/support-triage-golden-v1.yaml --json</code></pre>
+                  <pre><code id="awcp-examples">uv sync
+uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml
+uv run fieldkit awcp diff examples/awcp/support-ticket-triage.yaml examples/awcp/support-ticket-triage-v2.yaml
+uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examples/awcp/support-triage-golden.yaml</code></pre>
                 </div>
               </section>
             </div>
@@ -750,8 +745,8 @@ PYTHONPATH=src python3 -m awcp.cli eval run examples/workloads/support-ticket-tr
             <span>Deterministic replacements and seeded generation make demos and checks reproducible.</span>
           </li>
           <li>
-            <strong>Label maturity</strong>
-            <span>AWCP is a v0.1 prototype/spec, not a packaged enterprise product. The site says so plainly.</span>
+            <strong>Stay honest</strong>
+            <span>awcp checks specs and scores recorded golden cases. It does not call a model, run promptfoo, or stand in for a delivery control plane.</span>
           </li>
         </ul>
       </section>
@@ -767,9 +762,8 @@ PYTHONPATH=src python3 -m awcp.cli eval run examples/workloads/support-ticket-tr
               <summary>What is FDE Tools?</summary>
               <p>
                 It is the index for the Fieldkit toolkit: one <code>fieldkit</code> core
-                you install once, seven tools you add with
-                <code>fieldkit plugin add</code>, and the separate AWCP prototype, which
-                runs from its own checkout today and ships as a plugin when it lands.
+                you install once, and eight tools you add with
+                <code>fieldkit plugin add</code>.
               </p>
             </details>
             <details>

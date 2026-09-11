@@ -34,6 +34,17 @@ def test_resolve_extras_ride_along():
     assert "fieldkit-tell[ml] @ git+" in req
 
 
+def test_awcp_resolves_from_the_workspace_and_loads_both_entry_points():
+    req = plugins.resolve_requirement("awcp")
+    installed = plugins.installed_plugins()
+    web = plugins.web_modules()
+
+    assert "plugins/fieldkit-awcp" in req
+    assert "awcp" in installed
+    assert installed["awcp"].load().info.name == "awcp"
+    assert web["awcp"].load().STATIC_DIR.is_dir()
+
+
 def test_netwatch_resolves_from_the_workspace_and_loads_both_entry_points():
     req = plugins.resolve_requirement("netwatch")
     installed = plugins.installed_plugins()

@@ -14,7 +14,7 @@ Audit → shape → revamp → harden.
 
 ## Decision sequence and hierarchy
 
-1. Understand that Fieldkit has seven shipped plugins plus one separately labelled AWCP prototype.
+1. Understand that Fieldkit has eight shipped plugins, including a local awcp spec checker.
 2. Match the current job to a tool.
 3. Read capability, constraints, and maturity.
 4. When evaluating netwatch, see the real local control room and its coverage limits.
@@ -43,8 +43,8 @@ content.
 
 ## Acceptance criteria
 
-- Seven source-accurate Fieldkit tools and honest AWCP v0.1 status.
-- Netwatch is identified as the seventh shipped plugin; AWCP stays a separate prototype.
+- Eight source-accurate Fieldkit tools, with awcp described as a local spec checker.
+- Netwatch is identified as the seventh shipped plugin; awcp is the eighth.
 - Install and example blocks are copyable and verified against both READMEs.
 - The dashboard image is a local asset and never presents sample evidence as telemetry,
   customer traffic, benchmark data, or product adoption.

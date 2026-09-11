@@ -1,0 +1,81 @@
+apiVersion: aiworkloads.dev/v1alpha1
+kind: AIWorkload
+metadata:
+  name: support-ticket-triage
+  project: customer-success-ai
+  owner: support-ops
+  labels:
+    department: support
+    riskTier: medium
+spec:
+  description: Classify support tickets and draft suggested next actions.
+  businessGoal: Reduce manual triage time while keeping human approval for customer-visible replies.
+  taskType: classification_and_draft
+  inputs:
+    schema:
+      type: object
+      required: [ticket_id, subject, body, customer_tier]
+      properties:
+        ticket_id: {type: string}
+        subject: {type: string}
+        body: {type: string}
+        customer_tier:
+          type: string
+          enum: [free, pro, enterprise]
+  outputs:
+    schema:
+      type: object
+      required: [category, priority, suggested_reply, confidence, citations]
+      properties:
+        category: {type: string}
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        suggested_reply: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        citations:
+          type: array
+          items: {type: string}
+  modelRoute:
+    gateway: customer-gateway
+    primary: company/primary-chat-fast
+    fallback: [company/fallback-chat]
+    maxCostUsdPerRun: 0.08
+    timeoutMs: 30000
+  prompts:
+    system: {ref: prompts/system.md, version: v2}
+    userTemplate: {ref: prompts/user.jinja2}
+  retrieval:
+    sources:
+      - name: support-kb
+        connector: confluence-prod
+        collection: support_articles
+        maxChunks: 6
+        requiredCitation: true
+    freshnessDays: 90
+  tools:
+    allowed:
+      - name: zendesk.draft_reply
+        scopes: [ticket:draft]
+        requiresApproval: true
+    denied: [zendesk.send_reply, customer_db.write, jira.create_internal_note]
+  humanReview:
+    requiredWhen:
+      - output.confidence < 0.75
+      - input.customer_tier == "enterprise"
+    queue: support-ai-review
+  evals:
+    requiredSuites: [support-triage-golden-v1]
+    gates:
+      minOverallScore: 0.88
+      maxPiiLeakageRate: 0.0
+      maxUnsupportedClaimRate: 0.03
+      maxP95LatencyMs: 8000
+  policies:
+    requiredPacks: [company-ai-baseline-v1, support-domain-policy-v2]
+    enforcementMode: block
+  privacy:
+    dataRetentionDays: 30
+    storeInputs: false
+    storeOutputs: false
+    piiRedaction: required

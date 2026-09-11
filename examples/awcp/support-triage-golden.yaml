@@ -1,0 +1,31 @@
+name: support-triage-golden-v1
+description: Recorded golden cases for the support ticket triage workload. Fieldkit scores these locally; it does not call a model.
+runner: golden
+config:
+  gates:
+    minOverallScore: 0.82
+    maxP95LatencyMs: 12000
+cases:
+  - id: billing-priority
+    input:
+      subject: Incorrect invoice
+      customer_tier: enterprise
+    expected:
+      category: billing
+      priority: high
+    actual:
+      category: billing
+      priority: high
+    latency_ms: 540
+    cost_usd_estimate: 0.012
+    pii_leakage_rate: 0.0
+    unsupported_claim_rate: 0.0
+  - id: login-help
+    input:
+      subject: Cannot log in
+      customer_tier: pro
+    score: 0.86
+    latency_ms: 620
+    cost_usd_estimate: 0.011
+    pii_leakage_rate: 0.0
+    unsupported_claim_rate: 0.0

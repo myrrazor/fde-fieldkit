@@ -74,5 +74,5 @@ the peer comparison slower.
 - Visible keyboard focus; no color-only state.
 - No ordinary horizontal scroll at target widths.
 - No non-essential cookies, storage, analytics, embeds, or external assets.
-- AWCP prototype status remains adjacent to its description and commands.
+- awcp's local-only limit (no model, no control plane) remains adjacent to its description and commands.
 - Netwatch imagery never implies customer traffic, usage metrics, or whole-machine coverage.

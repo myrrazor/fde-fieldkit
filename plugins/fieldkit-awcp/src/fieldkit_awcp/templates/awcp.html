@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .summary { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0 1.5rem; }
+  .summary span { padding: .45rem .7rem; border: 1px solid #ddd; border-radius: .25rem; }
+  .ok { color: #067647; }
+  .fail { color: #b42318; }
+  .warnings { padding: .75rem 1rem; background: #fff4d6; }
+  .muted { color: #666; }
+  .note { padding: .75rem 1rem; background: #f3f1ea; }
+  section { margin-top: 2rem; }
+  @media print {
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    tr { break-inside: avoid; }
+  }
+</style>
+
+<h1>awcp</h1>
+{% if kind == "check" %}
+<p><code>{{ check.source }}</code></p>
+<div class="summary">
+  <span class="{{ 'ok' if check.ok else 'fail' }}"><strong>status</strong> {{ "ok" if check.ok else "failed" }}</span>
+  <span><strong>name</strong> {{ check.validation.workload_name or "—" }}</span>
+  <span><strong>project</strong> {{ check.validation.project or "—" }}</span>
+  <span><strong>tools</strong> {{ check.tools | length }}</span>
+</div>
+<p class="muted"><code>{{ check.fingerprint.config_hash }}</code></p>
+{% if check.validation.errors %}
+<ul class="warnings">
+  {% for error in check.validation.errors %}<li>{{ error }}</li>{% endfor %}
+</ul>
+{% endif %}
+{% if check.warnings %}
+<ul class="warnings">
+  {% for warning in check.warnings %}<li>{{ warning }}</li>{% endfor %}
+</ul>
+{% endif %}
+<section>
+  <h2>Tools</h2>
+  <table>
+    <thead><tr><th>name</th><th>approval</th><th>risk</th></tr></thead>
+    <tbody>
+      {% for tool in check.tools %}
+      <tr>
+        <td><code>{{ tool.name }}</code></td>
+        <td>{{ "required" if tool.requires_approval else "none" }}</td>
+        <td>{{ tool.risk_tokens | join(", ") if tool.risk_tokens else "—" }}</td>
+      </tr>
+      {% endfor %}
+      {% if not check.tools %}
+      <tr><td colspan="3" class="muted">no allowed tools declared</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+{% if check.fingerprint.prompt_hashes %}
+<section>
+  <h2>Prompts</h2>
+  <table>
+    <thead><tr><th>name</th><th>mode</th><th>hash</th></tr></thead>
+    <tbody>
+      {% for name, prompt in check.fingerprint.prompt_hashes.items() %}
+      <tr>
+        <td>{{ name }}</td>
+        <td>{{ prompt.mode }}</td>
+        <td><code>{{ prompt.hash }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+<p class="note">Local check only. Fieldkit did not call a model, a control plane, or the network.</p>
+{% elif kind == "diff" %}
+<p><code>{{ before }}</code> → <code>{{ after }}</code></p>
+<div class="summary">
+  <span><strong>changes</strong> {{ changes | length }}</span>
+</div>
+<table>
+  <thead><tr><th>kind</th><th>path</th><th>before</th><th>after</th></tr></thead>
+  <tbody>
+    {% for change in changes %}
+    <tr>
+      <td>{{ change.category }}</td>
+      <td><code>{{ change.path }}</code></td>
+      <td><code>{{ change.before }}</code></td>
+      <td><code>{{ change.after }}</code></td>
+    </tr>
+    {% endfor %}
+    {% if not changes %}
+    <tr><td colspan="4" class="muted">no changes</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+{% elif kind == "eval" %}
+<p><code>{{ run.suite_name }}</code></p>
+<div class="summary">
+  <span class="{{ 'ok' if run.status == 'passed' else 'fail' }}"><strong>{{ run.status }}</strong></span>
+  <span><strong>score</strong> {{ "%.2f"|format(run.score) }}</span>
+  <span><strong>cases</strong> {{ run.metrics.case_count }}</span>
+  <span><strong>p95</strong> {{ run.metrics.p95_latency_ms }} ms</span>
+</div>
+<table>
+  <thead><tr><th>id</th><th>score</th><th>pass</th><th>reason</th></tr></thead>
+  <tbody>
+    {% for result in run.results %}
+    <tr>
+      <td>{{ result.case_id }}</td>
+      <td>{{ "%.2f"|format(result.score) }}</td>
+      <td>{{ "yes" if result.passed else "no" }}</td>
+      <td>{{ result.reason }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="note">Scored locally from recorded cases. No model or promptfoo process ran.</p>
+{% endif %}
+{% endblock %}

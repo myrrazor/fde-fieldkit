@@ -15,7 +15,7 @@ uv sync --locked --all-packages
 uv run fieldkit --help
 ```
 
-The checkout installs the core and all seven plugins in editable mode. No
+The checkout installs the core and all eight plugins in editable mode. No
 production credentials are needed for development or the default test suite.
 Optional machine-level Netwatch checks need permission to inspect processes or
 bind loopback sockets. Never use customer files or a live credential as a fixture.

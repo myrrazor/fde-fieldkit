@@ -19,7 +19,7 @@ from fieldkit.web import create_app
 from fieldkit.web.routes import MAX_UPLOAD_BYTES
 
 # tool routes and internals now live in the plugin packages; the dev
-# workspace installs all seven, so the hub tests exercise the real thing
+# workspace installs every plugin, so the hub tests exercise the real thing
 from fieldkit_scrub import web as scrub_routes
 from fieldkit_tell.adapters import ADAPTERS, run_detectors
 from fieldkit_tell.render import render_html
@@ -283,6 +283,39 @@ def test_shared_busy_indicator_has_orb_and_reduced_motion_fallback(
     assert "busy.remove();" in script
     assert ".spinner.has-orb" in styles
     assert ".spinner { animation-duration: 2.5s; }" in styles
+
+
+def test_awcp_check_diff_eval_and_static_page(client: TestClient) -> None:
+    examples = Path(__file__).resolve().parents[1] / "examples" / "awcp"
+    spec = examples / "support-ticket-triage.yaml"
+    later = examples / "support-ticket-triage-v2.yaml"
+    suite = examples / "support-triage-golden.yaml"
+
+    page = client.get("/awcp/")
+    checked = client.post("/api/awcp", files={"file": (spec.name, spec.read_bytes())})
+    diffed = client.post(
+        "/api/awcp/diff",
+        files={
+            "file_a": (spec.name, spec.read_bytes()),
+            "file_b": (later.name, later.read_bytes()),
+        },
+    )
+    scored = client.post(
+        "/api/awcp/eval",
+        files={
+            "file": (spec.name, spec.read_bytes()),
+            "suite": (suite.name, suite.read_bytes()),
+        },
+    )
+
+    assert page.status_code == 200
+    assert "fieldkit awcp check SPEC" in page.text
+    assert checked.status_code == 200
+    assert checked.json()["ok"] is True
+    assert diffed.status_code == 200
+    assert diffed.json()["ok"] is True
+    assert scored.status_code == 200
+    assert scored.json()["status"] == "passed"
 
 
 def test_xray_json_and_html(client: TestClient, fixture_dir: Path) -> None:
