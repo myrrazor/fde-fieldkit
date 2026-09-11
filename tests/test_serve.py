@@ -7,6 +7,7 @@ import time
 import httpx
 import pytest
 import uvicorn
+from click import unstyle
 from typer.testing import CliRunner
 
 from fieldkit.cli import app as cli_app
@@ -58,11 +59,12 @@ def test_explicit_port_fails_when_taken() -> None:
 
 def test_serve_help_exposes_only_loopback_safe_options() -> None:
     result = runner.invoke(cli_app, ["serve", "--help"])
+    output = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "--host" not in result.output
-    assert "--port" in result.output
-    assert "8765" in result.output
+    assert "--host" not in output
+    assert "--port" in output
+    assert "8765" in output
 
 
 def test_serve_rejects_host_flag() -> None:
