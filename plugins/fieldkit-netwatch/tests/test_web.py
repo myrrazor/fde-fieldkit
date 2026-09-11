@@ -173,6 +173,7 @@ def test_netwatch_server_shutdown_stops_owned_runs(
 ) -> None:
     db = tmp_path / "shutdown.db"
     monkeypatch.setenv("FIELDKIT_NETWATCH_DB", str(db))
+    monkeypatch.setattr("fieldkit_netwatch.control.shutil.which", lambda _name: "/usr/bin/lsof")
     monkeypatch.setattr("fieldkit_netwatch.control.record_snapshot", lambda *_args: 0)
     with _local_client() as client:
         token = client.get("/api/netwatch/control").json()["token"]
@@ -216,6 +217,7 @@ def test_invalid_managed_policy_can_be_repaired_from_the_dashboard(
 def test_control_planes_are_isolated_between_app_instances(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setattr("fieldkit_netwatch.control.shutil.which", lambda _name: "/usr/bin/lsof")
     monkeypatch.setattr("fieldkit_netwatch.control.record_snapshot", lambda *_args: 0)
     db_a = tmp_path / "a.db"
     db_b = tmp_path / "b.db"

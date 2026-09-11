@@ -13,11 +13,14 @@ default, with no telemetry. Remote text classifiers, model downloads, package
 installation, and supervised network relays require the explicit actions
 described below.
 
-[Documentation](https://fde-tools.vercel.app/docs/)
-· [Site](https://fde-tools.vercel.app)
+[Docs in `site/`](site/docs/index.html)
 · [Contributing](CONTRIBUTING.md)
 · [Changelog](CHANGELOG.md)
 · [Security](SECURITY.md)
+
+Browse the static docs from a checkout (`site/`). Hosted
+https://fde-tools.vercel.app may require SSO and is not a guaranteed public
+docs site.
 
 | tool | what it does |
 |---|---|
