@@ -10,7 +10,9 @@ uv sync --locked --all-packages
 uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml
 ```
 
-See the in-repo docs at [`site/docs/awcp.html`](../../site/docs/awcp.html) for command options and boundaries. A hosted copy may exist at fde-tools.vercel.app but can be SSO-gated. Scoring uses recorded cases; it does not
+See the in-repo docs at [`site/docs/awcp.html`](../../site/docs/awcp.html)
+for command options and boundaries. A hosted copy may exist at
+fde-tools.vercel.app but can be SSO-gated. Scoring uses recorded cases; it does not
 call a model or a control plane. Source contributions, support, and private
 security reports follow the policies in the main repository.
 
