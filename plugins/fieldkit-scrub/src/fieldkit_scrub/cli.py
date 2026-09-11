@@ -7,7 +7,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from fieldkit.core.io import load_table, write_table
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, write_table
 from fieldkit.core.pii import PIIKind
 from fieldkit.core.private_files import atomic_write_private
 from fieldkit_scrub.engine import Scrubber, ScrubSummary
@@ -44,6 +44,11 @@ def main(
         "--text",
         help="Use line mode. Exact bytes are matched; equivalent spellings are not normalized.",
     ),
+    fmt: str | None = typer.Option(
+        None,
+        "--fmt",
+        help=f"Force table format ({', '.join(SUPPORTED_FORMATS)}).",
+    ),
 ) -> None:
     """Scrub FILE into a new output while preserving deterministic joins."""
 
@@ -63,10 +68,12 @@ def main(
         scrubber = Scrubber(salt, kinds=selected_kinds)
         line_mode = text or file.suffix.lower() not in _TABULAR_SUFFIXES
         if line_mode:
+            if fmt is not None:
+                raise ValueError("--fmt applies to tabular scrub only; omit it with --text")
             output, summary = scrubber.scrub_text(file.read_text(encoding="utf-8"))
             out.write_text(output, encoding="utf-8")
         else:
-            loaded = load_table(file)
+            loaded = load_table(file, fmt=fmt)
             output, summary = scrubber.scrub_dataframe(loaded)
             write_table(output, out, loaded.fmt)
 

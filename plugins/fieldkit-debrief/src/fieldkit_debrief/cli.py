@@ -9,7 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from fieldkit_debrief.report import build_report, render_html, render_markdown
-from fieldkit_debrief.store import DEFAULT_DB, Store, Tag
+from fieldkit_debrief.store import Store, Tag, default_db_path
 
 app = typer.Typer(help="Log engagement notes and render weekly status reports")
 
@@ -18,12 +18,14 @@ app = typer.Typer(help="Log engagement notes and render weekly status reports")
 def add_command(
     text: str = typer.Argument(..., help="Engagement note to log."),
     tag: Tag = typer.Option(..., "--tag", case_sensitive=False, help="Status category."),
-    db: Path = typer.Option(DEFAULT_DB, "--db", dir_okay=False, help="Debrief database."),
+    db: Path | None = typer.Option(
+        None, "--db", dir_okay=False, help="Debrief database (or FIELDKIT_DEBRIEF_DB)."
+    ),
 ) -> None:
     """Add a timestamped entry to the engagement log."""
 
     try:
-        entry = Store(db).add(text, tag)
+        entry = Store(db or default_db_path()).add(text, tag)
     except (OSError, sqlite3.Error, ValueError) as exc:
         _fail(exc)
     typer.echo(f"{entry.id} {entry.tag.value}")
@@ -35,12 +37,14 @@ def list_command(
     tag: Tag | None = typer.Option(
         None, "--tag", case_sensitive=False, help="Only show one status category."
     ),
-    db: Path = typer.Option(DEFAULT_DB, "--db", dir_okay=False, help="Debrief database."),
+    db: Path | None = typer.Option(
+        None, "--db", dir_okay=False, help="Debrief database (or FIELDKIT_DEBRIEF_DB)."
+    ),
 ) -> None:
     """List logged entries, optionally filtered by ISO week or tag."""
 
     try:
-        entries = Store(db).list(week=week, tag=tag)
+        entries = Store(db or default_db_path()).list(week=week, tag=tag)
     except (OSError, sqlite3.Error, ValueError) as exc:
         _fail(exc)
 
@@ -63,13 +67,17 @@ def report_command(
     html: Path | None = typer.Option(
         None, "--html", dir_okay=False, metavar="PATH", help="HTML output path."
     ),
-    db: Path = typer.Option(DEFAULT_DB, "--db", dir_okay=False, help="Debrief database."),
+    db: Path | None = typer.Option(
+        None, "--db", dir_okay=False, help="Debrief database (or FIELDKIT_DEBRIEF_DB)."
+    ),
 ) -> None:
     """Render a stakeholder-ready report for an ISO week."""
 
     selected_week = week or _current_week()
     try:
-        report = build_report(Store(db).list(week=selected_week), selected_week)
+        report = build_report(
+            Store(db or default_db_path()).list(week=selected_week), selected_week
+        )
         markdown = render_markdown(report)
         if output is not None:
             output.write_text(markdown, encoding="utf-8")
@@ -86,12 +94,14 @@ def report_command(
 @app.command("delete")
 def delete_command(
     entry_id: int = typer.Argument(..., help="Entry id to delete."),
-    db: Path = typer.Option(DEFAULT_DB, "--db", dir_okay=False, help="Debrief database."),
+    db: Path | None = typer.Option(
+        None, "--db", dir_okay=False, help="Debrief database (or FIELDKIT_DEBRIEF_DB)."
+    ),
 ) -> None:
     """Delete one entry by id."""
 
     try:
-        deleted = Store(db).delete(entry_id)
+        deleted = Store(db or default_db_path()).delete(entry_id)
     except (OSError, sqlite3.Error) as exc:
         _fail(exc)
     if not deleted:

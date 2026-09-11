@@ -64,9 +64,13 @@ customers.csv · CSV · 150 × 14
 ```
 
 Schema, inferred types, null rates, distinct counts, and a PII flag with a
-confidence for every column. Reads csv, tsv, xlsx, json, and jsonl. `--html`
-writes a report you can hand over; `--json profile.json` writes the same thing
-for machines. Sample values are redacted unless you pass `--include-values`.
+confidence for every column. Reads csv, tsv, xlsx, json, and jsonl (UTF-8).
+Pass `--fmt` when detection is wrong or the extension is misleading. Parquet and
+other columnar formats are not supported. Inputs are capped at 50 MB total
+(`MAX_DATASET_BYTES`); larger files fail with an error that names the limit.
+`--html` writes a report you can hand over; `--json profile.json` writes the
+same thing for machines. Sample values are redacted unless you pass
+`--include-values`.
 
 ### scrub: take the PII out before you share it
 
@@ -90,8 +94,9 @@ Emails, phones, SSNs, card numbers, IPs, names, and secrets become realistic
 fakes. It is deterministic: the same input value always maps to the same fake,
 so joins across files still line up. `--text` is line mode for logs.
 `--kinds email,phone` narrows it, and `--mapping` writes the reversal key, which
-is as sensitive as the original file. Detection is not a guarantee. Read the
-output before you send it.
+is as sensitive as the original file. Detection is not a guarantee. Common names
+can collide with dictionary hits, and free-text notes are only scrubbed where the
+scanner finds a match — read the output before you send it.
 
 ### mimic: demo data that looks real
 
@@ -107,8 +112,9 @@ wrote demo.csv (10000 rows)
 
 `learn` writes a plain YAML spec: types, category pools, distributions. Edit it,
 then generate as many rows as you need. Same seed, same output. PII columns get
-independent fake values, never fingerprints of the source. In a hurry, skip the
-spec:
+independent fake values, never fingerprints of the source. Learned `unique`
+flags for email/phone/ssn/card/ip mirror whether the sample column was unique,
+and generation retries to keep that promise. In a hurry, skip the spec:
 
 ```
 uv run fieldkit mimic generate examples/customers.csv -n 500 -o demo.csv
@@ -158,8 +164,8 @@ uv run fieldkit debrief report
 ```
 
 Tags are `win`, `blocker`, `decision`, `note`, and `next`. `report` prints a
-stakeholder-ready week in markdown, or `--html status.html`. Entries live in
-`~/.fieldkit/debrief.db`.
+stakeholder-ready week in markdown, or `--html status.html`. Entries live in `~/.fieldkit/debrief.db`, or wherever `FIELDKIT_DEBRIEF_DB`
+points (same idea as Netwatch's `FIELDKIT_NETWATCH_DB`).
 
 ### tell: find the AI tells in a draft
 

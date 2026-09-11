@@ -70,6 +70,20 @@ def test_unknown_bytes_need_explicit_format() -> None:
         detect_format(None, b"there is no delimiter here")
 
 
+def test_parquet_extension_and_magic_are_rejected() -> None:
+    with pytest.raises(ValueError, match="parquet is not supported"):
+        detect_format("orders.parquet", b"a,b\n1,2\n")
+    with pytest.raises(ValueError, match="parquet is not supported"):
+        detect_format(None, b"PAR1" + b"\x00" * 32)
+
+
+def test_latin1_csv_fails_with_utf8_guidance(tmp_path: Path) -> None:
+    path = tmp_path / "latin1.csv"
+    path.write_bytes("name,city\nJosé,São\n".encode("latin-1"))
+    with pytest.raises(ValueError, match="UTF-8"):
+        load_table(path)
+
+
 def test_json_object_is_not_a_table() -> None:
     with pytest.raises(ValueError, match="top-level list"):
         load_table(BytesIO(b'{"not": "records"}'), filename="data.json")

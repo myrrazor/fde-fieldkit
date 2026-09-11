@@ -245,9 +245,21 @@ def _prepare_column(column: ColumnSpec, n: int) -> _PreparedColumn:
         words = column.params.get("words", 2)
         if column.kind == "name" and words not in {1, 2}:
             raise ValueError(f"column {column.name!r} words must be 1 or 2")
+        seen: set[str] = set()
 
-        def make(_row: int, _rng: random.Random, faker: Faker) -> str:
-            return _pii_value(column.kind, words, faker)
+        def make(_row: int, rng: random.Random, faker: Faker) -> str:
+            if not column.unique:
+                return _pii_value(column.kind, words, faker)
+            for attempt in range(64):
+                if attempt:
+                    faker.seed_instance(rng.randrange(1 << 31))
+                value = _pii_value(column.kind, words, faker)
+                if value not in seen:
+                    seen.add(value)
+                    return value
+            raise ValueError(
+                f"couldn't generate unique {column.kind} values for column {column.name!r}"
+            )
 
         controlled = _pii_value_bound(column.kind, words)
     else:

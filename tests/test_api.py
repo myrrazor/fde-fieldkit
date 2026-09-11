@@ -61,6 +61,19 @@ def test_health_and_static_hub(client: TestClient) -> None:
     assert '<script type="module" src="/hub.js"></script>' in page.text
 
 
+def test_tool_page_slash_redirect_and_docs_disabled(client: TestClient) -> None:
+    redirected = client.get("/xray", follow_redirects=False)
+    assert redirected.status_code == 307
+    assert redirected.headers["location"].endswith("/xray/")
+
+    page = client.get("/xray/")
+    assert page.status_code == 200
+
+    assert client.get("/docs").status_code == 404
+    assert client.get("/redoc").status_code == 404
+    assert client.get("/openapi.json").status_code == 404
+
+
 @pytest.mark.parametrize("host", ["localhost:8765", "127.0.0.1:8765", "[::1]:8765"])
 def test_loopback_host_headers_are_allowed(client: TestClient, host: str) -> None:
     assert client.get("/api/health", headers={"host": host}).status_code == 200
@@ -459,6 +472,12 @@ def test_debrief_crud_and_reports_use_configured_database(client: TestClient) ->
     assert deleted.content == b""
     assert missing.status_code == 404
     assert missing.json() == {"error": f"no entry {entry['id']}"}
+
+
+def test_debrief_rejects_empty_notes(client: TestClient) -> None:
+    response = client.post("/api/debrief/entries", json={"text": "   ", "tag": "note"})
+    assert response.status_code == 422
+    assert "empty" in response.json()["error"]
 
 
 def test_bad_upload_and_oversize_request_have_clean_errors(client: TestClient) -> None:

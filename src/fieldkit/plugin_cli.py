@@ -71,10 +71,17 @@ def list_(json_output: bool = typer.Option(False, "--json", help="Machine-readab
 @app.command()
 def add(
     names: list[str] = typer.Argument(..., help="Tool names, e.g. xray scrub"),
-    source: str = typer.Option(None, help="Force a source: local, git, or pypi."),
+    source: str = typer.Option(
+        None,
+        help="Force a source: local or git. PyPI is not available yet.",
+    ),
     extra: list[str] = typer.Option(None, "--extra", help="Optional extras, e.g. --extra ml for tell."),
     wheelhouse: str = typer.Option(
-        None, help="Directory of pre-built fieldkit wheels; useful offline or before a release."
+        None,
+        help=(
+            "Directory of pre-built fieldkit wheels. Resolves Fieldkit packages locally; "
+            "other dependencies may still contact a package index (not a full offline install)."
+        ),
     ),
 ) -> None:
     """Install one or more tools into this Fieldkit."""
@@ -85,10 +92,14 @@ def add(
             known = ", ".join(REGISTRY)
             typer.secho(f"unknown tool '{name}' — known tools: {known}", fg="red", err=True)
             raise typer.Exit(2)
-        if wheelhouse:
-            requirements.append(package_requirement(name, extras=extra))
-        else:
-            requirements.append(resolve_requirement(name, source=source, extras=extra))
+        try:
+            if wheelhouse:
+                requirements.append(package_requirement(name, extras=extra))
+            else:
+                requirements.append(resolve_requirement(name, source=source, extras=extra))
+        except (FileNotFoundError, ValueError) as exc:
+            typer.secho(f"error: {exc}", fg="red", err=True)
+            raise typer.Exit(2) from exc
     code = run_installer(requirements, find_links=wheelhouse)
     if code != 0:
         typer.secho("install failed — see output above", fg="red", err=True)
@@ -117,8 +128,17 @@ def remove(names: list[str] = typer.Argument(..., help="Tool names to uninstall.
 @app.command()
 def update(
     names: list[str] = typer.Argument(None, help="Tools to update; default is everything installed."),
-    source: str = typer.Option(None, help="Force a source: local, git, or pypi."),
-    wheelhouse: str = typer.Option(None, help="Directory of pre-built fieldkit wheels."),
+    source: str = typer.Option(
+        None,
+        help="Force a source: local or git. PyPI is not available yet.",
+    ),
+    wheelhouse: str = typer.Option(
+        None,
+        help=(
+            "Directory of pre-built fieldkit wheels. Resolves Fieldkit packages locally; "
+            "other dependencies may still contact a package index (not a full offline install)."
+        ),
+    ),
 ) -> None:
     """Reinstall tools at their newest version."""
 
@@ -126,10 +146,14 @@ def update(
     if not targets:
         typer.echo("nothing installed to update")
         return
-    if wheelhouse:
-        requirements = [package_requirement(name) for name in targets]
-    else:
-        requirements = [resolve_requirement(name, source=source) for name in targets]
+    try:
+        if wheelhouse:
+            requirements = [package_requirement(name) for name in targets]
+        else:
+            requirements = [resolve_requirement(name, source=source) for name in targets]
+    except (FileNotFoundError, ValueError) as exc:
+        typer.secho(f"error: {exc}", fg="red", err=True)
+        raise typer.Exit(2) from exc
     code = run_installer(requirements, upgrade=True, find_links=wheelhouse)
     if code != 0:
         raise typer.Exit(code)

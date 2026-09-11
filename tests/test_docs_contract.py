@@ -46,6 +46,22 @@ def test_public_tell_copy_does_not_claim_authorship_detection() -> None:
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     site = (ROOT / "site/index.html").read_text(encoding="utf-8")
+    plugins = (ROOT / "src/fieldkit/plugins.py").read_text(encoding="utf-8")
+    plugins_docs = (ROOT / "site/docs/plugins.html").read_text(encoding="utf-8")
     assert "Spot AI-written text" not in readme
+    assert "Spot AI-written text" not in plugins
+    assert "Spot AI-written text" not in plugins_docs
     assert "do not establish who wrote" in readme
     assert "Neither establishes who wrote" in site
+    assert "writing patterns" in plugins
+
+
+def test_public_install_copy_does_not_claim_pypi_or_offline_wheelhouse() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    plugins_docs = (ROOT / "site/docs/plugins.html").read_text(encoding="utf-8")
+    assert "Not on PyPI yet" in readme
+    assert "does not disable" in readme or "does not enforce offline" in plugins_docs
+    assert "works from any machine" not in plugins_docs
+    assert "useful offline" not in (ROOT / "src/fieldkit/plugin_cli.py").read_text(
+        encoding="utf-8"
+    )

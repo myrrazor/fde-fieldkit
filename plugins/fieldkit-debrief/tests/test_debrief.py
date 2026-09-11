@@ -4,6 +4,7 @@ from datetime import datetime
 from html import escape
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from fieldkit.cli import app
@@ -23,6 +24,26 @@ def test_store_crud_round_trip(tmp_path: Path) -> None:
     assert store.delete(first.id) is False
     assert store.delete(9999) is False
     assert db.stat().st_mode & 0o777 == 0o600
+
+
+def test_store_rejects_empty_or_whitespace_notes(tmp_path: Path) -> None:
+    store = Store(tmp_path / "debrief.db")
+    for text in ("", "   ", "\n\t"):
+        try:
+            store.add(text, Tag.NOTE)
+            raise AssertionError(f"expected rejection for {text!r}")
+        except ValueError as exc:
+            assert "empty" in str(exc)
+
+
+def test_default_db_path_honors_fieldkit_debrief_db(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    configured = tmp_path / "custom" / "notes.db"
+    monkeypatch.setenv("FIELDKIT_DEBRIEF_DB", str(configured))
+    from fieldkit_debrief.store import default_db_path
+
+    assert default_db_path() == configured
 
 
 def test_store_restricts_existing_database_permissions(tmp_path: Path) -> None:

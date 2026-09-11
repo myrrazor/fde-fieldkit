@@ -119,8 +119,9 @@ fieldkit plugin remove scrub</code></pre>
 │ mimic    │ available │ Generate realistic fake datasets │
 │ datadiff │ available │ Explain why two tables disagree  │
 │ debrief  │ available │ Turn field notes into reports    │
-│ tell     │ available │ Spot AI-written text, locally    │
+│ tell     │ available │ Inspect a draft's writing patterns, locally │
 │ netwatch │ available │ Observe agent network access     │
+│ awcp     │ available │ Check AI workload specs locally  │
 └──────────┴───────────┴──────────────────────────────────┘
 add one with: fieldkit plugin add scrub</code></pre>
       </div>
@@ -184,7 +185,7 @@ fieldkit plugin add xray --wheelhouse ./dist</code></pre>
             <tr>
               <td><code>--source</code></td>
               <td>auto</td>
-              <td>Force <code>local</code>, <code>git</code>, or <code>pypi</code>. Auto prefers a local checkout, then the git subdirectory.</td>
+              <td>Force <code>local</code> or <code>git</code>. Auto prefers a local checkout, then the git subdirectory. <code>pypi</code> is refused until packages are published (the PyPI name <code>fieldkit</code> is an unrelated project).</td>
             </tr>
             <tr>
               <td><code>--extra NAME</code></td>
@@ -267,8 +268,8 @@ fieldkit plugin update xray --wheelhouse ./dist</code></pre>
             </tr>
             <tr>
               <td>PyPI</td>
-              <td>With the public release. Not available yet.</td>
-              <td><code>fieldkit plugin add xray</code> works from any machine; <code>--source pypi</code> will force it.</td>
+              <td>Not available yet. Do not use <code>--source pypi</code>.</td>
+              <td>Fieldkit packages are not published. The PyPI project named <code>fieldkit</code> is unrelated. Prefer <code>uv sync</code> from a checkout, git subdirectory installs, or a local <code>--wheelhouse</code>.</td>
             </tr>
           </tbody>
         </table>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import sqlite3
 from contextlib import closing
@@ -29,6 +30,14 @@ class Entry:
     text: str
 
 
+def default_db_path() -> Path:
+    """Return the configured debrief database path."""
+
+    configured = os.environ.get("FIELDKIT_DEBRIEF_DB")
+    return Path(configured).expanduser() if configured else Path.home() / ".fieldkit" / "debrief.db"
+
+
+# Kept for callers that imported the home default; prefer default_db_path().
 DEFAULT_DB = Path.home() / ".fieldkit" / "debrief.db"
 
 _WEEK_RE = re.compile(r"(?P<year>\d{4})-W(?P<week>\d{2})\Z")
@@ -37,10 +46,10 @@ _WEEK_RE = re.compile(r"(?P<year>\d{4})-W(?P<week>\d{2})\Z")
 class Store:
     """Small SQLite-backed engagement log."""
 
-    def __init__(self, db_path: Path = DEFAULT_DB):
-        self.db_path = db_path
+    def __init__(self, db_path: Path | None = None):
+        self.db_path = db_path or default_db_path()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        if self.db_path == DEFAULT_DB:
+        if self.db_path.parent == Path.home() / ".fieldkit":
             self.db_path.parent.chmod(0o700)
         ensure_private_regular_file(self.db_path)
         with closing(self._connect()) as connection, connection:
@@ -58,17 +67,20 @@ class Store:
     def add(self, text: str, tag: Tag, ts: datetime | None = None) -> Entry:
         """Add an entry and return its persisted representation."""
 
+        cleaned = text.strip()
+        if not cleaned:
+            raise ValueError("debrief notes can't be empty or whitespace-only")
         stamp = datetime.now() if ts is None else ts
         timestamp = stamp.isoformat()
         with closing(self._connect()) as connection, connection:
             cursor = connection.execute(
                 "INSERT INTO entries(ts, tag, text) VALUES (?, ?, ?)",
-                (timestamp, tag.value, text),
+                (timestamp, tag.value, cleaned),
             )
             entry_id = cursor.lastrowid
         if entry_id is None:
             raise sqlite3.DatabaseError("couldn't read the new entry id")
-        return Entry(id=entry_id, ts=timestamp, tag=tag, text=text)
+        return Entry(id=entry_id, ts=timestamp, tag=tag, text=cleaned)
 
     def list(self, *, week: str | None = None, tag: Tag | None = None) -> list[Entry]:
         """List entries in chronological order with optional week and tag filters."""

@@ -9,7 +9,7 @@ from fastapi import APIRouter, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from fieldkit_debrief import DEFAULT_DB, Store, Tag, build_report, render_html, render_markdown
+from fieldkit_debrief import Store, Tag, build_report, default_db_path, render_html, render_markdown
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -69,7 +69,7 @@ async def weekly_report(
 
 def _store(request: Request) -> Store:
     # the hub leaves debrief_db unset unless the caller overrides it
-    return Store(request.app.state.debrief_db or DEFAULT_DB)
+    return Store(request.app.state.debrief_db or default_db_path())
 
 
 def _current_week() -> str:

@@ -89,7 +89,9 @@
       <p>
         Sparse recognized matches are replaced even when a whole column does not cross
         the PII-confidence threshold. A recognized selected value left after replacement
-        stops the run. Detection is not a guarantee, so inspect the output before sharing it.
+        stops the run. Detection is not a guarantee: common personal names can collide
+        with the name dictionary, and free-text notes are only touched where the scanner
+        finds a match — inspect the output before sharing it.
         The web workbench supports <code>.log</code> and <code>.txt</code> text mode too.
       </p>
 

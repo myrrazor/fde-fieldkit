@@ -7,10 +7,11 @@
 Canonical site: https://fde-tools.vercel.app/
 Source: https://github.com/myrrazor/fde-fieldkit
 
-Toolkit model: one fieldkit core install; each of the eight shipped tools is a
-plugin package added with `fieldkit plugin add <tool>`.
-Not on PyPI yet: plugins resolve from the repo checkout today, and PyPI installs
-arrive with the public release.
+Toolkit model: one fieldkit core install from a repo checkout (`uv sync`); each
+of the eight shipped tools is a plugin package. Not on PyPI yet (the PyPI name
+`fieldkit` is an unrelated project). After the core is installed, 
+`fieldkit plugin add <tool>` resolves from the checkout, git subdirectory, or a
+local wheelhouse — not from PyPI.
 
 ## Eight shipped Fieldkit plugins
 

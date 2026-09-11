@@ -63,6 +63,17 @@ def test_resolve_unknown_tool_raises():
         plugins.resolve_requirement("xray", source="carrier-pigeon")
 
 
+def test_resolve_pypi_source_is_honest_about_unpublished_packages():
+    with pytest.raises(ValueError, match="not published to PyPI"):
+        plugins.resolve_requirement("xray", source="pypi")
+
+
+def test_tell_registry_summary_avoids_authorship_claim():
+    summary = plugins.REGISTRY["tell"].summary
+    assert "Spot AI-written text" not in summary
+    assert "writing patterns" in summary.lower() or "stylometric" in summary.lower()
+
+
 def test_resolve_local_without_checkout_fails_loudly():
     with patch.object(plugins, "_monorepo_plugin_dir", return_value=None):
         with pytest.raises(FileNotFoundError):
@@ -91,6 +102,19 @@ def test_cli_hints_at_plugin_add_for_missing_tools(capsys):
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert "fieldkit plugin add xray" in err
+
+
+def test_cli_version_flags():
+    from typer.testing import CliRunner
+
+    from fieldkit import __version__
+    from fieldkit.cli import app
+
+    runner = CliRunner()
+    for flag in ("--version", "-V"):
+        result = runner.invoke(app, [flag])
+        assert result.exit_code == 0
+        assert result.stdout.strip() == __version__
 
 
 def test_web_app_serves_plugin_listing():

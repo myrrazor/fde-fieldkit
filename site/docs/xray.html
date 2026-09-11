@@ -156,6 +156,16 @@ uv run fieldkit xray examples/customers.csv</code></pre>
               <td>Which sheet to profile when the file is an Excel workbook.</td>
             </tr>
             <tr>
+              <td><code>--fmt FORMAT</code></td>
+              <td>auto</td>
+              <td>Force csv, tsv, xlsx, json, or jsonl when the extension or bytes would mislead detection. Parquet is not supported.</td>
+            </tr>
+            <tr>
+              <td>size limit</td>
+              <td>50 MB</td>
+              <td>Hard <code>MAX_DATASET_BYTES</code> cap on the whole input. Larger files fail with an error that names the limit.</td>
+            </tr>
+            <tr>
               <td><code>--help</code></td>
               <td></td>
               <td>Show usage and exit.</td>

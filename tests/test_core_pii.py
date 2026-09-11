@@ -63,6 +63,23 @@ def test_ips_are_not_phones() -> None:
     assert PIIKind.IP in report.kinds
 
 
+def test_iso_datetimes_are_not_phones(fixture_dir: Path) -> None:
+    values = pd.Series(
+        [
+            "2024-01-15 10:30:00",
+            "2025-01-27 00:00:00",
+            "2024-01-15 10:30",
+            "2024-01-15T10:30:00",
+        ],
+        dtype="string",
+    )
+    assert PIIKind.PHONE not in scan_column(values, column_name="restock_date").kinds
+    assert not any(match.kind is PIIKind.PHONE for match in scan_text("2024-01-15 10:30:00"))
+
+    inventory = load_table(fixture_dir / "inventory.xlsx")
+    assert PIIKind.PHONE not in scan_dataframe(inventory.df)["restock_date"].kinds
+
+
 def test_bare_ssn_needs_column_hint() -> None:
     values = pd.Series(["123456789"] * 10, dtype="string")
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from fieldkit.core.io import load_table
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table
 from fieldkit_datadiff.diff import diff_tables, to_json
 from fieldkit_datadiff.render import render_html, render_terminal
 
@@ -32,6 +32,11 @@ def main(
         help="Include sensitive raw row/category values in this report.",
     ),
     sheet: str | None = typer.Option(None, "--sheet", help="Excel sheet to compare."),
+    fmt: str | None = typer.Option(
+        None,
+        "--fmt",
+        help=f"Force table format for both files ({', '.join(SUPPORTED_FORMATS)}).",
+    ),
 ) -> None:
     """Compare OLD and NEW and optionally save JSON and HTML reports."""
 
@@ -43,8 +48,8 @@ def main(
     try:
         keys = _parse_key(key)
         result = diff_tables(
-            load_table(old, sheet=sheet),
-            load_table(new, sheet=sheet),
+            load_table(old, sheet=sheet, fmt=fmt),
+            load_table(new, sheet=sheet, fmt=fmt),
             keys=keys,
             include_values=include_values,
         )

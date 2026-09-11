@@ -20,9 +20,19 @@ _EXTENSIONS = {
     ".ndjson": "jsonl",
 }
 _FORMATS = set(_EXTENSIONS.values())
+SUPPORTED_FORMATS = tuple(sorted(_FORMATS))
+_UNSUPPORTED_EXTENSIONS = {
+    ".parquet": "parquet",
+    ".pq": "parquet",
+    ".feather": "feather",
+    ".arrow": "arrow",
+    ".orc": "orc",
+    ".avro": "avro",
+}
 _NA_LITERALS = {"", "N/A", "null", "NULL", "None", "nan"}
 MAX_DATASET_BYTES = 50 * 1024 * 1024
 _NUMERIC_LITERAL = re.compile(r"-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?\Z")
+_FORMAT_HINT = "pass fmt=... (Python) or --fmt (CLI); choose one of: csv, tsv, xlsx, json, jsonl"
 
 
 @dataclass
@@ -38,16 +48,33 @@ class LoadedTable:
 def detect_format(filename: str | None, sample: bytes) -> str:
     """Infer a supported table format from a filename or a small byte sample."""
 
+    label = filename or "<buffer>"
     if filename:
         suffix = Path(filename).suffix.lower()
         if suffix in _EXTENSIONS:
             return _EXTENSIONS[suffix]
+        if suffix in _UNSUPPORTED_EXTENSIONS:
+            kind = _UNSUPPORTED_EXTENSIONS[suffix]
+            raise ValueError(
+                f"{kind} is not supported for {label!r} — "
+                f"Fieldkit reads csv, tsv, xlsx, json, and jsonl; {_FORMAT_HINT}"
+            )
 
     head = sample[:4096]
+    if head.startswith(b"PAR1"):
+        raise ValueError(
+            f"parquet is not supported for {label!r} — "
+            f"Fieldkit reads csv, tsv, xlsx, json, and jsonl; {_FORMAT_HINT}"
+        )
     if head.startswith(b"PK"):
         return "xlsx"
 
-    text = head.decode("utf-8-sig", errors="ignore").strip()
+    try:
+        text = head.decode("utf-8-sig").strip()
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"can't decode {label!r} as UTF-8 — re-save as UTF-8 before loading"
+        ) from exc
     if text.startswith("["):
         return "json"
     if text.startswith("{"):
@@ -65,8 +92,7 @@ def detect_format(filename: str | None, sample: bytes) -> str:
     if tabs or commas:
         return "tsv" if tabs > commas else "csv"
 
-    label = filename or "<buffer>"
-    raise ValueError(f"can't detect a format for {label!r} — pass fmt=")
+    raise ValueError(f"can't detect a format for {label!r} — {_FORMAT_HINT}")
 
 
 def load_table(
@@ -82,22 +108,21 @@ def load_table(
     table_fmt = _clean_format(fmt) if fmt else detect_format(filename or source, raw)
     warnings: list[str] = []
 
-    if table_fmt in {"csv", "tsv"}:
-        df = pd.read_csv(
-            BytesIO(raw),
-            sep="\t" if table_fmt == "tsv" else ",",
-            dtype=str,
-            keep_default_na=False,
-            na_filter=False,
-        )
-    elif table_fmt == "xlsx":
-        df, warnings = _read_xlsx(raw, sheet)
-    elif table_fmt == "json":
-        df = _read_json(raw)
-    elif table_fmt == "jsonl":
-        df = _read_jsonl(raw)
-    else:  # pragma: no cover - _clean_format owns this guard
-        raise ValueError(f"unsupported table format: {table_fmt}")
+    try:
+        if table_fmt in {"csv", "tsv"}:
+            df = _read_delimited(raw, table_fmt, source)
+        elif table_fmt == "xlsx":
+            df, warnings = _read_xlsx(raw, sheet)
+        elif table_fmt == "json":
+            df = _read_json(raw)
+        elif table_fmt == "jsonl":
+            df = _read_jsonl(raw)
+        else:  # pragma: no cover - _clean_format owns this guard
+            raise ValueError(f"unsupported table format: {table_fmt}")
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"can't decode {source!r} as UTF-8 — re-save as UTF-8 before loading"
+        ) from exc
 
     return LoadedTable(_as_nullable_strings(df), table_fmt, source, warnings)
 
@@ -124,16 +149,23 @@ def write_table(df: pd.DataFrame, dest: Path | IO[str] | IO[bytes], fmt: str) ->
 
 
 def _read_source(src: Path | BinaryIO, filename: str | None) -> tuple[bytes, str]:
+    limit_mb = MAX_DATASET_BYTES // (1024 * 1024)
     if isinstance(src, Path):
         if src.stat().st_size > MAX_DATASET_BYTES:
-            raise ValueError("dataset exceeds the 50 MB total size limit")
+            raise ValueError(
+                f"dataset exceeds the {limit_mb} MB total size limit "
+                f"(MAX_DATASET_BYTES={MAX_DATASET_BYTES})"
+            )
         return src.read_bytes(), src.name
 
     raw = src.read(MAX_DATASET_BYTES + 1)
     if not isinstance(raw, bytes):
         raise TypeError("load_table expects a binary file object")
     if len(raw) > MAX_DATASET_BYTES:
-        raise ValueError("dataset exceeds the 50 MB total size limit")
+        raise ValueError(
+            f"dataset exceeds the {limit_mb} MB total size limit "
+            f"(MAX_DATASET_BYTES={MAX_DATASET_BYTES})"
+        )
     return raw, filename or "<buffer>"
 
 
@@ -143,6 +175,24 @@ def _clean_format(fmt: str) -> str:
         choices = ", ".join(sorted(_FORMATS))
         raise ValueError(f"unsupported table format {fmt!r}; choose one of: {choices}")
     return cleaned
+
+
+def _read_delimited(raw: bytes, table_fmt: str, source: str) -> pd.DataFrame:
+    # Fail loudly on Latin-1/etc instead of letting pandas guess an encoding.
+    try:
+        raw.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"can't decode {source!r} as UTF-8 — re-save as UTF-8 before loading"
+        ) from exc
+    return pd.read_csv(
+        BytesIO(raw),
+        sep="\t" if table_fmt == "tsv" else ",",
+        dtype=str,
+        keep_default_na=False,
+        na_filter=False,
+        encoding="utf-8-sig",
+    )
 
 
 def _read_xlsx(raw: bytes, sheet: str | None) -> tuple[pd.DataFrame, list[str]]:

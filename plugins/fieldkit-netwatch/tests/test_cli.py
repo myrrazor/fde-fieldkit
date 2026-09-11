@@ -108,6 +108,13 @@ def test_attach_rejects_invalid_pid() -> None:
     assert "pid must be positive" in result.stderr
 
 
+def test_attach_fails_clearly_without_lsof(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(cli.shutil, "which", lambda _name: None)
+    result = runner.invoke(app, ["attach", "1", "--db", str(tmp_path / "attach.db")])
+    assert result.exit_code == 1
+    assert "attach needs lsof" in result.stderr
+
+
 def test_policy_for_run_allows_audit_without_file() -> None:
     assert cli._policy_for_run(Mode.AUDIT, None).default.value == "allow"
 

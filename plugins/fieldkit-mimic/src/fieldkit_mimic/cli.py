@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from fieldkit.core.io import load_table, write_table
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, write_table
 from fieldkit_mimic.generate import generate
 from fieldkit_mimic.learn import dump_spec, learn_spec, load_spec
 
@@ -24,6 +24,11 @@ app = typer.Typer(
 def learn_command(
     sample: Path = typer.Argument(..., dir_okay=False, help="Sample data file."),
     out: Path = typer.Option(..., "-o", "--output", metavar="PATH", help="YAML spec path."),
+    fmt: str | None = typer.Option(
+        None,
+        "--fmt",
+        help=f"Force sample table format ({', '.join(SUPPORTED_FORMATS)}).",
+    ),
 ) -> None:
     """Learn a hand-editable YAML spec from SAMPLE."""
 
@@ -32,7 +37,7 @@ def learn_command(
         raise typer.Exit(1)
 
     try:
-        spec = learn_spec(load_table(sample), name=sample.stem)
+        spec = learn_spec(load_table(sample, fmt=fmt), name=sample.stem)
         out.write_text(dump_spec(spec), encoding="utf-8")
         typer.echo(f"wrote {out}")
     except (OSError, UnicodeError, ValueError) as exc:
@@ -46,6 +51,11 @@ def generate_command(
     rows: int = typer.Option(1000, "-n", "--rows", min=0, help="Rows to generate."),
     seed: int = typer.Option(0, "--seed", help="Random seed."),
     out: Path = typer.Option(..., "-o", "--output", metavar="PATH", help="Output data path."),
+    fmt: str | None = typer.Option(
+        None,
+        "--fmt",
+        help=f"Force sample table format when learning in one shot ({', '.join(SUPPORTED_FORMATS)}).",
+    ),
 ) -> None:
     """Generate synthetic rows from a spec or directly from a sample."""
 
@@ -60,9 +70,11 @@ def generate_command(
             raise ValueError(f"can't write {out.name!r}; choose an extension from: {choices}")
 
         if source.suffix.lower() in {".yaml", ".yml"}:
+            if fmt is not None:
+                raise ValueError("--fmt applies when the source is a sample table, not a YAML spec")
             spec = load_spec(source)
         else:
-            spec = learn_spec(load_table(source), name=source.stem)
+            spec = learn_spec(load_table(source, fmt=fmt), name=source.stem)
         frame = generate(spec, rows, seed=seed, fmt=output_format)
         write_table(frame, out, output_format)
         typer.echo(f"wrote {out} ({rows} rows)")

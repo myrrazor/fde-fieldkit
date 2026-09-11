@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import ipaddress
 import json
+import shutil
 import socket
 import sqlite3
 import time
@@ -171,6 +172,8 @@ def attach_command(
 
     if pid <= 0:
         _fail(ValueError("pid must be positive"), code=2)
+    if shutil.which("lsof") is None:
+        _fail(RuntimeError("attach needs lsof, which is not available on this machine"))
     store = Store(db or default_db_path())
     session = store.create_session(
         mode=Mode.AUDIT,
@@ -195,9 +198,12 @@ def attach_command(
         store.finish_session(session.id, status="interrupted")
     except (OSError, RuntimeError, ValueError, sqlite3.Error) as exc:
         store.finish_session(session.id, status="failed", note=f"attach failed ({type(exc).__name__})")
+        _print_report(store.report(session.id))
         _fail(exc)
     else:
         store.finish_session(session.id, status="complete")
+        _print_report(store.report(session.id))
+        return
     _print_report(store.report(session.id))
 
 
@@ -363,11 +369,34 @@ def _print_report(report: object) -> None:
     data = report_to_dict(report)  # type: ignore[arg-type]
     session = data["session"]
     totals = data["totals"]
+    event_count = int(totals["events"])
     console.print(
         f"\n[bold]session {session['id']}[/bold] · {session['status']} · "
-        f"{session['mode']} · {totals['events']} network event(s) · "
+        f"{session['mode']} · {event_count} network event(s) · "
         f"{totals['tool_events']} tool event(s)"
     )
+    if event_count == 0 and session.get("status") == "complete":
+        command = session.get("command") or []
+        agent = str(session.get("agent") or "")
+        if agent == "attached-process":
+            console.print(
+                "[yellow]note:[/yellow] 0 socket snapshots does not mean the process had no "
+                "network activity — attach only samples established TCP sockets via lsof."
+            )
+        else:
+            console.print(
+                "[yellow]warning:[/yellow] 0 network events is not a clean bill of health. "
+                "The child may have ignored HTTP_PROXY/HTTPS_PROXY/ALL_PROXY "
+                "(for example `curl --noproxy '*'`), used a direct socket, or made no requests."
+            )
+            if agent in {"generic", "auto"} or (
+                isinstance(command, list) and command and Path(str(command[0])).name
+                not in {"codex", "claude"}
+            ):
+                console.print(
+                    "[yellow]coverage:[/yellow] generic commands are not forced through the "
+                    "proxy — treat an empty report as inconclusive unless you verified capture."
+                )
     table = Table(title="Destinations")
     table.add_column("service")
     table.add_column("destination")

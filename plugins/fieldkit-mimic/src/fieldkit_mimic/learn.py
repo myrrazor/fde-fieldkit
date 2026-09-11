@@ -36,6 +36,13 @@ _SENSITIVE_KIND_ORDER = (
     PIIKind.CREDIT_CARD,
     PIIKind.IP,
 )
+_UNIQUENESS_PII = {
+    PIIKind.EMAIL,
+    PIIKind.PHONE,
+    PIIKind.SSN,
+    PIIKind.CREDIT_CARD,
+    PIIKind.IP,
+}
 
 
 @dataclass
@@ -79,7 +86,10 @@ def learn_spec(table: LoadedTable, *, name: str = "") -> MimicSpec:
                 # keep first_name columns one word wide — full names look wrong there
                 word_counts = Counter(len(str(value).split()) for value in source.dropna())
                 params["words"] = word_counts.most_common(1)[0][0] if word_counts else 2
-            columns.append(ColumnSpec(column_name, pii_kind.value, params, null_rate=null_rate))
+            unique = _series_unique(source) if pii_kind in _UNIQUENESS_PII else False
+            columns.append(
+                ColumnSpec(column_name, pii_kind.value, params, unique, null_rate)
+            )
             continue
 
         col_type = inferred[column_name]
@@ -186,9 +196,14 @@ def _validate_column_names(names: list[str]) -> None:
             raise ValueError("a column name contains sensitive data — rename it before generating")
 
 
+def _series_unique(series: pd.Series) -> bool:
+    values = [str(value) for value in series.dropna()]
+    return bool(values) and len(values) == len(set(values))
+
+
 def _id_params(series: pd.Series) -> tuple[dict[str, Any], bool]:
     values = [str(value) for value in series.dropna()]
-    unique = len(values) == len(set(values))
+    unique = _series_unique(series)
     if not values:
         return {"pattern": "####", "start": 1}, unique
 

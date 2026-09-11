@@ -39,7 +39,7 @@ REGISTRY: dict[str, KnownPlugin] = {
         KnownPlugin("mimic", "fieldkit-mimic", "Generate realistic fake datasets"),
         KnownPlugin("datadiff", "fieldkit-datadiff", "Explain why two tables disagree"),
         KnownPlugin("debrief", "fieldkit-debrief", "Turn field notes into reports"),
-        KnownPlugin("tell", "fieldkit-tell", "Spot AI-written text, locally"),
+        KnownPlugin("tell", "fieldkit-tell", "Inspect a draft's writing patterns, locally"),
         KnownPlugin("netwatch", "fieldkit-netwatch", "Observe and control agent network access"),
         KnownPlugin(
             "awcp",
@@ -92,7 +92,12 @@ def resolve_requirement(name: str, *, source: str | None = None, extras: list[st
         raise FileNotFoundError(f"no local checkout for {name} (not running from the repo?)")
     if source in (None, "git"):
         return f"{known.package}{suffix} @ git+{REPO_GIT}#subdirectory=plugins/{known.package}"
-    return f"{known.package}{suffix}"
+    raise ValueError(
+        "fieldkit plugins are not published to PyPI yet "
+        "(the PyPI name 'fieldkit' belongs to an unrelated project). "
+        "Install from a checkout with `uv sync`, use --source local or git, "
+        "or pass --wheelhouse DIR with locally built Fieldkit wheels"
+    )
 
 
 def installer_argv() -> list[str]:

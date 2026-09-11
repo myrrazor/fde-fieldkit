@@ -2,11 +2,32 @@ import sys
 
 import typer
 
+from fieldkit import __version__
 from fieldkit.plugin_cli import app as plugin_app
 from fieldkit.plugins import REGISTRY, installed_plugins
 
 app = typer.Typer(name="fieldkit", no_args_is_help=True)
 app.add_typer(plugin_app, name="plugin")
+
+
+def _version_callback(value: bool) -> None:
+    if value:
+        typer.echo(__version__)
+        raise typer.Exit()
+
+
+@app.callback()
+def _root(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-V",
+        help="Show the Fieldkit package version and exit.",
+        callback=_version_callback,
+        is_eager=True,
+    ),
+) -> None:
+    """Fieldkit: local FDE tools as plugins."""
 
 
 @app.command()

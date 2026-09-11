@@ -5,6 +5,7 @@ import csv
 import ipaddress
 import logging
 import os
+import shutil
 import socket
 from dataclasses import dataclass
 from io import StringIO
@@ -243,6 +244,8 @@ class ControlPlane:
             raise ValueError("pid must be positive")
         if interval < 0.1:
             raise ValueError("attach interval must be at least 0.1 seconds")
+        if shutil.which("lsof") is None:
+            raise RuntimeError("attach needs lsof, which is not available on this machine")
         store = Store(self.db_path)
         session = store.create_session(
             mode=Mode.AUDIT,

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.formparsers import MultiPartParser
 
@@ -40,10 +40,18 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     itself only knows how to find them.
     """
 
-    app = FastAPI(title="Fieldkit", version=__version__)
+    # Drag-drop hub only — no OpenAPI browser surface on the loopback UI.
+    app = FastAPI(
+        title="Fieldkit",
+        version=__version__,
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+    )
     # plugins that care (debrief) fall back to their own default when unset
     app.state.debrief_db = debrief_db
     MultiPartParser.spool_max_size = MAX_UPLOAD_BYTES
+    tool_pages = set()
 
     @app.middleware("http")
     async def enforce_local_request_boundary(  # type: ignore[no-untyped-def]
@@ -59,6 +67,12 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
             return _secured(
                 JSONResponse(status_code=403, content={"error": "same-origin request required"})
             )
+
+        path = request.url.path
+        if request.method in {"GET", "HEAD"} and path.startswith("/") and path.count("/") == 1:
+            tool = path[1:]
+            if tool in tool_pages:
+                return _secured(RedirectResponse(url=f"{path}/", status_code=307))
 
         raw_length = request.headers.get("content-length")
         if raw_length is not None:
@@ -163,6 +177,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         app.include_router(module.router, prefix="/api")
         static_dir = getattr(module, "STATIC_DIR", None)
         if static_dir and Path(static_dir).is_dir():
+            tool_pages.add(name)
             app.mount(f"/{name}", StaticFiles(directory=static_dir, html=True), name=name)
 
     static_dir = Path(__file__).parent / "static"

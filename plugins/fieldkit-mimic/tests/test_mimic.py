@@ -38,6 +38,12 @@ def test_learn_and_generate_customers_with_independent_pii_providers(fixture_dir
     assert output["email"].str.contains("@", na=False).all()
     assert output["phone"].dropna().str.len().gt(0).all()
 
+    by_name = {column.name: column for column in spec.columns}
+    assert by_name["email"].unique is True
+    assert by_name["ssn"].unique is True
+    assert output["email"].is_unique
+    assert output["ssn"].is_unique
+
 
 def test_seed_is_byte_reproducible(fixture_dir: Path) -> None:
     spec = learn_spec(load_table(fixture_dir / "customers.csv"))

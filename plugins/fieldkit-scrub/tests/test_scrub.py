@@ -133,6 +133,23 @@ def test_dataframe_scrubbing_is_deterministic(fixture_dir: Path) -> None:
     assert summary.by_column["email"] == {"email": 150}
 
 
+def test_inventory_restock_dates_are_not_scrubbed_as_phones(fixture_dir: Path, tmp_path: Path) -> None:
+    table = load_table(fixture_dir / "inventory.xlsx")
+    output, summary = Scrubber(b"inventory-salt" * 2).scrub_dataframe(table)
+
+    assert "phone" not in summary.replaced
+    assert output["restock_date"].tolist() == table.df["restock_date"].tolist()
+
+    runner = CliRunner()
+    out = tmp_path / "inventory_safe.xlsx"
+    result = runner.invoke(
+        app,
+        ["scrub", str(fixture_dir / "inventory.xlsx"), "-o", str(out)],
+    )
+    assert result.exit_code == 0, result.output
+    assert out.is_file()
+
+
 def test_dataframe_outputs_preserve_pii_shapes(fixture_dir: Path) -> None:
     original = load_table(fixture_dir / "customers.csv")
     output, _ = Scrubber(b"shape-salt" * 4).scrub_dataframe(original)

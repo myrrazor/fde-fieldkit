@@ -76,7 +76,10 @@
         or <code>next</code>. The report groups the week's entries under
         stakeholder-friendly headings (Wins, Decisions, In Progress, Blockers &amp;
         Asks, Next Steps) and prints markdown by default, or writes files with the
-        output flags. Weeks are ISO weeks, like <code>2026-W32</code>.
+        output flags. Weeks are ISO weeks, like <code>2026-W32</code>. Empty or
+        whitespace-only notes are rejected. Entries live in
+        <code>~/.fieldkit/debrief.db</code>, or wherever
+        <code>FIELDKIT_DEBRIEF_DB</code> points.
       </p>
 
       <h2>Install and run</h2>

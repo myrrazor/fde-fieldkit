@@ -403,6 +403,12 @@ def _check_plugin_story(parsed: dict[str, PageParser], errors: list[str]) -> Non
     text = (SITE_DIR / "docs" / "plugins.html").read_text(encoding="utf-8")
     if "not on PyPI yet" not in text:
         errors.append("docs/plugins.html: must say plainly that the packages are not on PyPI yet")
+    if "Spot AI-written text" in text:
+        errors.append("docs/plugins.html: must not claim Spot AI-written text authorship detection")
+    if "works from any machine" in text:
+        errors.append("docs/plugins.html: must not claim PyPI installs work from any machine")
+    if "MAX_DATASET_BYTES" not in (SITE_DIR / "docs" / "xray.html").read_text(encoding="utf-8"):
+        errors.append("docs/xray.html: must document the 50 MB MAX_DATASET_BYTES limit")
 
     awcp_docs = (SITE_DIR / "docs" / "awcp.html").read_text(encoding="utf-8").lower()
     for claim in ("does not call a model", "control plane", "fail closed"):
@@ -523,6 +529,8 @@ def _check_support_files(errors: list[str]) -> None:
         errors.append("llms.txt: missing the awcp docs page")
     if "fieldkit plugin add" not in llms:
         errors.append("llms.txt: missing the toolkit model note")
+    if "unrelated project" not in llms and "Not on PyPI yet" not in llms:
+        errors.append("llms.txt: must stay honest that Fieldkit is not on PyPI")
 
     css = (SITE_DIR / "styles.css").read_text(encoding="utf-8")
     if "@import" in css or re.search(r"url\([\"']?https?://", css):
