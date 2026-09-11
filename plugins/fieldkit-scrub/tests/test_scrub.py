@@ -150,6 +150,26 @@ def test_inventory_restock_dates_are_not_scrubbed_as_phones(fixture_dir: Path, t
     assert out.is_file()
 
 
+def test_dashed_eu_us_datetimes_are_not_scrubbed_as_phones() -> None:
+    table = LoadedTable(
+        df=pd.DataFrame(
+            {
+                "restock_date": [
+                    "15-01-2024 10:30:00",
+                    "01-15-2024 10:30:00",
+                    "15-01-2024 10:30",
+                ]
+            }
+        ),
+        fmt="csv",
+        source="dashed-dates.csv",
+        warnings=[],
+    )
+    output, summary = Scrubber(b"dashed-salt" * 2).scrub_dataframe(table)
+    assert "phone" not in summary.replaced
+    assert output["restock_date"].tolist() == table.df["restock_date"].tolist()
+
+
 def test_dataframe_outputs_preserve_pii_shapes(fixture_dir: Path) -> None:
     original = load_table(fixture_dir / "customers.csv")
     output, _ = Scrubber(b"shape-salt" * 4).scrub_dataframe(original)

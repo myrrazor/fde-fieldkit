@@ -141,6 +141,7 @@ def test_control_plane_starts_and_stops_owned_process_group(tmp_path: Path) -> N
 def test_control_plane_attach_follow_is_owned_and_stoppable(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setattr("fieldkit_netwatch.control.shutil.which", lambda _name: "/usr/bin/lsof")
     monkeypatch.setattr("fieldkit_netwatch.control.record_snapshot", lambda *_args: 0)
     plane = ControlPlane(tmp_path / "attach.db")
 
@@ -250,6 +251,7 @@ def test_one_shot_attach_waits_for_inflight_snapshot_before_stopping(
         )
         return 1
 
+    monkeypatch.setattr("fieldkit_netwatch.control.shutil.which", lambda _name: "/usr/bin/lsof")
     monkeypatch.setattr("fieldkit_netwatch.control.record_snapshot", slow_snapshot)
     db = tmp_path / "one-shot.db"
     plane = ControlPlane(db)
@@ -277,6 +279,7 @@ def test_attach_storage_failure_marks_session_failed(
     def fail_snapshot(*_args: object) -> int:
         raise sqlite3.OperationalError("disk unavailable")
 
+    monkeypatch.setattr("fieldkit_netwatch.control.shutil.which", lambda _name: "/usr/bin/lsof")
     monkeypatch.setattr("fieldkit_netwatch.control.record_snapshot", fail_snapshot)
     db = tmp_path / "failure.db"
     plane = ControlPlane(db)

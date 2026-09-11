@@ -147,8 +147,15 @@ def _valid_email(value: str) -> bool:
     return "." in domain and not domain.startswith(".") and not domain.endswith(".")
 
 
-_ISO_DATETIME_PREFIX = re.compile(
-    r"\d{4}-\d{2}-\d{2}(?:[ T]\d{1,2}(?::\d{2}){0,2}(?:\.\d+)?)?\Z"
+# ISO YYYY-MM-DD and EU/US DD-MM-YYYY / MM-DD-YYYY, optional time — phone RE
+# matches prefixes like "15-01-2024 10" from "15-01-2024 10:30:00".
+_DATETIME_AS_PHONE = re.compile(
+    r"(?:"
+    r"\d{4}-\d{2}-\d{2}"
+    r"|"
+    r"\d{2}-\d{2}-\d{4}"
+    r")"
+    r"(?:[ T]\d{1,2}(?::\d{2}){0,2}(?:\.\d+)?)?\Z"
 )
 
 
@@ -158,8 +165,7 @@ def _valid_phone(value: str) -> bool:
     # dotted quads strip down to 10-12 digits and masquerade as phones
     if re.fullmatch(r"(?:\d{1,3}\.){3}\d{1,3}", value):
         return False
-    # ISO dates/datetimes ("2024-01-15 10:30:00") match the phone shape as "2024-01-15 10"
-    if _ISO_DATETIME_PREFIX.match(value) or _ISO_DATETIME_PREFIX.match(value.split(":", 1)[0]):
+    if _DATETIME_AS_PHONE.match(value) or _DATETIME_AS_PHONE.match(value.split(":", 1)[0]):
         return False
     if re.search(r"[^\d()+. -]", value):
         return False

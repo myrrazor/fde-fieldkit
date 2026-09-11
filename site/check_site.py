@@ -521,16 +521,20 @@ def _check_support_files(errors: list[str]) -> None:
         errors.append("robots.txt: sitemap origin mismatch")
 
     llms = (SITE_DIR / "llms.txt").read_text(encoding="utf-8")
-    if f"Canonical site: {ORIGIN}/" not in llms:
-        errors.append("llms.txt: canonical origin mismatch")
-    if f"{ORIGIN}/docs/plugins.html" not in llms:
+    if "Source of truth: the `site/` tree" not in llms:
+        errors.append("llms.txt: must name in-repo site/ as the source of truth")
+    if "may require SSO" not in llms:
+        errors.append("llms.txt: must note hosted mirror may require SSO")
+    if "docs/plugins.html" not in llms:
         errors.append("llms.txt: missing the plugins page")
-    if f"{ORIGIN}/docs/awcp.html" not in llms:
+    if "docs/awcp.html" not in llms:
         errors.append("llms.txt: missing the awcp docs page")
     if "fieldkit plugin add" not in llms:
         errors.append("llms.txt: missing the toolkit model note")
     if "unrelated project" not in llms and "Not on PyPI yet" not in llms:
         errors.append("llms.txt: must stay honest that Fieldkit is not on PyPI")
+    if f"Canonical site: {ORIGIN}/" in llms:
+        errors.append("llms.txt: must not claim the hosted URL as the sole canonical site")
 
     css = (SITE_DIR / "styles.css").read_text(encoding="utf-8")
     if "@import" in css or re.search(r"url\([\"']?https?://", css):
