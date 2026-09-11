@@ -54,8 +54,7 @@ established TCP socket was present when sampled. Direct sockets, DNS packets, UD
 short-lived sockets missed between samples, and HTTPS content remain outside coverage.
 
 Dashboard mutations require a direct loopback request and a per-process control token.
-Read evidence follows the interface on which the user chooses to bind `fieldkit serve`; the
-safe default is loopback.
+`fieldkit serve` binds loopback only, so read evidence stays on that machine.
 
 ## Non-goals
 

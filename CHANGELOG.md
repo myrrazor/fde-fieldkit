@@ -29,6 +29,9 @@ publication is implied by that number.
 
 ### Toolkit
 
+- `fieldkit serve` prefers loopback port 8765 and falls back to a free port
+  when that one is taken. `--port N` still pins N and fails if it is busy.
+  The command prints the URL that actually bound.
 - A standalone FDE Blueprint planning skill with a questionnaire, validated
   answers, architecture packets, and explicit pending-evidence gates.
 - A local CLI and browser hub with a uv workspace and independently installable

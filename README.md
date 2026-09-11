@@ -1,33 +1,65 @@
+<p align="center">
+  <img src="site/assets/mark.svg" width="64" height="64" alt="Fieldkit">
+</p>
+
 # Fieldkit
 
-[Documentation](https://fde-tools.vercel.app/docs/) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)
+Local toolkit for forward-deployed engineers. One install, then add the tools you
+need as plugins.
 
-The FDE toolkit: one install, then add the tools you need as plugins.
+It is built for the days you get handed a mystery CSV, a locked-down laptop, and
+a Friday status deadline. Eight tools ship today. They run on your machine by
+default, with no telemetry. Remote text classifiers, model downloads, package
+installation, and supervised network relays require the explicit actions
+described below.
 
-It is built for forward-deployed engineers, for the days you get handed a
-mystery CSV, a locked-down laptop, and a Friday status deadline. Eight tools
-ship today: profile a file, scrub the PII out of it, fake a demo dataset, diff
-two dumps, keep a running debrief, check a draft for AI tells, watch what
-your coding agent connects to, and check an AI workload spec before you share
-it. The tools run locally by default, with no telemetry. Remote text
-classifiers, model downloads, package installation, and supervised network relays
-require the explicit actions described below.
+[Documentation](https://fde-tools.vercel.app/docs/)
+· [Site](https://fde-tools.vercel.app)
+· [Contributing](CONTRIBUTING.md)
+· [Changelog](CHANGELOG.md)
+· [Security](SECURITY.md)
 
-## Install
+| tool | what it does |
+|---|---|
+| **xray** | Profile a file: schema, types, nulls, PII flags |
+| **scrub** | Replace detected PII with realistic, joinable fakes |
+| **mimic** | Generate seeded demo data from a YAML spec |
+| **datadiff** | Explain what changed between two dumps |
+| **debrief** | Log wins and blockers, render Friday's status |
+| **tell** | Inspect a draft for AI writing tells, locally |
+| **netwatch** | See (and optionally gate) where an agent connects |
+| **awcp** | Check a workload spec, diff versions, score golden evals |
+
+## Start here
 
 Not on PyPI yet. From a checkout of this repo, with
-[uv](https://docs.astral.sh/uv/) installed:
+[uv](https://docs.astral.sh/uv/) installed and Python 3.12 or newer:
 
 ```
 uv sync
 uv run fieldkit --help
+uv run fieldkit xray examples/customers.csv
 ```
 
 That one `uv sync` installs the core and all eight plugins, editable. Every
 command below is `uv run fieldkit ...`; activate `.venv` if you would rather
-drop the prefix. Python 3.12 or newer.
+drop the prefix. Sample data lives in `examples/`.
 
-To install the toolkit from locally built wheels:
+Prefer a browser? Start the local hub:
+
+```
+uv run fieldkit serve
+```
+
+It prints the URL. The server binds `127.0.0.1` only — there is no `--host`.
+It prefers port 8765; if that port is taken it picks a free port and says so.
+`--port 9000` pins a port and exits if that one is busy. Open the printed URL.
+Every installed tool gets a drag-and-drop page; tools you have not added show
+dimmed with their `plugin add` command. Hostile `Host` headers get 400;
+cross-origin writes get 403.
+
+<details>
+<summary>Install from locally built wheels</summary>
 
 ```
 uv build --all-packages -o dist
@@ -43,9 +75,9 @@ air-gapped machine, prepare compatible wheels for the complete dependency set
 and an offline installer separately; `--wheelhouse` alone does not disable
 network access.
 
-## Sixty seconds with each tool
+</details>
 
-Sample data lives in `examples/`.
+## Sixty seconds with each tool
 
 ### xray: what is this file?
 
@@ -53,6 +85,9 @@ Sample data lives in `examples/`.
 uv run fieldkit xray examples/customers.csv
 uv run fieldkit xray examples/customers.csv --html profile.html
 ```
+
+<details>
+<summary>Sample output</summary>
 
 ```
 customers.csv · CSV · 150 × 14
@@ -62,6 +97,8 @@ customers.csv · CSV · 150 × 14
 │ ssn         │ id_like     │    0.0% │ 150 (100.0%) │ —         │ SSN 1.00    │
 │ notes       │ text        │   24.0% │  114 (76.0%) │ —         │ —           │
 ```
+
+</details>
 
 Schema, inferred types, null rates, distinct counts, and a PII flag with a
 confidence for every column. Reads csv, tsv, xlsx, json, and jsonl (UTF-8).
@@ -79,6 +116,9 @@ uv run fieldkit scrub examples/customers.csv -o customers_safe.csv
 uv run fieldkit scrub examples/app.log -o app_safe.log --text
 ```
 
+<details>
+<summary>Sample output</summary>
+
 ```
      Replacements
 ┃ Kind        ┃ Count ┃
@@ -89,6 +129,8 @@ uv run fieldkit scrub examples/app.log -o app_safe.log --text
 │ ip          │   150 │
 │ name        │   300 │
 ```
+
+</details>
 
 Emails, phones, SSNs, card numbers, IPs, names, and secrets become realistic
 fakes. It is deterministic: the same input value always maps to the same fake,
@@ -126,6 +168,9 @@ uv run fieldkit mimic generate examples/customers.csv -n 500 -o demo.csv
 uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv
 ```
 
+<details>
+<summary>Sample output</summary>
+
 ```
 customers.csv (150 rows) → customers_v2.csv (152 rows)
 ┃ change  ┃ column ┃ old     ┃ new     ┃
@@ -136,6 +181,8 @@ customers.csv (150 rows) → customers_v2.csv (152 rows)
 ┃ added ┃ removed ┃ changed ┃ unchanged ┃
 │    12 │      10 │      25 │       115 │
 ```
+
+</details>
 
 Schema changes, then row adds, removes, and edits keyed on a column it detects
 for you (`--key customer_id` to override, comma-separated for compound keys),
@@ -148,6 +195,9 @@ uv run fieldkit debrief add "shipped ingestion pipeline to prod" --tag win
 uv run fieldkit debrief add "waiting on VPN access for staging" --tag blocker
 uv run fieldkit debrief report
 ```
+
+<details>
+<summary>Sample output</summary>
 
 ```
 # Weekly Status
@@ -163,6 +213,8 @@ uv run fieldkit debrief report
 - waiting on VPN access for staging
 ```
 
+</details>
+
 Tags are `win`, `blocker`, `decision`, `note`, and `next`. `report` prints a
 stakeholder-ready week in markdown, or `--html status.html`. Entries live in `~/.fieldkit/debrief.db`, or wherever `FIELDKIT_DEBRIEF_DB`
 points (same idea as Netwatch's `FIELDKIT_NETWATCH_DB`).
@@ -174,6 +226,9 @@ uv run fieldkit tell check draft.md
 uv run fieldkit tell adapters
 ```
 
+<details>
+<summary>Sample output</summary>
+
 ```
 71 words · 7 sentences · 4 paragraphs · mean sentence 10.1 words
 NOTICE  Phrase tells   tell-density 0.94   2 overrepresented phrases found
@@ -182,6 +237,8 @@ Remote classifier scores
 │ Pangram     │ skipped │ offline mode │
 │ GPTZero     │ skipped │ offline mode │
 ```
+
+</details>
 
 Ten local stylometric checks, each reported on its own instead of being rolled
 into a verdict. These signals and third-party scores do not establish who wrote
@@ -199,6 +256,9 @@ uv run fieldkit netwatch run -- codex
 uv run fieldkit netwatch run -- claude
 ```
 
+<details>
+<summary>Sample output</summary>
+
 ```
 $ uv run fieldkit netwatch run -- codex --version
 netwatch session 0f6af3ca44b94eae97021ce595fd1883
@@ -208,6 +268,8 @@ codex-cli 0.144.5
 session 0f6af3ca44b94eae97021ce595fd1883 · complete · audit · 0 network event(s)
 · 0 tool event(s)
 ```
+
+</details>
 
 `run` starts loopback-only HTTP and SOCKS5 proxies, launches the command with
 invocation-local Codex or Claude Code settings (your global config is never
@@ -250,6 +312,9 @@ uv run fieldkit awcp diff examples/awcp/support-ticket-triage.yaml examples/awcp
 uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examples/awcp/support-triage-golden.yaml
 ```
 
+<details>
+<summary>Sample output</summary>
+
 ```
 support-ticket-triage · customer-success-ai · ok
 config  sha256:bada678688eef6c479f592f47f2f682541a8be62b4c5c6f0a1f9fb205b953839
@@ -260,6 +325,8 @@ prompts 2 (system=content, userTemplate=content)
 │ denied                    │ —        │ zendesk.send_reply, customer_db.write │
 local check only — no model, control plane, or network call
 ```
+
+</details>
 
 `check` loads a WorkloadSpec (YAML or JSON), validates the shape, fingerprints
 config and prompt files, and lists declared tools with approval and risk.
@@ -291,38 +358,6 @@ $ fieldkit xray
 'xray' is a Fieldkit tool that isn't installed yet.
   fieldkit plugin add xray
 ```
-
-## The web hub
-
-```
-uv run fieldkit serve
-```
-
-Open http://127.0.0.1:8765. Every installed tool gets a drag-and-drop page;
-tools you have not added show dimmed with their `plugin add` command. The
-server binds to 127.0.0.1 only, answers 400 to any other `Host` header, and
-refuses cross-origin writes with 403. Handy when you are pairing with someone
-who does not live in a terminal.
-
-## The tools
-
-| tool | what it does | status |
-|---|---|---|
-| xray | Profile any table in seconds | shipped |
-| scrub | Find and mask PII before sharing | shipped |
-| mimic | Generate realistic fake datasets | shipped |
-| datadiff | Explain why two tables disagree | shipped |
-| debrief | Turn field notes into reports | shipped |
-| tell | Inspect a draft's writing patterns, locally | shipped |
-| netwatch | Observe and control agent network access | shipped |
-| awcp | Check workload specs, diff versions, score golden evals | shipped |
-
-## Site and docs
-
-The product site is https://fde-tools.vercel.app, with a page per tool
-under https://fde-tools.vercel.app/docs/. It is static, loads nothing
-from third parties, and its command blocks are contract-tested against this
-README by `python3 site/check_site.py`.
 
 ## How it stays local
 

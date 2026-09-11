@@ -79,8 +79,7 @@ sanitized (basename only).
 
 ## cli.py serve
 
-`fieldkit serve [--port 8765]` → uvicorn.run(create_app(), host="127.0.0.1", ...),
-single worker, log_level="info". The host is not configurable. Print the URL on startup.
+`fieldkit serve [--port]` binds 127.0.0.1 only (`host="127.0.0.1"`). The host is not configurable. With no `--port`, it prefers 8765 and falls back to a free port if that one is taken. `--port N` pins N and fails if it is busy. Print the URL that actually bound on startup.
 
 ## Acceptance (TestClient via httpx)
 

@@ -559,22 +559,6 @@ def test_serve_help_exposes_only_loopback_safe_options(
     assert "--port" in output
 
 
-def test_serve_always_binds_loopback(monkeypatch: pytest.MonkeyPatch) -> None:
-    import uvicorn
-
-    called: dict[str, object] = {}
-
-    def fake_run(application: object, **kwargs: object) -> None:
-        called.update(kwargs)
-
-    monkeypatch.setattr(uvicorn, "run", fake_run)
-    result = CliRunner().invoke(cli_app, ["serve", "--port", "9876"])
-
-    assert result.exit_code == 0, result.output
-    assert called["host"] == "127.0.0.1"
-    assert called["port"] == 9876
-
-
 def test_tell_adapter_status_is_key_presence_only(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:

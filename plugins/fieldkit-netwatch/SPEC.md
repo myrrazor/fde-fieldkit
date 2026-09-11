@@ -29,9 +29,10 @@ fieldkit netwatch doctor
 fieldkit serve
 ```
 
-The default dashboard URL is `http://127.0.0.1:8765/netwatch/`. `fieldkit serve` accepts
-`--host` and `--port`, but Netwatch mutation controls unlock only for a direct loopback
-request whose host is also loopback.
+`fieldkit serve` binds `127.0.0.1` only (no `--host`). It prefers port 8765 and
+picks a free port if that one is taken; `--port N` pins N. The command prints
+the URL. Open `/netwatch/` on that URL. Netwatch mutation controls unlock only
+for a direct loopback request whose host is also loopback.
 
 From this repository:
 
@@ -391,10 +392,9 @@ Control requests require all of the following:
 The token is generated when the plugin module loads and issued only by `/control` to a
 direct loopback request. It is not stored in SQLite or a policy file.
 
-Read-only evidence routes do not require this token. The default Fieldkit binding is
-loopback. If a user deliberately binds `fieldkit serve` to a wider interface, remote
-browsers can read the exposed dashboard evidence but still cannot obtain or use Netwatch
-controls. Do not expose the server when that read access is unwanted.
+Read-only evidence routes do not require this token. `fieldkit serve` always binds
+loopback; the host is not configurable. Remote browsers cannot reach the dashboard
+or obtain Netwatch controls.
 
 ## Session ownership and deletion
 

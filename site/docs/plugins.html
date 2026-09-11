@@ -277,8 +277,9 @@ fieldkit plugin update xray --wheelhouse ./dist</code></pre>
 
       <h2>The hub dims what you have not added</h2>
       <p>
-        <code>fieldkit serve</code> starts the local web hub at
-        <code>http://127.0.0.1:8765</code>. Tools you have installed are live cards
+        <code>fieldkit serve</code> starts the local web hub on loopback. It
+        prefers port 8765 and picks a free port if that one is taken; the command
+        prints the URL. Tools you have installed are live cards
         with drag-and-drop. Registry tools you have not added stay on the board,
         dimmed, with their exact <code>fieldkit plugin add</code> command printed on
         the card, so whoever is driving the browser knows what to ask for. Nothing

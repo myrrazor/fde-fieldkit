@@ -12,7 +12,9 @@ fieldkit netwatch doctor
 fieldkit serve
 ```
 
-Open `http://127.0.0.1:8765/netwatch/` for the control room. It includes:
+`fieldkit serve` prints the hub URL (prefers `http://127.0.0.1:8765`, or a free
+loopback port if that one is taken). Open `/netwatch/` on that URL for the
+control room. It includes:
 
 - a cross-session overview by agent, capture path, and destination;
 - a filterable live session ledger with grouped destinations, raw records, coverage, and

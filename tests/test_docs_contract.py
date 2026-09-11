@@ -23,10 +23,24 @@ def test_api_spec_documents_fixed_loopback_binding() -> None:
 
     spec = (ROOT / "specs" / "wp6-api.md").read_text(encoding="utf-8")
 
-    assert '`fieldkit serve [--port 8765]`' in spec
+    assert '`fieldkit serve [--port]`' in spec
     assert 'host="127.0.0.1"' in spec
     assert "The host is not configurable" in spec
     assert "--host 127.0.0.1" not in spec
+    assert "prefers 8765" in spec
+    assert "free port" in spec
+
+
+def test_readme_documents_serve_port_fallback() -> None:
+    """The README must not send people to a hard-coded 8765 that may already be taken."""
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "uv run fieldkit serve" in readme
+    assert "Open http://127.0.0.1:8765" not in readme
+    assert "free port" in readme
+    assert "--port" in readme
+    assert "prints the URL" in readme or "printed URL" in readme
 
 
 def test_public_privacy_copy_requires_explicit_tell_egress() -> None:

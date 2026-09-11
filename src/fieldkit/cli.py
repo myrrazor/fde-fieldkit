@@ -1,3 +1,4 @@
+import errno
 import sys
 
 import typer
@@ -32,16 +33,51 @@ def _root(
 
 @app.command()
 def serve(
-    port: int = typer.Option(8765, help="Port for the local web UI."),
+    port: int | None = typer.Option(
+        None,
+        "--port",
+        min=1,
+        max=65535,
+        help="Pin a loopback port. Default prefers 8765, then any free port.",
+    ),
 ) -> None:
     """Run the local Fieldkit API and web hub."""
 
     import uvicorn
 
     from fieldkit.web import create_app
+    from fieldkit.web.bind import PREFERRED_PORT, bind_loopback
 
-    typer.echo(f"Fieldkit is running at http://127.0.0.1:{port}")
-    uvicorn.run(create_app(), host="127.0.0.1", port=port, workers=1, log_level="info")
+    try:
+        sock, actual = bind_loopback(port=port)
+    except OSError as exc:
+        if port is None:
+            typer.echo("error: could not bind a loopback port", err=True)
+        elif exc.errno == errno.EADDRINUSE:
+            typer.echo(
+                f"error: port {port} is already in use — omit --port to pick a free one",
+                err=True,
+            )
+        else:
+            typer.echo(f"error: could not bind 127.0.0.1:{port} ({exc})", err=True)
+        raise typer.Exit(1) from exc
+
+    url = f"http://127.0.0.1:{actual}"
+    typer.echo(f"Fieldkit is running at {url}")
+    if port is None and actual != PREFERRED_PORT:
+        typer.echo(f"port {PREFERRED_PORT} was in use, using {actual}")
+
+    config = uvicorn.Config(
+        create_app(),
+        host="127.0.0.1",
+        port=actual,
+        log_level="info",
+    )
+    try:
+        # hand uvicorn the already-bound socket so nothing can steal the port
+        uvicorn.Server(config).run(sockets=[sock])
+    finally:
+        sock.close()
 
 
 def _mount_installed() -> None:
