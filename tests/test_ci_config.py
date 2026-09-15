@@ -33,7 +33,7 @@ def test_ci_runs_the_complete_locked_release_gate() -> None:
         "uv run --locked pytest -q",
         "python site/check_site.py",
         "node --check",
-        "uv build --all-packages",
+        "python scripts/build_release.py",
     ):
         assert command in workflow
 
@@ -62,6 +62,6 @@ def test_ci_checks_privacy_distributions_and_verified_secret_scanner() -> None:
     assert "fetch-depth: 0" in workflow
     assert "persist-credentials: false" in workflow.split("  secrets:", 1)[0]
     assert "bash scripts/check-public-privacy.sh" in workflow
-    assert "python scripts/check_release_artifacts.py dist" in workflow
+    assert "python scripts/build_release.py" in workflow
     assert "sha256sum --check" in workflow
     assert 'git . --log-opts="--all --full-history" --redact' in workflow

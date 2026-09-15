@@ -3,16 +3,19 @@
 Check AI workload specs, diff two versions, and score recorded golden suites.
 
 This plugin is part of [Fieldkit](https://github.com/myrrazor/fde-fieldkit).
-It is not published to PyPI yet. From a checkout of the repository:
+It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
+GitHub Release wheels by explicit path (see the repository README), then
+`fieldkit plugin add awcp --wheelhouse <wheels-dir>`. A pinned `v0.2.0`
+checkout also works:
 
 ```bash
 uv sync --locked --all-packages
 uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml
 ```
 
-See the in-repo docs at [`site/docs/awcp.html`](../../site/docs/awcp.html)
-for command options and boundaries. A hosted copy may exist at
-fde-tools.vercel.app but can be SSO-gated. Scoring uses recorded cases; it does not
+Docs: in-repo [`site/docs/awcp.html`](../../site/docs/awcp.html) and
+https://fde-tools-review.vercel.app/docs/awcp.html. If the hosted page is
+unreachable, use the in-repo copy. Scoring uses recorded cases; it does not
 call a model or a control plane. Source contributions, support, and private
 security reports follow the policies in the main repository.
 

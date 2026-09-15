@@ -21,7 +21,7 @@
 
 ## Critical job
 
-- **Arrival question:** “What is this, who is it for, how do I run it from a checkout, and which tool handles the problem in front of me?”
+- **Arrival question:** “What is this, who is it for, how do I install the GitHub wheels or a pinned checkout, and which tool handles the problem in front of me?”
 - **Single most important job:** find the right tool, understand its limit, and copy a README-accurate command.
 - **Success state:** the user sees the real local UI, copies a working command, and knows the tool’s limits.
 - **Failure cost:** sharing unsafe data, reporting the wrong change, or overstating what a local check proves.
@@ -29,7 +29,7 @@
 
 ## Critical journey
 
-1. Read what Fieldkit is, that it is not on PyPI, and how to `uv sync` from a checkout.
+1. Read what Fieldkit is, that it is not on PyPI, and how to install GitHub wheels or `uv sync` from a pinned checkout.
 2. See the local hub with all eight tools installed.
 3. Match the current job to one of eight shipped plugins.
 4. Open one tool without losing the index; see its UI, capability, and limit.

@@ -658,6 +658,56 @@ def test_tell_remote_check_requires_single_use_payload_and_session_bound_intent(
     assert calls == [source]
 
 
+def test_tell_egress_intent_replaces_attacker_cookie(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_tell_keys(monkeypatch)
+    monkeypatch.setenv("FIELDKIT_TELL_SAPLING_KEY", "configured")
+    source = "A field note with enough text for the configured checker."
+    monkeypatch.setattr(tell_routes, "run_detectors", lambda *_args, **_kwargs: [])
+    attacker = "attacker-chosen-session-value"
+
+    with TestClient(
+        client.app,
+        base_url="http://localhost",
+        headers={"Origin": "http://localhost"},
+    ) as poisoned:
+        poisoned.cookies.set(tell_routes._SESSION_COOKIE, attacker)
+        intent = poisoned.post("/api/tell/egress-intent", data={"text": source})
+        assert intent.status_code == 200
+        set_cookie = intent.headers["set-cookie"]
+        assert attacker not in set_cookie
+        assert f"{tell_routes._SESSION_COOKIE}=" in set_cookie
+        token = intent.json()["token"]
+        assert token
+        issued = set_cookie.split(f"{tell_routes._SESSION_COOKIE}=", 1)[1].split(";", 1)[0]
+        poisoned.cookies.set(tell_routes._SESSION_COOKIE, issued)
+        with TestClient(
+            client.app,
+            base_url="http://localhost",
+            headers={"Origin": "http://localhost"},
+        ) as other_session:
+            other_session.cookies.set(tell_routes._SESSION_COOKIE, attacker)
+            stolen = other_session.post(
+                "/api/tell/check",
+                data={"text": source, "offline": "false", "egress_token": token},
+            )
+            other_session.cookies.clear()
+            wrong_session = other_session.post(
+                "/api/tell/check",
+                data={"text": source, "offline": "false", "egress_token": token},
+            )
+        allowed = poisoned.post(
+            "/api/tell/check",
+            data={"text": source, "offline": "false", "egress_token": token},
+        )
+
+    assert stolen.status_code == 403
+    assert wrong_session.status_code == 403
+    assert allowed.status_code == 200
+
+
 def test_tell_browser_requires_native_per_send_confirmation(client: TestClient) -> None:
     html = client.get("/tell/").text
     script = client.get("/tell/app.js").text

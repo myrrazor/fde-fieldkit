@@ -7,14 +7,14 @@ Audit → revamp → harden. Preserve the field-manifest brand; do not invent a 
 ## User and job
 
 - **User:** forward-deployed engineer with an unfamiliar file or delivery task.
-- **Question on arrival:** “What is Fieldkit, how do I run it from a checkout, and which tool should I use?”
+- **Question on arrival:** “What is Fieldkit, how do I install the GitHub wheels or a pinned checkout, and which tool should I use?”
 - **Primary action:** understand the product, see real local UI, select a tool, copy a command, or star the repository.
 - **Failure cost:** unsafe data handling, wasted setup time, or a misleading maturity claim.
 - **Platform/input:** responsive web and GitHub-rendered README; keyboard, pointer, touch, screen reader.
 
 ## Decision sequence and hierarchy
 
-1. Understand that Fieldkit is a local toolkit, not on PyPI, run from a checkout.
+1. Understand that Fieldkit is a local toolkit, not on PyPI, installed from GitHub wheels or a pinned checkout.
 2. See the local hub with all eight tools installed.
 3. Match the current job to a tool.
 4. Read capability, constraints, and the matching UI screenshot.

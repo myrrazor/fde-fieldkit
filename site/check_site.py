@@ -17,7 +17,7 @@ from xml.etree import ElementTree
 
 SITE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SITE_DIR.parent
-ORIGIN = "https://fde-tools.vercel.app"
+ORIGIN = "https://fde-tools-review.vercel.app"
 
 REQUIRED_HEADERS = {
     "Permissions-Policy": "camera=(), geolocation=(), microphone=()",
@@ -27,14 +27,44 @@ REQUIRED_HEADERS = {
 }
 
 
+class _LdJsonScriptParser(HTMLParser):
+    """Collect application/ld+json script bodies, including messy closing tags."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.bodies: list[bytes] = []
+        self._parts: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag != "script":
+            return
+        data = {key: (value or "") for key, value in attrs}
+        if data.get("type", "").lower() == "application/ld+json":
+            self._parts = []
+
+    def handle_data(self, data: str) -> None:
+        if self._parts is not None:
+            self._parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script" and self._parts is not None:
+            self.bodies.append("".join(self._parts).encode("utf-8"))
+            self._parts = None
+
+
+def ld_json_script_bodies(html: bytes | str) -> list[bytes]:
+    """Return inline JSON-LD script bodies in document order."""
+
+    parser = _LdJsonScriptParser()
+    parser.feed(html.decode("utf-8") if isinstance(html, bytes) else html)
+    parser.close()
+    return parser.bodies
+
+
 def _expected_csp() -> str:
     hashes: list[str] = []
-    pattern = re.compile(
-        rb"<script\b(?=[^>]*\btype=[\"']application/ld\+json[\"'])[^>]*>(.*?)</script\s*>",
-        re.IGNORECASE | re.DOTALL,
-    )
     for relative in sorted(PAGE_RULES):
-        for body in pattern.findall((SITE_DIR / relative).read_bytes()):
+        for body in ld_json_script_bodies((SITE_DIR / relative).read_bytes()):
             digest = base64.b64encode(hashlib.sha256(body).digest()).decode("ascii")
             hashes.append(f"'sha256-{digest}'")
 
@@ -67,6 +97,8 @@ PAGE_RULES = {
 ALLOWED_EXTERNAL_LINKS = {
     "https://github.com/myrrazor/fde-fieldkit",
     "https://github.com/myrrazor/fde-fieldkit/issues",
+    "https://github.com/myrrazor/fde-fieldkit/releases/latest",
+    "https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.0",
     "https://docs.astral.sh/uv/",
 }
 
@@ -664,8 +696,12 @@ def _check_support_files(errors: list[str]) -> None:
     llms = (SITE_DIR / "llms.txt").read_text(encoding="utf-8")
     if "Source of truth: the `site/` tree" not in llms:
         errors.append("llms.txt: must name in-repo site/ as the source of truth")
-    if "may require SSO" not in llms:
-        errors.append("llms.txt: must note hosted mirror may require SSO")
+    if "may require SSO" in llms:
+        errors.append("llms.txt: hosted fde-tools-review.vercel.app is the public site, not an SSO caveat")
+    if "https://fde-tools-review.vercel.app" not in llms:
+        errors.append("llms.txt: must name the public hosted site")
+    if "in-repo" not in llms.lower() or "fallback" not in llms.lower():
+        errors.append("llms.txt: must name in-repo site/ as the fallback copy")
     if "docs/plugins.html" not in llms:
         errors.append("llms.txt: missing the plugins page")
     if "docs/awcp.html" not in llms:

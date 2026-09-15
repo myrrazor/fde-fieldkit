@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import shutil
 import struct
 import subprocess
@@ -206,3 +207,47 @@ def test_site_release_check_rejects_donation_and_personal_credit(tmp_path: Path)
     assert "donation or coffee copy is not allowed" in result.stdout
     assert "personal maintainer credit is not allowed" in result.stdout
     assert "privacy.html: missing Star on GitHub action" in result.stdout
+
+
+def _load_check_site():
+    repo_root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("check_site", repo_root / "site" / "check_site.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_ld_json_extractor_handles_spaced_and_attributed_closing_tags() -> None:
+    """HTMLParser must close JSON-LD scripts even when the end tag is messy."""
+
+    module = _load_check_site()
+    html = (
+        b'<script type="application/ld+json">{"n":1}</script >\n'
+        b'<script type="application/ld+json">{"n":2}</script type="application/ld+json">'
+    )
+    assert module.ld_json_script_bodies(html) == [b'{"n":1}', b'{"n":2}']
+
+
+def test_ld_json_extractor_is_case_insensitive_and_accepts_tab_newline_close() -> None:
+    module = _load_check_site()
+    html = (
+        b'<script type="APPLICATION/LD+JSON">{"name":"sample"}</script\t\n bar>'
+    )
+    assert module.ld_json_script_bodies(html) == [b'{"name":"sample"}']
+
+
+def test_site_release_check_rejects_hosted_sso_caveat(tmp_path: Path) -> None:
+    isolated = _isolated_site(tmp_path)
+    llms = isolated / "site" / "llms.txt"
+    llms.write_text(
+        llms.read_text(encoding="utf-8").replace(
+            "public production domain",
+            "may require SSO",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "SSO" in result.stdout

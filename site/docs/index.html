@@ -8,7 +8,7 @@
       name="description"
       content="Plain-language docs for the fieldkit toolkit: the plugin manager, what each tool does, every flag with defaults, and worked examples with abridged real output."
     >
-    <link rel="canonical" href="https://fde-tools.vercel.app/docs/index.html">
+    <link rel="canonical" href="https://fde-tools-review.vercel.app/docs/index.html">
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FDE Tools">
@@ -17,15 +17,15 @@
       property="og:description"
       content="What each fieldkit tool does, every flag, and worked examples."
     >
-    <meta property="og:url" content="https://fde-tools.vercel.app/docs/index.html">
-    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:url" content="https://fde-tools-review.vercel.app/docs/index.html">
+    <meta property="og:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="FDE Tools docs">
     <meta name="twitter:description" content="What each fieldkit tool does, every flag, and worked examples.">
-    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta name="twitter:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js" defer></script>
@@ -132,9 +132,10 @@
         The toolkit is one small <code>fieldkit</code> core plus the tools you add:
         <code>fieldkit plugin add xray</code> puts a tool on the machine, and the
         <a href="plugins.html">plugins page</a> covers removal, updates, install
-        sources, and writing your own. From a repo checkout, <code>uv sync</code>
-        installs the core and all eight tools editable, which is why the examples in
-        these docs use <code>uv run fieldkit &lt;tool&gt;</code>.
+        sources, and writing your own. GitHub Release wheels install by explicit
+        path; from a pinned checkout, <code>uv sync</code> installs the core and
+        all eight tools editable, which is why the examples in these docs use
+        <code>uv run fieldkit &lt;tool&gt;</code>.
       </p>
       <p>
         If you would rather point and click, <code>fieldkit serve</code> starts a
