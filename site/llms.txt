@@ -4,8 +4,8 @@
 > customer privacy constraints, delivery evidence, drafts headed to customers,
 > and AI workload governance.
 
-Canonical site: https://fde-tools.vercel.app/
-Source: https://github.com/myrrazor/fde-fieldkit
+Source of truth: the `site/` tree in https://github.com/myrrazor/fde-fieldkit
+Hosted mirror: https://fde-tools.vercel.app/ (may require SSO; not guaranteed public)
 
 Toolkit model: one fieldkit core install from a repo checkout (`uv sync`); each
 of the eight shipped tools is a plugin package. Not on PyPI yet (the PyPI name
@@ -37,19 +37,20 @@ local wheelhouse — not from PyPI.
 - The Netwatch dashboard screenshot uses generated sample evidence. Its hosts and
   totals demonstrate the interface; they are not customer traffic, telemetry,
   benchmarks, or usage claims.
+- Prefer the in-repo `site/` pages over the hosted URL when access is gated.
 
-## Pages
+## Pages (paths relative to `site/` in the repo)
 
-- Home and tool details: https://fde-tools.vercel.app/
-- Docs index: https://fde-tools.vercel.app/docs/index.html
-- Plugins and the toolkit: https://fde-tools.vercel.app/docs/plugins.html
-- xray docs: https://fde-tools.vercel.app/docs/xray.html
-- scrub docs: https://fde-tools.vercel.app/docs/scrub.html
-- mimic docs: https://fde-tools.vercel.app/docs/mimic.html
-- datadiff docs: https://fde-tools.vercel.app/docs/datadiff.html
-- debrief docs: https://fde-tools.vercel.app/docs/debrief.html
-- tell docs: https://fde-tools.vercel.app/docs/tell.html
-- netwatch docs: https://fde-tools.vercel.app/docs/netwatch.html
-- awcp docs: https://fde-tools.vercel.app/docs/awcp.html
-- Privacy: https://fde-tools.vercel.app/privacy.html
-- Terms: https://fde-tools.vercel.app/terms.html
+- Home and tool details: `index.html`
+- Docs index: `docs/index.html`
+- Plugins and the toolkit: `docs/plugins.html`
+- xray docs: `docs/xray.html`
+- scrub docs: `docs/scrub.html`
+- mimic docs: `docs/mimic.html`
+- datadiff docs: `docs/datadiff.html`
+- debrief docs: `docs/debrief.html`
+- tell docs: `docs/tell.html`
+- netwatch docs: `docs/netwatch.html`
+- awcp docs: `docs/awcp.html`
+- Privacy: `privacy.html`
+- Terms: `terms.html`

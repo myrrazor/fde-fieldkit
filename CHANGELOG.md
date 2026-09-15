@@ -10,8 +10,14 @@ publication is implied by that number.
 
 ### Fixes
 
-- Phone detection no longer treats ISO-like datetimes (`YYYY-MM-DD HH…`) as
-  phone numbers; scrubbing `tests/fixtures/inventory.xlsx` succeeds.
+- Phone detection rejects ISO and EU/US dashed datetimes (`YYYY-MM-DD HH…`,
+  `DD-MM-YYYY HH…`, `MM-DD-YYYY HH…`) so scrub/xray no longer abort on those
+  columns; real phone numbers still match.
+- Netwatch attach success-path tests mock `lsof` discovery so the suite stays
+  green on machines without `lsof` installed.
+- Docs honesty: README, `site/llms.txt`, and plugin READMEs treat in-repo
+  `site/` as the source of truth; the hosted fde-tools.vercel.app mirror may
+  require SSO and is not advertised as a guaranteed public docs site.
 - `fieldkit --version` / `-V` prints the package version.
 - Tell's plugin registry blurb matches the README (writing patterns, not
   authorship detection).

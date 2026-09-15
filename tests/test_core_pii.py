@@ -70,14 +70,33 @@ def test_iso_datetimes_are_not_phones(fixture_dir: Path) -> None:
             "2025-01-27 00:00:00",
             "2024-01-15 10:30",
             "2024-01-15T10:30:00",
+            "15-01-2024 10:30:00",
+            "01-15-2024 10:30:00",
+            "15-01-2024 10:30",
+            "01-15-2024T10:30:00",
         ],
         dtype="string",
     )
     assert PIIKind.PHONE not in scan_column(values, column_name="restock_date").kinds
     assert not any(match.kind is PIIKind.PHONE for match in scan_text("2024-01-15 10:30:00"))
+    assert not any(match.kind is PIIKind.PHONE for match in scan_text("15-01-2024 10:30:00"))
+    assert not any(match.kind is PIIKind.PHONE for match in scan_text("01-15-2024 10:30:00"))
 
     inventory = load_table(fixture_dir / "inventory.xlsx")
     assert PIIKind.PHONE not in scan_dataframe(inventory.df)["restock_date"].kinds
+
+
+def test_real_phones_still_match() -> None:
+    phones = [
+        "(415) 555-0199",
+        "+1 (415) 555-0199",
+        "415-555-0199",
+        "+441234567890",
+    ]
+    for phone in phones:
+        assert any(match.kind is PIIKind.PHONE for match in scan_text(phone)), phone
+    report = scan_column(pd.Series(phones * 5, dtype="string"), column_name="phone")
+    assert PIIKind.PHONE in report.kinds
 
 
 def test_bare_ssn_needs_column_hint() -> None:
