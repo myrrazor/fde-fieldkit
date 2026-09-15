@@ -49,11 +49,23 @@ def test_public_release_has_security_contribution_and_license_guidance() -> None
     security = (ROOT / "SECURITY.md").read_text()
     assert "https://github.com/myrrazor/fde-fieldkit/security/advisories/new" in security
     assert "Do not open a public issue" in security
-    assert "No public release tag or PyPI" in (ROOT / "CHANGELOG.md").read_text()
+    changelog = (ROOT / "CHANGELOG.md").read_text()
+    assert "## 0.2.0 — 2026-09-15" in changelog
+    assert "## Unreleased" in changelog
+    assert "not on PyPI" in changelog.lower() or "unrelated" in changelog.lower()
+    assert "No public release tag or PyPI" not in changelog
 
 
-def _wheel(path: Path, *, include_license: bool = True, payload: bytes = b"safe\n") -> Path:
-    metadata = b"Name: fieldkit\nVersion: 0.2.0\nLicense-Expression: MIT\nLicense-File: LICENSE\n\n"
+def _wheel(
+    path: Path,
+    *,
+    include_license: bool = True,
+    payload: bytes = b"safe\n",
+    version: str = "0.2.0",
+) -> Path:
+    metadata = (
+        f"Name: fieldkit\nVersion: {version}\nLicense-Expression: MIT\nLicense-File: LICENSE\n\n"
+    ).encode()
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr("fieldkit-0.2.0.dist-info/METADATA", metadata)
         archive.writestr("fieldkit/data.txt", payload)
@@ -80,6 +92,14 @@ def test_distribution_check_rejects_private_data_without_echoing_it(
     errors = artifact_checker.check_archive(wheel, "fieldkit", ["LICENSE"])
     assert errors and "privacy check failed" in errors[0]
     assert private.decode() not in "\n".join(errors)
+
+
+def test_distribution_check_rejects_embedded_version_mismatch(
+    tmp_path: Path, artifact_checker,
+) -> None:
+    wheel = _wheel(tmp_path / "fieldkit-0.2.0-py3-none-any.whl", version="0.1.0")
+    errors = artifact_checker.check_archive(wheel, "fieldkit", ["LICENSE"], expected_version="0.2.0")
+    assert any("metadata version" in item and "0.1.0" in item for item in errors)
 
 
 def test_distribution_cli_rejects_an_incomplete_workspace_build(tmp_path: Path) -> None:

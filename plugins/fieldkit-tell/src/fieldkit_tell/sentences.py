@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 
 _WORD_RE = re.compile(r"[A-Za-z0-9]+(?:['’\-][A-Za-z0-9]+)*")
-_MARKDOWN_LINE_RE = re.compile(r"(?:#{1,6}\s+|[-+*]\s+|\d+[.)]\s+)")
 _ABBREVIATIONS = frozenset(
     {
         "dr.",
@@ -113,15 +112,52 @@ def _markdown_boundaries(source: str) -> set[int]:
     line_start = 0
     lines = source.splitlines(keepends=True)
     for index, line in enumerate(lines):
-        stripped = line.strip()
-        next_stripped = lines[index + 1].strip() if index + 1 < len(lines) else ""
-        current_structural = bool(_MARKDOWN_LINE_RE.match(stripped))
-        next_structural = bool(_MARKDOWN_LINE_RE.match(next_stripped))
+        next_line = lines[index + 1] if index + 1 < len(lines) else ""
+        current_structural = _is_markdown_marker_line(line)
+        next_structural = _is_markdown_marker_line(next_line)
         line_end = line_start + len(line.rstrip("\r\n"))
-        if stripped and (current_structural or next_structural):
+        if _line_has_content(line) and (current_structural or next_structural):
             boundaries.add(line_end)
         line_start += len(line)
     return boundaries
+
+
+def _line_has_content(line: str) -> bool:
+    for char in line:
+        if not char.isspace():
+            return True
+    return False
+
+
+def _is_markdown_marker_line(line: str) -> bool:
+    """Heading, bullet, or ordered-list marker after Unicode strip()."""
+
+    start = 0
+    end = len(line)
+    while start < end and line[start].isspace():
+        start += 1
+    while end > start and line[end - 1].isspace():
+        end -= 1
+    if start >= end:
+        return False
+    index = start
+    if line[index] == "#":
+        hashes = 0
+        while index < end and line[index] == "#" and hashes < 6:
+            hashes += 1
+            index += 1
+        return hashes >= 1 and index < end and line[index].isspace()
+    if line[index] in "-+*":
+        return index + 1 < end and line[index + 1].isspace()
+    if line[index].isdecimal():
+        while index < end and line[index].isdecimal():
+            index += 1
+        return index + 1 < end and line[index] in ".)" and line[index + 1].isspace()
+    return False
+
+
+def _ascii_letter(char: str) -> bool:
+    return "A" <= char <= "Z" or "a" <= char <= "z"
 
 
 def _guarded_period(source: str, index: int) -> bool:
@@ -132,13 +168,48 @@ def _guarded_period(source: str, index: int) -> bool:
     if index + 2 < len(source) and source[index + 1].isalpha() and source[index + 2] == ".":
         return True
 
-    prefix = source[: index + 1]
-    token_match = re.search(r"(?:[A-Za-z]\.){2,}$|[A-Za-z]+[.]$", prefix)
-    if token_match is None:
+    token = _trailing_abbrev_or_initialism(source, index)
+    if token is None:
         return False
-    token = token_match.group().lower()
-    if token in _ABBREVIATIONS or re.fullmatch(r"(?:[a-z]\.){2,}", token):
-        return bool(source[index + 1 :].strip())
+    lowered = token.lower()
+    if lowered in _ABBREVIATIONS or _is_letter_period_initialism(lowered):
+        return _has_nonspace_after(source, index + 1)
+    return False
+
+
+def _trailing_abbrev_or_initialism(source: str, index: int) -> str | None:
+    """Suffix token ending at the period: 'Dr.' or 'U.S.', scanned backward."""
+
+    units = 0
+    pos = index
+    while pos >= 1 and source[pos] == "." and _ascii_letter(source[pos - 1]):
+        units += 1
+        pos -= 2
+    if units >= 2:
+        return source[pos + 1 : index + 1]
+
+    start = index
+    while start > 0 and _ascii_letter(source[start - 1]):
+        start -= 1
+    if start < index:
+        return source[start : index + 1]
+    return None
+
+
+def _is_letter_period_initialism(token: str) -> bool:
+    length = len(token)
+    if length < 4 or length % 2:
+        return False
+    for offset in range(0, length, 2):
+        if not _ascii_letter(token[offset]) or token[offset + 1] != ".":
+            return False
+    return True
+
+
+def _has_nonspace_after(source: str, start: int) -> bool:
+    for index in range(start, len(source)):
+        if not source[index].isspace():
+            return True
     return False
 
 

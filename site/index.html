@@ -8,7 +8,7 @@
       name="description"
       content="Eight shipped Fieldkit plugins: inspect data, remove PII, build demos, compare dumps, report, check drafts, watch agents, and check AI workload specs."
     >
-    <link rel="canonical" href="https://fde-tools.vercel.app/">
+    <link rel="canonical" href="https://fde-tools-review.vercel.app/">
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FDE Tools">
@@ -17,8 +17,8 @@
       property="og:description"
       content="Eight shipped Fieldkit plugins for inspect, sanitize, synthesize, compare, report, draft checks, agent network evidence, and local workload-spec checks."
     >
-    <meta property="og:url" content="https://fde-tools.vercel.app/">
-    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:url" content="https://fde-tools-review.vercel.app/">
+    <meta property="og:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
@@ -28,7 +28,7 @@
       name="twitter:description"
       content="Eight shipped Fieldkit plugins, described with real commands and explicit limits."
     >
-    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta name="twitter:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
     <link
       rel="preload"
@@ -52,7 +52,7 @@
         "@type": "ItemList",
         "name": "FDE Tools",
         "description": "Eight shipped Fieldkit plugins for forward-deployed engineering work.",
-        "url": "https://fde-tools.vercel.app/",
+        "url": "https://fde-tools-review.vercel.app/",
         "numberOfItems": 8,
         "itemListElement": [
           {
@@ -63,7 +63,7 @@
               "name": "xray",
               "applicationCategory": "DeveloperApplication",
               "description": "Local schema, type, null, outlier, and PII profiling for unfamiliar data files.",
-              "url": "https://fde-tools.vercel.app/#tool-xray"
+              "url": "https://fde-tools-review.vercel.app/#tool-xray"
             }
           },
           {
@@ -74,7 +74,7 @@
               "name": "scrub",
               "applicationCategory": "DeveloperApplication",
               "description": "Deterministic PII replacement with realistic fakes and optional reversible mappings.",
-              "url": "https://fde-tools.vercel.app/#tool-scrub"
+              "url": "https://fde-tools-review.vercel.app/#tool-scrub"
             }
           },
           {
@@ -85,7 +85,7 @@
               "name": "mimic",
               "applicationCategory": "DeveloperApplication",
               "description": "Learn an editable YAML data specification and generate seeded synthetic rows.",
-              "url": "https://fde-tools.vercel.app/#tool-mimic"
+              "url": "https://fde-tools-review.vercel.app/#tool-mimic"
             }
           },
           {
@@ -96,7 +96,7 @@
               "name": "datadiff",
               "applicationCategory": "DeveloperApplication",
               "description": "Compare two data dumps for schema, keyed row, and per-column value drift.",
-              "url": "https://fde-tools.vercel.app/#tool-datadiff"
+              "url": "https://fde-tools-review.vercel.app/#tool-datadiff"
             }
           },
           {
@@ -107,7 +107,7 @@
               "name": "debrief",
               "applicationCategory": "DeveloperApplication",
               "description": "Turn a tagged engagement log into stakeholder-ready markdown or HTML status reports.",
-              "url": "https://fde-tools.vercel.app/#tool-debrief"
+              "url": "https://fde-tools-review.vercel.app/#tool-debrief"
             }
           },
           {
@@ -118,7 +118,7 @@
               "name": "tell",
               "applicationCategory": "DeveloperApplication",
               "description": "Local stylometric tell inspection, opt-in remote detector adapters, and deterministic slop cleanup for drafts.",
-              "url": "https://fde-tools.vercel.app/#tool-tell"
+              "url": "https://fde-tools-review.vercel.app/#tool-tell"
             }
           },
           {
@@ -129,7 +129,7 @@
               "name": "netwatch",
               "applicationCategory": "DeveloperApplication",
               "description": "Local metadata-only network evidence and destination policy enforcement for AI coding agents.",
-              "url": "https://fde-tools.vercel.app/#tool-netwatch"
+              "url": "https://fde-tools-review.vercel.app/#tool-netwatch"
             }
           },
           {
@@ -140,7 +140,7 @@
               "name": "AWCP",
               "applicationCategory": "DeveloperApplication",
               "description": "Local WorkloadSpec checks, version diffs, and golden-suite scoring. Does not call a model or a control plane.",
-              "url": "https://fde-tools.vercel.app/#tool-awcp"
+              "url": "https://fde-tools-review.vercel.app/#tool-awcp"
             }
           }
         ]
@@ -182,9 +182,9 @@
             check a draft, watch an agent, or check a workload spec — on your
             machine, with no hosted upload.
           </p>
-          <p class="hero__toolkit">Not on PyPI yet. One <code>uv sync</code> from a checkout installs all eight tools.</p>
+          <p class="hero__toolkit">Not on PyPI yet. Install the GitHub Release wheels, or <code>uv sync</code> from a pinned <code>v0.2.0</code> checkout.</p>
           <div class="hero__actions">
-            <a class="hero__action" href="#tools">Choose a tool <span aria-hidden="true">↓</span></a>
+            <a class="hero__action" href="https://github.com/myrrazor/fde-fieldkit/releases/latest">Get v0.2.0</a>
             <a class="hero__action hero__action--ghost" href="https://github.com/myrrazor/fde-fieldkit">Star on GitHub <span aria-hidden="true">★</span></a>
           </div>
         </div>
@@ -234,11 +234,12 @@
           </div>
           <p>
             Select a block to open working notes, the real local UI, commands, and
-            examples. Get the toolkit with <code>uv sync</code> from a checkout
-            today; plugins are not on PyPI yet (the PyPI name <code>fieldkit</code>
-            is unrelated). After a core install, <code>fieldkit plugin add</code>
-            resolves from the checkout, git subdirectory, or a local wheelhouse.
-            Each panel shows synthetic sample data and links to its docs page.
+            examples. Install GitHub Release wheels by explicit path, or
+            <code>uv sync</code> from a pinned checkout. Plugins are not on PyPI
+            (the PyPI name <code>fieldkit</code> is unrelated). After a core
+            wheel install, <code>fieldkit plugin add</code> needs
+            <code>--wheelhouse</code>. Each panel shows synthetic sample data
+            and links to its docs page.
           </p>
         </div>
 

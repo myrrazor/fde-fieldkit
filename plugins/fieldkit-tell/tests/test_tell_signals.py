@@ -115,6 +115,41 @@ def test_segment_guards_abbreviations_and_splits_markdown() -> None:
     assert all(text[span.start : span.end].strip() for span in (*doc.sentences, *doc.words))
 
 
+def test_segment_keeps_decimals_initialisms_and_offsets() -> None:
+    text = "See 3.14 units. The U.S. team shipped it."
+
+    doc = segment(text)
+    sentences = [text[span.start : span.end] for span in doc.sentences]
+
+    assert sentences == ["See 3.14 units.", "The U.S. team shipped it."]
+    assert all(text[span.start : span.end] == excerpt for span, excerpt in zip(doc.sentences, sentences))
+
+
+def test_segment_markdown_markers_match_unicode_strip_semantics() -> None:
+    cases = {
+        "# \nnext line.": [(0, 13)],
+        "#\t\nnext line.": [(0, 13)],
+        "#\u00a0Heading\nnext line.": [(0, 9), (10, 20)],
+        "1.\u2003Item\nnext line.": [(0, 2), (3, 7), (8, 18)],
+        "\u00b2. Item\nnext line.": [(0, 2), (3, 18)],
+        "- \nnext line.": [(0, 13)],
+    }
+    for text, expected in cases.items():
+        doc = segment(text)
+        assert [(span.start, span.end) for span in doc.sentences] == expected, text
+
+
+def test_segment_long_digit_and_letter_nonmatches_stay_cheap() -> None:
+    digits = ("1" * 20000) + " stays one paragraph."
+    letters = ("A" * 20000) + "."
+    numbered = ("1" * 20000) + " not a list\nNext line."
+
+    for text in (digits, letters, numbered):
+        doc = segment(text)
+        assert doc.sentences
+        assert all(text[span.start : span.end] for span in doc.sentences)
+
+
 def test_every_signal_appears_even_when_text_is_clean() -> None:
     report = analyze("")
 

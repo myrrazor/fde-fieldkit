@@ -97,7 +97,7 @@ def create_egress_intent(
     source, _filename = _resolve_text(text, file)
     active = active_remote_adapters(source, offline=False)
     names = tuple(adapter.name for adapter in active)
-    session = request.cookies.get(_SESSION_COOKIE) or secrets.token_urlsafe(32)
+    session = secrets.token_urlsafe(32)
     token = _EGRESS_INTENTS.issue(session, _payload_digest(source), names) if names else None
     response = JSONResponse(
         {

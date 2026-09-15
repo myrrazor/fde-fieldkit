@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private security report
+    url: https://github.com/myrrazor/fde-fieldkit/security/advisories/new
+    about: Report a vulnerability privately. Do not file a public issue.

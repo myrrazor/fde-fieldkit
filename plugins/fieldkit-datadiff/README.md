@@ -1,18 +1,21 @@
 # fieldkit-datadiff
 
-Compare schemas, keyed rows, and distributions across tabular snapshots.
+Explain schema and keyed-row changes between two dumps.
 
 This plugin is part of [Fieldkit](https://github.com/myrrazor/fde-fieldkit).
-It is not published to PyPI yet. From a checkout of the repository:
+It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
+GitHub Release wheels by explicit path (see the repository README), then
+`fieldkit plugin add datadiff --wheelhouse <wheels-dir>`. A pinned `v0.2.0`
+checkout also works:
 
 ```bash
 uv sync --locked --all-packages
 uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv
 ```
 
-See the in-repo docs at [`site/docs/datadiff.html`](../../site/docs/datadiff.html)
-for command options and boundaries. A hosted copy may exist at
-fde-tools.vercel.app but can be SSO-gated. Source contributions, support, and private
+Docs: in-repo [`site/docs/datadiff.html`](../../site/docs/datadiff.html) and
+https://fde-tools-review.vercel.app/docs/datadiff.html. If the hosted page is
+unreachable, use the in-repo copy. Source contributions, support, and private
 security reports follow the policies in the main repository.
 
 Licensed under MIT; see `LICENSE`. Bundled third-party notices, when present,

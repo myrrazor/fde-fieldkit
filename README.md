@@ -14,8 +14,9 @@ a Friday status deadline. Eight tools ship today as plugins. They run locally by
 default. Remote text classifiers, model downloads, package installation, and
 supervised network relays require the explicit actions described below.
 
-**Not on PyPI yet.** From a checkout of this repo, with
-[uv](https://docs.astral.sh/uv/) installed and Python 3.12 or newer:
+**Not on PyPI yet.** The PyPI project named `fieldkit` is unrelated.
+Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). From a checkout of this
+repo, or the `v0.2.0` tag:
 
 ```
 uv sync
@@ -28,11 +29,28 @@ command below is `uv run fieldkit ...`; activate `.venv` if you would rather
 drop the prefix. Sample data lives in `examples/`. The included examples are
 synthetic.
 
+GitHub wheels: download
+[fieldkit-0.2.0-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.0/fieldkit-0.2.0-wheels.tar.gz)
+and, in that directory:
+
+```
+tar -xzf fieldkit-0.2.0-wheels.tar.gz
+uv venv --seed --python 3.12 fresh
+uv pip install --python fresh/bin/python wheels/*.whl
+fresh/bin/fieldkit --version
+```
+
+`wheels/*.whl` selects every Fieldkit wheel by path, including the core. Later
+plugin adds use `fresh/bin/fieldkit plugin add xray --wheelhouse wheels`. Do
+not `pip install fieldkit` from a package index.
+
 Prefer a browser? Start the local hub:
 
 ```
 uv run fieldkit serve
 ```
+
+From the wheel installation, use `fresh/bin/fieldkit serve` instead.
 
 It prints the URL. The server binds `127.0.0.1` only — there is no `--host`.
 It prefers port 8765; if that port is taken it picks a free port and says so.
@@ -55,14 +73,15 @@ cross-origin writes get 403.
 <p><a href="site/assets/screenshots/hub.png">Open full-size hub screenshot</a>. Local hub with all eight tools installed.</p>
 
 [Docs in `site/`](site/docs/index.html)
+· [Public site](https://fde-tools-review.vercel.app/docs/)
+· [Release](https://github.com/myrrazor/fde-fieldkit/releases/latest)
 · [Contributing](CONTRIBUTING.md)
 · [Changelog](CHANGELOG.md)
 · [Security](SECURITY.md)
 · [Star on GitHub](https://github.com/myrrazor/fde-fieldkit)
 
-Browse the static docs from a checkout (`site/`). Hosted
-https://fde-tools.vercel.app may require SSO and is not a guaranteed public
-docs site.
+Public docs: https://fde-tools-review.vercel.app. If that host is unreachable, use
+the in-repo `site/` tree.
 
 Limits, up front: inputs are capped at 50 MB (`MAX_DATASET_BYTES`); detector
 hits are not a guarantee; Netwatch does not see DNS, UDP/QUIC, or sockets that
@@ -85,18 +104,17 @@ ignore proxies; awcp never calls a model. Analysis stays local except explicit
 <summary>Install from locally built wheels</summary>
 
 ```
-uv build --all-packages -o dist
+uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python dist/fieldkit-0.2.0-py3-none-any.whl
-fresh/bin/fieldkit plugin add xray scrub --wheelhouse dist
-fresh/bin/fieldkit plugin add netwatch --wheelhouse dist
+fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 
-These commands build Fieldkit wheels, not a complete offline dependency bundle.
-The installer may still contact a package index for dependencies. For an
-air-gapped machine, prepare compatible wheels for the complete dependency set
-and an offline installer separately; `--wheelhouse` alone does not disable
-network access.
+Install Fieldkit wheels by path (`wheels/*.whl` from the release bundle, or
+named files under `dist/`). `--wheelhouse` does not disable network access
+for pandas and other third-party dependencies. It is not a complete offline
+bundle. See [docs/RELEASING.md](docs/RELEASING.md) for checksums and the
+GitHub Release layout.
 
 </details>
 
@@ -520,11 +538,13 @@ fieldkit plugin update netwatch
 ```
 
 `add` resolves a tool from the checkout you are running in when there is one,
-otherwise from this repository's git subdirectory (PyPI only once the packages
-are published). `--wheelhouse <dir>` selects local Fieldkit wheels; other
-dependencies may still be retrieved from a package index. It does not make
-an install offline. `update` reinstalls only the tools you name (or everything
-installed) and leaves the core alone.
+otherwise from this repository's git subdirectory. After a GitHub wheel
+install, pass `--wheelhouse` at the directory that holds the Fieldkit wheels.
+PyPI is refused: the PyPI name `fieldkit` is an unrelated project.
+`--wheelhouse <dir>` selects local Fieldkit wheels; other dependencies may
+still be retrieved from a package index. It does not make an install offline.
+`update` reinstalls only the tools you name (or everything installed) and
+leaves the core alone.
 
 A tool you have not added tells you how to get it, and exits 2:
 
@@ -600,7 +620,7 @@ Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reprodu
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).
 
-This is early development software. Package version 0.2.0 describes the current
-source; it is not a claim of a PyPI release, a hosted account service, or
+This is early development software. GitHub release 0.2.0 is the current tagged
+source. It is not a PyPI publication, a hosted account service, or
 whole-machine network enforcement. The included examples are synthetic.
 Read the [fixture notes](tests/fixtures/README.md) before substituting real data.

@@ -5,13 +5,15 @@
 > and AI workload governance.
 
 Source of truth: the `site/` tree in https://github.com/myrrazor/fde-fieldkit
-Hosted mirror: https://fde-tools.vercel.app/ (may require SSO; not guaranteed public)
+Public site: https://fde-tools-review.vercel.app/ (public production domain).
+In-repo `site/` is the fallback copy if the hosted site is unreachable.
+Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
 
-Toolkit model: one fieldkit core install from a repo checkout (`uv sync`); each
-of the eight shipped tools is a plugin package. Not on PyPI yet (the PyPI name
-`fieldkit` is an unrelated project). After the core is installed, 
-`fieldkit plugin add <tool>` resolves from the checkout, git subdirectory, or a
-local wheelhouse — not from PyPI.
+Toolkit model: install the GitHub Release wheels by explicit local path, or
+`uv sync` from a pinned v0.2.0 checkout. Each of the eight shipped tools is a
+plugin package. Not on PyPI yet (the PyPI name `fieldkit` is an unrelated
+project). After a wheel core install, `fieldkit plugin add <tool> --wheelhouse DIR`
+resolves Fieldkit packages from that directory — not from PyPI.
 
 ## Eight shipped Fieldkit plugins
 
@@ -43,7 +45,7 @@ local wheelhouse — not from PyPI.
   external traffic.
 - The AWCP screenshot is Eval of recorded sample outputs. No model ran.
 - Support action is Star on GitHub. There is no donation or personal maintainer credit.
-- Prefer the in-repo `site/` pages over the hosted URL when access is gated.
+- Prefer the in-repo `site/` pages as the fallback if the hosted site is unreachable.
 
 ## Pages (paths relative to `site/` in the repo)
 

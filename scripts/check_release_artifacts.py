@@ -33,7 +33,12 @@ def archive_files(path: Path) -> dict[str, bytes]:
         return files
 
 
-def check_archive(path: Path, expected_name: str, license_files: list[str]) -> list[str]:
+def check_archive(
+    path: Path,
+    expected_name: str,
+    license_files: list[str],
+    expected_version: str | None = None,
+) -> list[str]:
     """Check one distribution's identity, notices, contents, and generic privacy rules."""
     errors = []
     files = archive_files(path)
@@ -43,6 +48,10 @@ def check_archive(path: Path, expected_name: str, license_files: list[str]) -> l
     info = BytesParser().parsebytes(metadata[0])
     if info.get("Name") != expected_name or info.get("License-Expression") != "MIT":
         errors.append(f"{path.name}: package name or MIT license metadata is missing")
+    if expected_version is not None and info.get("Version") != expected_version:
+        errors.append(
+            f"{path.name}: metadata version {info.get('Version')!r} does not match {expected_version}"
+        )
     declared = set(info.get_all("License-File", []))
     for license_file in license_files:
         if license_file not in declared or not any(
@@ -72,7 +81,14 @@ def check_distributions(directory: Path) -> list[str]:
             if len(artifacts) != 1:
                 errors.append(f"expected one current distribution matching {pattern}")
                 continue
-            errors.extend(check_archive(artifacts[0], project["name"], project["license-files"]))
+            errors.extend(
+                check_archive(
+                    artifacts[0],
+                    project["name"],
+                    project["license-files"],
+                    expected_version=project["version"],
+                )
+            )
     return errors
 
 

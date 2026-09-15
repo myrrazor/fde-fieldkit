@@ -74,6 +74,10 @@ def test_public_install_copy_does_not_claim_pypi_or_offline_wheelhouse() -> None
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     plugins_docs = (ROOT / "site/docs/plugins.html").read_text(encoding="utf-8")
     assert "Not on PyPI yet" in readme
+    assert "https://github.com/myrrazor/fde-fieldkit/releases/latest" in readme
+    assert "https://fde-tools-review.vercel.app" in readme
+    assert "wheels/*.whl" in readme
+    assert "PyPI installs arrive" not in plugins_docs
     assert "does not disable" in readme or "does not enforce offline" in plugins_docs
     assert "works from any machine" not in plugins_docs
     assert "useful offline" not in (ROOT / "src/fieldkit/plugin_cli.py").read_text(

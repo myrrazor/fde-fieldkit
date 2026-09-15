@@ -1,0 +1,63 @@
+name: Bug report
+description: Reproducible bug using synthetic data only
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use synthetic files. Do not attach customer data, credentials, or an
+        unredacted Netwatch database.
+
+        Vulnerabilities go to
+        [private security reporting](https://github.com/myrrazor/fde-fieldkit/security/advisories/new),
+        not this form.
+  - type: input
+    id: version
+    attributes:
+      label: Fieldkit version
+      description: "`fieldkit --version` or the Git commit"
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: OS and Python version
+      placeholder: "macOS 15, Python 3.12"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Exact command or hub action
+      placeholder: "fieldkit xray examples/customers.csv"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: Output or behavior. Strip hostnames, paths, and secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Synthetic reproduction
+      description: Minimal made-up input. Never paste customer rows.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Checks you ran
+      description: Optional. pytest, ruff, or other validation.

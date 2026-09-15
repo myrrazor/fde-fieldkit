@@ -8,7 +8,7 @@
       name="description"
       content="One core, tools as plugins: how fieldkit plugin add, remove, and update work, where installs resolve from today, and how the hub treats missing tools."
     >
-    <link rel="canonical" href="https://fde-tools.vercel.app/docs/plugins.html">
+    <link rel="canonical" href="https://fde-tools-review.vercel.app/docs/plugins.html">
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FDE Tools">
@@ -17,15 +17,15 @@
       property="og:description"
       content="The fieldkit plugin manager: list, add, remove, update, and install sources."
     >
-    <meta property="og:url" content="https://fde-tools.vercel.app/docs/plugins.html">
-    <meta property="og:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta property="og:url" content="https://fde-tools-review.vercel.app/docs/plugins.html">
+    <meta property="og:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="plugins docs — FDE Tools">
     <meta name="twitter:description" content="The fieldkit plugin manager: list, add, remove, update, and install sources.">
-    <meta name="twitter:image" content="https://fde-tools.vercel.app/assets/og.png">
+    <meta name="twitter:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js" defer></script>
@@ -64,10 +64,11 @@
       <div class="docs-callout">
         <p>
           <strong>Not on PyPI yet</strong>
-          The fieldkit packages are not on PyPI yet. Today <code>plugin add</code>
-          resolves tools from your repo checkout, from the git subdirectory once the
-          repository is public, or from a wheelhouse directory you point it at. PyPI
-          installs arrive with the public release.
+          The fieldkit packages are not on PyPI yet. The PyPI name <code>fieldkit</code>
+          is an unrelated project. Install GitHub Release wheels by explicit path
+          from <a href="https://github.com/myrrazor/fde-fieldkit/releases/latest">the latest release</a>,
+          then use <code>--wheelhouse</code> for later plugin operations. A pinned
+          <code>v0.2.0</code> checkout with <code>uv sync</code> remains supported.
         </p>
       </div>
 
@@ -253,23 +254,23 @@ fieldkit plugin update xray --wheelhouse ./dist</code></pre>
           <tbody>
             <tr>
               <td>Repo checkout</td>
-              <td>You are running fieldkit from a <code>fde-fieldkit</code> checkout. The default today.</td>
+              <td>You are running fieldkit from a pinned <code>fde-fieldkit</code> checkout.</td>
               <td>The tool installs straight from <code>plugins/fieldkit-&lt;tool&gt;</code> on disk.</td>
             </tr>
             <tr>
               <td>Git subdirectory</td>
-              <td>No checkout on disk, once the repository is public.</td>
-              <td>pip pulls the package from the GitHub repo's <code>plugins/</code> subdirectory.</td>
+              <td>No checkout on disk, and you did not pass <code>--wheelhouse</code>.</td>
+              <td>pip pulls the plugin from the GitHub repo's <code>plugins/</code> subdirectory. The core must already be our Fieldkit wheel or checkout; do not let the resolver fetch PyPI <code>fieldkit</code>.</td>
             </tr>
             <tr>
               <td>Wheelhouse</td>
-              <td><code>--wheelhouse DIR</code>. Local wheels and pre-release testing.</td>
-              <td>Fieldkit packages resolve from local wheels; other dependencies may still contact a package index. This option does not enforce offline installation.</td>
+              <td><code>--wheelhouse DIR</code>. GitHub Release wheels and local builds.</td>
+              <td>Fieldkit packages resolve from those wheels; other dependencies may still contact a package index. This option does not enforce offline installation.</td>
             </tr>
             <tr>
               <td>PyPI</td>
-              <td>Not available yet. Do not use <code>--source pypi</code>.</td>
-              <td>Fieldkit packages are not published. The PyPI project named <code>fieldkit</code> is unrelated. Prefer <code>uv sync</code> from a checkout, git subdirectory installs, or a local <code>--wheelhouse</code>.</td>
+              <td>Not available. Do not use <code>--source pypi</code>.</td>
+              <td>Fieldkit packages are not published. The PyPI project named <code>fieldkit</code> is unrelated. Prefer explicit GitHub wheel paths, <code>--wheelhouse</code>, or <code>uv sync</code> from a checkout.</td>
             </tr>
           </tbody>
         </table>

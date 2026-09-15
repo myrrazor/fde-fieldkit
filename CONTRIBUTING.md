@@ -15,7 +15,9 @@ uv sync --locked --all-packages
 uv run fieldkit --help
 ```
 
-The checkout installs the core and all eight plugins in editable mode. No
+The checkout installs the core and all eight plugins in editable mode. End
+users who are not contributing should prefer the GitHub Release wheels in
+[README.md](README.md) and [docs/RELEASING.md](docs/RELEASING.md). No
 production credentials are needed for development or the default test suite.
 Optional machine-level Netwatch checks need permission to inspect processes or
 bind loopback sockets. Never use customer files or a live credential as a fixture.
@@ -24,8 +26,8 @@ bind loopback sockets. Never use customer files or a live credential as a fixtur
 
 Create a feature branch from `main`, keep the change focused, and open a pull
 request against `main`. Code owners may merge without extra approvals.
-Use a conventional commit subject with the issue number when there is one;
-`(#0)` is the convention for maintenance without an issue.
+Use a conventional commit subject with the issue number when there is one.
+Omit the issue reference for maintenance without an issue.
 
 Core code lives in `src/fieldkit`. Plugins live in `plugins/fieldkit-<tool>` and
 import the shared core, not one another. Public functions need type hints and
@@ -42,13 +44,16 @@ uv lock --check
 uv sync --locked --all-packages
 uv run --locked ruff check .
 uv run --locked pytest -q
-python3 site/check_site.py
+uv run --locked python site/check_site.py
 find src plugins site -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 bash scripts/check-public-privacy.sh
 gitleaks git . --log-opts='--all --full-history' --redact
-uv build --all-packages
-python3 scripts/check_release_artifacts.py dist
+uv run --locked python scripts/build_release.py dist
+bash scripts/check-placeholders.sh docs README.md CHANGELOG.md SECURITY.md CONTRIBUTING.md LAUNCH_CHECKLIST.md site
 ```
+
+Release packaging runs `uv build --all-packages` with `hatchling==1.32.0` and
+`uv run --locked python scripts/check_release_artifacts.py dist`. See [docs/RELEASING.md](docs/RELEASING.md).
 
 JavaScript syntax checks need Node.js. Secret checks use Gitleaks; CI downloads
 an exact upstream release and verifies its SHA-256 digest. There is no JavaScript
@@ -74,9 +79,9 @@ uv tool run --from pip-audit==2.10.1 pip-audit \
 
 ## Bugs and security
 
-Use [issues](https://github.com/myrrazor/fde-fieldkit/issues) for ordinary bugs.
-Include the command, platform, package version, expected result, actual result,
-and a minimal synthetic input. Remove file contents, personal paths, hostnames,
+Use [issues](https://github.com/myrrazor/fde-fieldkit/issues) for ordinary bugs
+(the bug form asks for command, platform, version, expected, actual, and a
+synthetic reproduction). Remove file contents, personal paths, hostnames,
 and credentials that are not needed to reproduce the problem.
 
 Use [private security reporting](SECURITY.md) for vulnerabilities. Participation
