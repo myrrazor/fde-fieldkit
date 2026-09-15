@@ -5,7 +5,7 @@ on:
     - cron: "23 9 * * 1"
   workflow_dispatch: {}
   pull_request:
-    branches: [testing]
+    branches: [main]
     paths:
       - "pyproject.toml"
       - "plugins/**/pyproject.toml"
