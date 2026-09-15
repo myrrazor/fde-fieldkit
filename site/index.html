@@ -177,13 +177,16 @@
           <p class="hero__kicker">Field utilities / local by default</p>
           <h1 id="page-title">FDE Tools</h1>
           <p class="hero__lede">
-            Eight local field utilities for the work between “we got the dump” and
-            “the customer can trust the result”: inspect, sanitize, synthesize, compare,
-            report, check drafts, watch agent traffic, and check an AI workload spec
-            without sending customer data to a hosted service.
+            Local toolkit for the work between “we got the dump” and “the customer
+            can trust the result.” Inspect, sanitize, synthesize, compare, report,
+            check a draft, watch an agent, or check a workload spec — on your
+            machine, with no hosted upload.
           </p>
-          <p class="hero__toolkit">One install. Add the tools you need, and nothing you don't.</p>
-          <a class="hero__action" href="#tools">Choose a tool <span aria-hidden="true">↓</span></a>
+          <p class="hero__toolkit">Not on PyPI yet. One <code>uv sync</code> from a checkout installs all eight tools.</p>
+          <div class="hero__actions">
+            <a class="hero__action" href="#tools">Choose a tool <span aria-hidden="true">↓</span></a>
+            <a class="hero__action hero__action--ghost" href="https://github.com/myrrazor/fde-fieldkit">Star on GitHub <span aria-hidden="true">★</span></a>
+          </div>
         </div>
         <aside class="hero__field-note" aria-label="Field kit facts">
           <p>FIELD NOTE / 001</p>
@@ -196,6 +199,33 @@
         </aside>
       </section>
 
+      <section class="hub-shot" aria-labelledby="hub-shot-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Local hub</p>
+            <h2 id="hub-shot-title">The tools run on your machine.</h2>
+          </div>
+          <p>
+            <code>uv run fieldkit serve</code> prints a loopback URL.
+          </p>
+        </div>
+        <figure class="product-shot">
+          <a class="product-shot__link" href="assets/screenshots/hub.png">
+            <img
+              src="assets/screenshots/hub.png"
+              alt="Local hub with all eight tools installed."
+              width="1280"
+              height="900"
+              decoding="async"
+            >
+          </a>
+          <figcaption>
+            Local hub with all eight tools installed.
+            <a href="assets/screenshots/hub.png">Open full-size image</a>
+          </figcaption>
+        </figure>
+      </section>
+
       <section id="tools" class="tool-index" aria-labelledby="tools-title">
         <div class="section-heading">
           <div>
@@ -203,12 +233,12 @@
             <h2 id="tools-title">Pick the job in front of you.</h2>
           </div>
           <p>
-            Select a block to open working notes, commands, and examples. Get the
-            toolkit with <code>uv sync</code> from a checkout today; plugins are
-            not on PyPI yet (the PyPI name <code>fieldkit</code> is unrelated).
-            After a core install, <code>fieldkit plugin add</code> resolves from
-            the checkout, git subdirectory, or a local wheelhouse. Each tool
-            links to its full docs page.
+            Select a block to open working notes, the real local UI, commands, and
+            examples. Get the toolkit with <code>uv sync</code> from a checkout
+            today; plugins are not on PyPI yet (the PyPI name <code>fieldkit</code>
+            is unrelated). After a core install, <code>fieldkit plugin add</code>
+            resolves from the checkout, git subdirectory, or a local wheelhouse.
+            Each panel shows synthetic sample data and links to its docs page.
           </p>
         </div>
 
@@ -408,6 +438,23 @@ uv run fieldkit xray examples/customers.csv --html profile.html</code></pre>
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/xray.png">
+                <img
+                  src="assets/screenshots/xray.png"
+                  alt="xray local page profiling synthetic customers.csv: column types, null rates, distinct counts, and PII flags"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Local xray UI with synthetic sample data from the repository examples,
+                not a customer file.
+                <a href="assets/screenshots/xray.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-scrub" class="tool-detail" tabindex="-1">
@@ -448,6 +495,23 @@ uv run fieldkit scrub examples/app.log -o app_safe.log --text</code></pre>
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/scrub.png">
+                <img
+                  src="assets/screenshots/scrub.png"
+                  alt="scrub local page replacing detected PII in synthetic customers.csv with realistic fakes"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Local scrub UI with synthetic sample data from the repository examples,
+                not a customer file.
+                <a href="assets/screenshots/scrub.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-mimic" class="tool-detail" tabindex="-1">
@@ -490,6 +554,23 @@ uv run fieldkit mimic generate examples/customers.csv -n 500 -o demo.csv</code><
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/mimic.png">
+                <img
+                  src="assets/screenshots/mimic.png"
+                  alt="mimic local page generating seeded synthetic rows from a learned YAML spec"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Local mimic UI generating synthetic sample data from the repository
+                examples, not a customer file.
+                <a href="assets/screenshots/mimic.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-datadiff" class="tool-detail" tabindex="-1">
@@ -530,6 +611,23 @@ uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv</code>
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/datadiff.png">
+                <img
+                  src="assets/screenshots/datadiff.png"
+                  alt="datadiff local page comparing two synthetic customer dumps for schema and keyed row changes"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Local datadiff UI comparing synthetic sample dumps from the repository
+                examples, not customer data.
+                <a href="assets/screenshots/datadiff.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-debrief" class="tool-detail" tabindex="-1">
@@ -571,6 +669,23 @@ uv run fieldkit debrief report</code></pre>
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/debrief.png">
+                <img
+                  src="assets/screenshots/debrief.png"
+                  alt="debrief local page showing a weekly status built from tagged synthetic sample entries"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Local debrief UI with a synthetic sample engagement log, not a customer
+                report.
+                <a href="assets/screenshots/debrief.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-tell" class="tool-detail" tabindex="-1">
@@ -614,6 +729,23 @@ uv run fieldkit tell adapters</code></pre>
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/tell.png">
+                <img
+                  src="assets/screenshots/tell.png"
+                  alt="Scrolled tell report of synthetic slop_sample.md: local stylometric signals, remote adapters marked skipped"
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Scrolled tell report of synthetic slop_sample.md. Local signals are
+                listed; remote adapters are skipped.
+                <a href="assets/screenshots/tell.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
 
           <article id="tool-netwatch" class="tool-detail" tabindex="-1">
@@ -668,16 +800,22 @@ uv run fieldkit netwatch run -- claude</code></pre>
               </section>
             </div>
             <figure class="product-shot tool-detail__showcase">
-              <img
-                src="assets/netwatch-dashboard.png"
-                alt="Netwatch local control room showing sample sessions, capture sources, destinations, and policy outcomes"
-                loading="lazy"
-                decoding="async"
-              >
+              <a class="product-shot__link" href="assets/screenshots/netwatch.png">
+                <img
+                  src="assets/screenshots/netwatch.png"
+                  alt="Netwatch control room: one completed generic session and two HTTP requests to a local sample endpoint. Generated sample evidence; no customer or external traffic."
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
               <figcaption>
-                The real local dashboard with generated sample evidence. Hosts and totals in
-                this image illustrate the interface; they are not customer traffic, usage
-                metrics, or benchmark results.
+                Generated sample evidence from a real supervised command to a local
+                sample endpoint: one completed generic session and two HTTP requests.
+                Those counts are measurements of this example. No customer or external
+                traffic.
+                <a href="assets/screenshots/netwatch.png">Open full-size image</a>
               </figcaption>
             </figure>
           </article>
@@ -723,6 +861,23 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
                 </div>
               </section>
             </div>
+            <figure class="product-shot tool-detail__showcase">
+              <a class="product-shot__link" href="assets/screenshots/awcp.png">
+                <img
+                  src="assets/screenshots/awcp.png"
+                  alt="awcp Eval view scoring two recorded sample outputs, marked passed. No model ran."
+                  width="1280"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                >
+              </a>
+              <figcaption>
+                Eval scores recorded sample outputs: two cases, marked passed. No model
+                ran.
+                <a href="assets/screenshots/awcp.png">Open full-size image</a>
+              </figcaption>
+            </figure>
           </article>
         </div>
       </section>
@@ -803,13 +958,11 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
       <div class="site-footer__inner">
         <div class="site-footer__support">
           <p>
-            Fieldkit is free and built in the open. If it saved your Friday afternoon,
-            you can buy me a coffee, or star the repo so the next engineer with a mystery
-            CSV can find it.
+            Fieldkit is free and built in the open. Star the repository so the next
+            engineer with a mystery CSV can find it.
           </p>
           <div class="site-footer__support-links">
-            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit/issues">Contribute on GitHub <span aria-hidden="true">↗</span></a>
-            <a class="support-credit" href="https://github.com/myrrazor">Maintained by @myrrazor</a>
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit">Star on GitHub <span aria-hidden="true">★</span></a>
           </div>
         </div>
         <div class="site-footer__row">

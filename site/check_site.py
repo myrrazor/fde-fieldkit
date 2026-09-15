@@ -66,10 +66,31 @@ PAGE_RULES = {
 # external links are a short allowlist on purpose; everything else on the site is local
 ALLOWED_EXTERNAL_LINKS = {
     "https://github.com/myrrazor/fde-fieldkit",
-    "https://github.com/myrrazor",
     "https://github.com/myrrazor/fde-fieldkit/issues",
     "https://docs.astral.sh/uv/",
 }
+
+GITHUB_PROFILE_LINK = re.compile(r"^https://github\.com/[^/]+/?$", re.IGNORECASE)
+DONATION_COPY = re.compile(
+    r"buy me a coffee|buymeacoffee|ko-fi\.com|\bpaypal\.me\b|github\.com/sponsors",
+    re.IGNORECASE,
+)
+PERSONAL_CREDIT = re.compile(
+    r"maintained by\s*\[?@|class=[\"']support-credit[\"']",
+    re.IGNORECASE,
+)
+
+TOOL_SCREENSHOTS = (
+    "xray",
+    "scrub",
+    "mimic",
+    "datadiff",
+    "debrief",
+    "tell",
+    "netwatch",
+    "awcp",
+)
+ALL_SCREENSHOTS = ("hub", *TOOL_SCREENSHOTS)
 
 # The plugin-add flavor is the product story. Command blocks stay README-verbatim.
 INSTALL_BLOCKS = {
@@ -222,10 +243,12 @@ def _is_external(value: str) -> bool:
 
 def _png_size(path: Path) -> tuple[int, int]:
     with path.open("rb") as image:
-        signature = image.read(24)
-    if signature[:8] != b"\x89PNG\r\n\x1a\n":
+        header = image.read(24)
+    if len(header) < 8 or header[:8] != b"\x89PNG\r\n\x1a\n":
         raise ValueError(f"{path.name} is not a PNG")
-    return struct.unpack(">II", signature[16:24])
+    if len(header) < 24:
+        raise ValueError(f"{path.name} is a truncated PNG")
+    return struct.unpack(">II", header[16:24])
 
 
 def _check_heading_order(headings: list[int]) -> bool:
@@ -278,11 +301,18 @@ def _check_pages(errors: list[str]) -> dict[str, PageParser]:
                 resource = attrs.get("href")
             if resource and _is_external(resource):
                 errors.append(f"{name}: external runtime resource {resource}")
+            if tag == "img" and resource and not _is_external(resource):
+                target = (path.parent / resource).resolve()
+                if not target.exists():
+                    errors.append(f"{name}: missing image file {resource}")
 
         for tag, attrs in page.attrs:
             if tag != "a" or not (href := attrs.get("href")):
                 continue
             if _is_external(href):
+                if GITHUB_PROFILE_LINK.fullmatch(href):
+                    errors.append(f"{name}: personal GitHub profile link is not allowed")
+                    continue
                 if href not in ALLOWED_EXTERNAL_LINKS:
                     errors.append(f"{name}: unexpected external link {href}")
                 continue
@@ -416,26 +446,144 @@ def _check_plugin_story(parsed: dict[str, PageParser], errors: list[str]) -> Non
             errors.append(f"docs/awcp.html: missing honesty claim {claim!r}")
 
 
-def _check_netwatch_story(errors: list[str]) -> None:
-    """Keep the public dashboard claims aligned with Netwatch's local contract."""
+def _require_screenshot(
+    page: PageParser,
+    page_name: str,
+    src: str,
+    html: str,
+    errors: list[str],
+    *,
+    lazy: bool,
+) -> None:
+    """A marketing/docs capture needs alt text, dimensions, and a full-size link."""
 
-    index = (SITE_DIR / "index.html").read_text(encoding="utf-8")
-    docs = (SITE_DIR / "docs" / "netwatch.html").read_text(encoding="utf-8")
+    matches = [attrs for tag, attrs in page.attrs if tag == "img" and attrs.get("src") == src]
+    if not matches:
+        errors.append(f"{page_name}: missing screenshot {src}")
+        return
+    img = matches[0]
+    alt = img.get("alt", "").strip()
+    if len(alt) < 24:
+        errors.append(f"{page_name}: screenshot {src} needs informative alt text")
+    if img.get("width") != "1280" or img.get("height") != "900":
+        errors.append(f"{page_name}: screenshot {src} must set width=1280 height=900")
+    if lazy and img.get("loading") != "lazy":
+        errors.append(f"{page_name}: screenshot {src} must lazy-load below the fold")
+    if f'href="{src}"' not in html:
+        errors.append(f"{page_name}: missing full-size image link for {src}")
 
-    if "Eight shipped plugins" not in index:
+
+def _check_product_screenshots(parsed: dict[str, PageParser], errors: list[str]) -> None:
+    """Hub plus every shipped tool must show the real local UI with sample labels."""
+
+    index = parsed.get("index.html")
+    index_html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
+    if "Eight shipped plugins" not in index_html:
         errors.append("index.html: must describe eight shipped Fieldkit plugins")
-    if "Concept preview" in index or "not yet shipped" in index:
+    if "Concept preview" in index_html or "not yet shipped" in index_html:
         errors.append("index.html: AWCP is a shipped plugin and must not be labelled a preview")
-    if 'src="assets/netwatch-dashboard.png"' not in index:
-        errors.append("index.html: missing the Netwatch dashboard product capture")
-    if 'src="../assets/netwatch-dashboard.png"' not in docs:
-        errors.append("docs/netwatch.html: missing the Netwatch dashboard product capture")
-    if "generated sample evidence" not in index or "generated sample evidence" not in docs:
+    if "netwatch-dashboard.png" in index_html:
+        errors.append("index.html: replace netwatch-dashboard.png with assets/screenshots/netwatch.png")
+
+    if index:
+        _require_screenshot(
+            index, "index.html", "assets/screenshots/hub.png", index_html, errors, lazy=False
+        )
+        for tool in TOOL_SCREENSHOTS:
+            src = f"assets/screenshots/{tool}.png"
+            _require_screenshot(index, "index.html", src, index_html, errors, lazy=True)
+
+    docs_index = (SITE_DIR / "docs" / "index.html").read_text(encoding="utf-8")
+    docs_index_page = parsed.get("docs/index.html")
+    if docs_index_page:
+        _require_screenshot(
+            docs_index_page,
+            "docs/index.html",
+            "../assets/screenshots/hub.png",
+            docs_index,
+            errors,
+            lazy=True,
+        )
+
+    for tool in TOOL_SCREENSHOTS:
+        name = f"docs/{tool}.html"
+        page = parsed.get(name)
+        if page is None:
+            continue
+        html = (SITE_DIR / name).read_text(encoding="utf-8")
+        if tool == "netwatch" and "netwatch-dashboard.png" in html:
+            errors.append("docs/netwatch.html: replace netwatch-dashboard.png with screenshots/netwatch.png")
+        _require_screenshot(
+            page, name, f"../assets/screenshots/{tool}.png", html, errors, lazy=True
+        )
+
+    docs = (SITE_DIR / "docs" / "netwatch.html").read_text(encoding="utf-8")
+    if (
+        "generated sample evidence" not in index_html.lower()
+        or "generated sample evidence" not in docs.lower()
+    ):
         errors.append("Netwatch product captures must identify generated sample evidence")
+    if (
+        "local sample endpoint" not in index_html.lower()
+        or "local sample endpoint" not in docs.lower()
+    ):
+        errors.append("Netwatch product captures must name the local sample endpoint")
     if "drops every command argument." not in docs or "It stores destination host" not in docs:
         errors.append("docs/netwatch.html: storage contract must separate dropped args from stored metadata")
     if "direct loopback browser" not in docs or "read-only evidence viewer" not in docs:
         errors.append("docs/netwatch.html: browser-control boundary is missing")
+
+    awcp_index_caption = index_html.lower()
+    awcp_docs = (SITE_DIR / "docs" / "awcp.html").read_text(encoding="utf-8").lower()
+    if "never calls a model" not in awcp_index_caption and "does not call a model" not in awcp_index_caption:
+        errors.append("index.html: AWCP screenshot caption must say it does not call a model")
+    if "never calls a model" not in awcp_docs and "does not call a model" not in awcp_docs:
+        errors.append("docs/awcp.html: AWCP screenshot caption must say it does not call a model")
+
+    shots_dir = SITE_DIR / "assets" / "screenshots"
+    for name in ALL_SCREENSHOTS:
+        relative = f"assets/screenshots/{name}.png"
+        path = shots_dir / f"{name}.png"
+        if not path.exists():
+            errors.append(f"missing required file: {relative}")
+            continue
+        try:
+            width, height = _png_size(path)
+        except ValueError as exc:
+            errors.append(str(exc))
+            continue
+        if (width, height) != (1280, 900):
+            errors.append(f"{relative}: expected 1280x900, got {width}x{height}")
+
+
+def _check_support_copy(errors: list[str]) -> None:
+    """Public pages may star the project repo; they may not ask for coffee or personal credit."""
+
+    readme = REPO_ROOT / "README.md"
+    if readme.exists():
+        text = readme.read_text(encoding="utf-8")
+        if DONATION_COPY.search(text):
+            errors.append("README.md: donation or coffee copy is not allowed")
+        if PERSONAL_CREDIT.search(text):
+            errors.append("README.md: personal maintainer credit is not allowed")
+        if "Star on GitHub" not in text:
+            errors.append("README.md: missing Star on GitHub action")
+        for name in ALL_SCREENSHOTS:
+            needle = f"site/assets/screenshots/{name}.png"
+            if needle not in text:
+                errors.append(f"README.md: missing screenshot reference {needle}")
+
+    for relative in PAGE_RULES:
+        path = SITE_DIR / relative
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if DONATION_COPY.search(text):
+            errors.append(f"{relative}: donation or coffee copy is not allowed")
+        if PERSONAL_CREDIT.search(text):
+            errors.append(f"{relative}: personal maintainer credit is not allowed")
+        if "Star on GitHub" not in text:
+            errors.append(f"{relative}: missing Star on GitHub action")
 
 
 def _check_placeholders(errors: list[str]) -> None:
@@ -466,7 +614,7 @@ def _check_support_files(errors: list[str]) -> None:
         "assets/mark.svg",
         "assets/wordmark.svg",
         "assets/og.png",
-        "assets/netwatch-dashboard.png",
+        *[f"assets/screenshots/{name}.png" for name in ALL_SCREENSHOTS],
         "fonts/ibm-plex-sans-vf.woff2",
         "fonts/ibm-plex-mono-400.woff2",
         "fonts/ibm-plex-mono-600.woff2",
@@ -497,13 +645,6 @@ def _check_support_files(errors: list[str]) -> None:
         except ValueError as exc:
             errors.append(str(exc))
 
-    dashboard_path = SITE_DIR / "assets" / "netwatch-dashboard.png"
-    if dashboard_path.exists():
-        try:
-            _png_size(dashboard_path)
-        except ValueError as exc:
-            errors.append(str(exc))
-
     sitemap = SITE_DIR / "sitemap.xml"
     if sitemap.exists():
         try:
@@ -531,6 +672,8 @@ def _check_support_files(errors: list[str]) -> None:
         errors.append("llms.txt: missing the awcp docs page")
     if "fieldkit plugin add" not in llms:
         errors.append("llms.txt: missing the toolkit model note")
+    if "assets/screenshots" not in llms:
+        errors.append("llms.txt: missing product screenshot paths")
     if "unrelated project" not in llms and "Not on PyPI yet" not in llms:
         errors.append("llms.txt: must stay honest that Fieldkit is not on PyPI")
     if f"Canonical site: {ORIGIN}/" in llms:
@@ -579,7 +722,8 @@ def main() -> int:
         _check_commands(index, errors)
         _check_json_ld(index, errors)
     _check_plugin_story(parsed, errors)
-    _check_netwatch_story(errors)
+    _check_product_screenshots(parsed, errors)
+    _check_support_copy(errors)
     _check_placeholders(errors)
     _check_support_files(errors)
     _check_deployment_headers(errors)
@@ -596,7 +740,9 @@ def main() -> int:
     print("- plugins page: manager commands, real not-installed hint, PyPI honesty")
     print("- JSON-LD ItemList has 8 SoftwareApplication entries")
     print("- OG image is 1200x630; robots, sitemap, and llms.txt agree")
-    print("- Netwatch dashboard capture is local, labelled sample evidence, and coverage-aligned")
+    print("- hub plus eight tool screenshots are referenced with alt, dimensions, and full-size links")
+    print("- Netwatch capture is local-sample labelled; AWCP capture never calls a model")
+    print("- Star on GitHub is the support action; no donation or personal credit copy")
     print("- no external runtime resources or network APIs")
     print("- deployment security headers match the static site's runtime contract")
     print("- public pages contain no unfinished legal placeholders")
