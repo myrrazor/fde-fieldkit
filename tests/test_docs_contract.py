@@ -1,9 +1,21 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
+from urllib.parse import SplitResult, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
+_MARKDOWN_LINK_TARGET = re.compile(r"\[[^\]\n]*\]\(([^)\s]+)\)")
+
+
+def _markdown_http_links(text: str) -> tuple[SplitResult, ...]:
+    links: list[SplitResult] = []
+    for target in _MARKDOWN_LINK_TARGET.findall(text):
+        parsed = urlsplit(target)
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
+            links.append(parsed)
+    return tuple(links)
 
 
 def test_agent_egress_rules_match_tell_interfaces() -> None:
@@ -74,8 +86,9 @@ def test_public_install_copy_does_not_claim_pypi_or_offline_wheelhouse() -> None
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     plugins_docs = (ROOT / "site/docs/plugins.html").read_text(encoding="utf-8")
     assert "Not on PyPI yet" in readme
-    assert "https://github.com/myrrazor/fde-fieldkit/releases/latest" in readme
-    assert "https://fde-tools-review.vercel.app" in readme
+    links = _markdown_http_links(readme)
+    assert urlsplit("https://github.com/myrrazor/fde-fieldkit/releases/latest") in links
+    assert urlsplit("https://fde-tools-review.vercel.app/docs/") in links
     assert "wheels/*.whl" in readme
     assert "PyPI installs arrive" not in plugins_docs
     assert "does not disable" in readme or "does not enforce offline" in plugins_docs
