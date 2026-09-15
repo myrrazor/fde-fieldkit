@@ -22,8 +22,8 @@ bind loopback sockets. Never use customer files or a live credential as a fixtur
 
 ## Make a change
 
-Create a feature branch from `dev`, keep the change focused, and open a pull
-request against `testing`. Maintainers promote accepted changes to `main`.
+Create a feature branch from `main`, keep the change focused, and open a pull
+request against `main`. Code owners may merge without extra approvals.
 Use a conventional commit subject with the issue number when there is one;
 `(#0)` is the convention for maintenance without an issue.
 
