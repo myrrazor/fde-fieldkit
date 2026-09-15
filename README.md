@@ -4,38 +4,17 @@
 
 # Fieldkit
 
-Local toolkit for forward-deployed engineers. One install, then add the tools you
-need as plugins.
+Local toolkit for forward-deployed engineers. Profile a mystery dump, replace
+detected PII, build a demo, explain what changed, write Friday's status, check a
+draft, watch where an agent connects, or check an AI workload spec — on your
+machine, with no telemetry.
 
 It is built for the days you get handed a mystery CSV, a locked-down laptop, and
-a Friday status deadline. Eight tools ship today. They run on your machine by
-default, with no telemetry. Remote text classifiers, model downloads, package
-installation, and supervised network relays require the explicit actions
-described below.
+a Friday status deadline. Eight tools ship today as plugins. They run locally by
+default. Remote text classifiers, model downloads, package installation, and
+supervised network relays require the explicit actions described below.
 
-[Docs in `site/`](site/docs/index.html)
-· [Contributing](CONTRIBUTING.md)
-· [Changelog](CHANGELOG.md)
-· [Security](SECURITY.md)
-
-Browse the static docs from a checkout (`site/`). Hosted
-https://fde-tools.vercel.app may require SSO and is not a guaranteed public
-docs site.
-
-| tool | what it does |
-|---|---|
-| **xray** | Profile a file: schema, types, nulls, PII flags |
-| **scrub** | Replace detected PII with realistic, joinable fakes |
-| **mimic** | Generate seeded demo data from a YAML spec |
-| **datadiff** | Explain what changed between two dumps |
-| **debrief** | Log wins and blockers, render Friday's status |
-| **tell** | Inspect a draft for AI writing tells, locally |
-| **netwatch** | See (and optionally gate) where an agent connects |
-| **awcp** | Check a workload spec, diff versions, score golden evals |
-
-## Start here
-
-Not on PyPI yet. From a checkout of this repo, with
+**Not on PyPI yet.** From a checkout of this repo, with
 [uv](https://docs.astral.sh/uv/) installed and Python 3.12 or newer:
 
 ```
@@ -46,7 +25,8 @@ uv run fieldkit xray examples/customers.csv
 
 That one `uv sync` installs the core and all eight plugins, editable. Every
 command below is `uv run fieldkit ...`; activate `.venv` if you would rather
-drop the prefix. Sample data lives in `examples/`.
+drop the prefix. Sample data lives in `examples/`. The included examples are
+synthetic.
 
 Prefer a browser? Start the local hub:
 
@@ -60,6 +40,46 @@ It prefers port 8765; if that port is taken it picks a free port and says so.
 Every installed tool gets a drag-and-drop page; tools you have not added show
 dimmed with their `plugin add` command. Hostile `Host` headers get 400;
 cross-origin writes get 403.
+
+<p>
+  <a href="site/assets/screenshots/hub.png">
+    <img
+      src="site/assets/screenshots/hub.png"
+      alt="Local hub with all eight tools installed."
+      width="1280"
+      height="900"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/hub.png">Open full-size hub screenshot</a>. Local hub with all eight tools installed.</p>
+
+[Docs in `site/`](site/docs/index.html)
+· [Contributing](CONTRIBUTING.md)
+· [Changelog](CHANGELOG.md)
+· [Security](SECURITY.md)
+· [Star on GitHub](https://github.com/myrrazor/fde-fieldkit)
+
+Browse the static docs from a checkout (`site/`). Hosted
+https://fde-tools.vercel.app may require SSO and is not a guaranteed public
+docs site.
+
+Limits, up front: inputs are capped at 50 MB (`MAX_DATASET_BYTES`); detector
+hits are not a guarantee; Netwatch does not see DNS, UDP/QUIC, or sockets that
+ignore proxies; awcp never calls a model. Analysis stays local except explicit
+`tell check --remote`, Netwatch's supervised relay, package installs, and optional
+`--ml` model download.
+
+| tool | what it does |
+|---|---|
+| **xray** | Profile a file: schema, types, nulls, PII flags |
+| **scrub** | Replace detected PII with realistic, joinable fakes |
+| **mimic** | Generate seeded demo data from a YAML spec |
+| **datadiff** | Explain what changed between two dumps |
+| **debrief** | Log wins and blockers, render Friday's status |
+| **tell** | Inspect a draft for AI writing tells, locally |
+| **netwatch** | See (and optionally gate) where an agent connects |
+| **awcp** | Check a workload spec, diff versions, score golden evals |
 
 <details>
 <summary>Install from locally built wheels</summary>
@@ -103,6 +123,25 @@ customers.csv · CSV · 150 × 14
 
 </details>
 
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/xray.png">
+    <img
+      src="site/assets/screenshots/xray.png"
+      alt="xray local page profiling synthetic customers.csv: column types, null rates, distinct counts, and PII flags"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/xray.png">Open full-size image</a>. Repository example data, not a customer file.</p>
+
+</details>
+
 Schema, inferred types, null rates, distinct counts, and a PII flag with a
 confidence for every column. Reads csv, tsv, xlsx, json, and jsonl (UTF-8).
 Pass `--fmt` when detection is wrong or the extension is misleading. Parquet and
@@ -135,6 +174,25 @@ uv run fieldkit scrub examples/app.log -o app_safe.log --text
 
 </details>
 
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/scrub.png">
+    <img
+      src="site/assets/screenshots/scrub.png"
+      alt="scrub local page replacing detected PII in synthetic customers.csv with realistic fakes"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/scrub.png">Open full-size image</a>. Repository example data, not a customer file.</p>
+
+</details>
+
 Emails, phones, SSNs, card numbers, IPs, names, and secrets become realistic
 fakes. It is deterministic: the same input value always maps to the same fake,
 so joins across files still line up. `--text` is line mode for logs.
@@ -154,6 +212,25 @@ uv run fieldkit mimic generate spec.yaml -n 10000 --seed 42 -o demo.csv
 wrote spec.yaml
 wrote demo.csv (10000 rows)
 ```
+
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/mimic.png">
+    <img
+      src="site/assets/screenshots/mimic.png"
+      alt="mimic local page generating seeded synthetic rows from a learned YAML spec"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/mimic.png">Open full-size image</a>. Learned from repository example data, not a customer file.</p>
+
+</details>
 
 `learn` writes a plain YAML spec: types, category pools, distributions. Edit it,
 then generate as many rows as you need. Same seed, same output. PII columns get
@@ -184,6 +261,25 @@ customers.csv (150 rows) → customers_v2.csv (152 rows)
 ┃ added ┃ removed ┃ changed ┃ unchanged ┃
 │    12 │      10 │      25 │       115 │
 ```
+
+</details>
+
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/datadiff.png">
+    <img
+      src="site/assets/screenshots/datadiff.png"
+      alt="datadiff local page comparing two synthetic customer dumps for schema and keyed row changes"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/datadiff.png">Open full-size image</a>. Repository example dumps, not customer data.</p>
 
 </details>
 
@@ -218,6 +314,25 @@ uv run fieldkit debrief report
 
 </details>
 
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/debrief.png">
+    <img
+      src="site/assets/screenshots/debrief.png"
+      alt="debrief local page showing a weekly status built from tagged synthetic sample entries"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/debrief.png">Open full-size image</a>. Sample engagement log, not a customer report.</p>
+
+</details>
+
 Tags are `win`, `blocker`, `decision`, `note`, and `next`. `report` prints a
 stakeholder-ready week in markdown, or `--html status.html`. Entries live in `~/.fieldkit/debrief.db`, or wherever `FIELDKIT_DEBRIEF_DB`
 points (same idea as Netwatch's `FIELDKIT_NETWATCH_DB`).
@@ -240,6 +355,25 @@ Remote classifier scores
 │ Pangram     │ skipped │ offline mode │
 │ GPTZero     │ skipped │ offline mode │
 ```
+
+</details>
+
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/tell.png">
+    <img
+      src="site/assets/screenshots/tell.png"
+      alt="Scrolled tell report of synthetic slop_sample.md: local stylometric signals, remote adapters marked skipped"
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/tell.png">Open full-size image</a>. Scrolled tell report of synthetic slop_sample.md. Local signals are listed; remote adapters are skipped.</p>
 
 </details>
 
@@ -271,6 +405,25 @@ codex-cli 0.144.5
 session 0f6af3ca44b94eae97021ce595fd1883 · complete · audit · 0 network event(s)
 · 0 tool event(s)
 ```
+
+</details>
+
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/netwatch.png">
+    <img
+      src="site/assets/screenshots/netwatch.png"
+      alt="Netwatch control room: one completed generic session and two HTTP requests to a local sample endpoint. Generated sample evidence; no customer or external traffic."
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/netwatch.png">Open full-size image</a>. Generated sample evidence from a real supervised command to a local sample endpoint: one completed generic session and two HTTP requests. Those counts are measurements of this example. No customer or external traffic.</p>
 
 </details>
 
@@ -328,6 +481,25 @@ prompts 2 (system=content, userTemplate=content)
 │ denied                    │ —        │ zendesk.send_reply, customer_db.write │
 local check only — no model, control plane, or network call
 ```
+
+</details>
+
+<details>
+<summary>Local UI (synthetic sample data)</summary>
+
+<p>
+  <a href="site/assets/screenshots/awcp.png">
+    <img
+      src="site/assets/screenshots/awcp.png"
+      alt="awcp Eval view scoring two recorded sample outputs, marked passed. No model ran."
+      width="1280"
+      height="900"
+      loading="lazy"
+    >
+  </a>
+</p>
+
+<p><a href="site/assets/screenshots/awcp.png">Open full-size image</a>. Eval scores recorded sample outputs: two cases, marked passed. No model ran.</p>
 
 </details>
 
@@ -423,7 +595,7 @@ materials retain their own notices; see [Third-party notices](THIRD_PARTY_NOTICE
 
 ## Support
 
-Maintained by [@myrrazor](https://github.com/myrrazor) and contributors.
+[Star on GitHub](https://github.com/myrrazor/fde-fieldkit).
 Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reproducible
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).

@@ -80,16 +80,19 @@
         total with its real unit. It reads the same SQLite evidence as the CLI.
       </p>
       <figure class="product-shot">
-        <img
-          src="../assets/netwatch-dashboard.png"
-          alt="Netwatch local control room showing sample sessions, capture sources, destinations, and policy outcomes"
-          loading="lazy"
-          decoding="async"
-        >
+        <a class="product-shot__link" href="../assets/screenshots/netwatch.png">
+          <img
+            src="../assets/screenshots/netwatch.png"
+            alt="Netwatch control room: one completed generic session and two HTTP requests to a local sample endpoint. Generated sample evidence; no customer or external traffic."
+            width="1280"
+            height="900"
+            loading="lazy"
+            decoding="async"
+          >
+        </a>
         <figcaption>
-          Product view with generated sample evidence. The hosts and totals demonstrate
-          layout and states; they are not customer traffic, telemetry, usage claims, or
-          benchmark results.
+          Generated sample evidence from a real supervised command to a local sample endpoint: one completed generic session and two HTTP requests. Those counts are measurements of this example. No customer or external traffic.
+          <a href="../assets/screenshots/netwatch.png">Open full-size image</a>
         </figcaption>
       </figure>
       <div class="flag-table-wrap">
@@ -294,6 +297,15 @@ fieldkit netwatch attach 12345 --follow</code></pre>
 
     <footer class="site-footer">
       <div class="site-footer__inner">
+        <div class="site-footer__support">
+          <p>
+            Fieldkit is free and built in the open. Star the repository so the next
+            engineer with a mystery CSV can find it.
+          </p>
+          <div class="site-footer__support-links">
+            <a class="support-button" href="https://github.com/myrrazor/fde-fieldkit">Star on GitHub <span aria-hidden="true">★</span></a>
+          </div>
+        </div>
         <div class="site-footer__row">
           <p>FDE Tools / coverage stated before counts.</p>
           <nav aria-label="Footer navigation">

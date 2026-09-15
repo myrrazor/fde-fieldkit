@@ -1,9 +1,16 @@
 from __future__ import annotations
 
 import shutil
+import struct
 import subprocess
 import sys
 from pathlib import Path
+
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
+
+def _png_bytes(width: int, height: int) -> bytes:
+    return PNG_MAGIC + struct.pack(">I", 13) + b"IHDR" + struct.pack(">II", width, height)
 
 
 def _isolated_site(tmp_path: Path) -> Path:
@@ -97,3 +104,105 @@ def test_site_release_check_rejects_unfinished_legal_placeholders(tmp_path: Path
     result = _run_check(isolated, tmp_path)
     assert result.returncode == 1
     assert "unexpected placeholder" in result.stdout
+
+
+def test_site_release_check_rejects_missing_tool_screenshot(tmp_path: Path) -> None:
+    """Each selected tool panel must keep its local UI capture."""
+
+    isolated = _isolated_site(tmp_path)
+    index = isolated / "site" / "index.html"
+    html = index.read_text(encoding="utf-8")
+    index.write_text(
+        html.replace("assets/screenshots/xray.png", "assets/screenshots/missing.png"),
+        encoding="utf-8",
+    )
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "missing screenshot assets/screenshots/xray.png" in result.stdout
+
+
+def test_site_release_check_rejects_deleted_screenshot_file(tmp_path: Path) -> None:
+    """A referenced screenshot file that is not on disk must fail the release check."""
+
+    isolated = _isolated_site(tmp_path)
+    shot = isolated / "site" / "assets" / "screenshots" / "xray.png"
+    shot.parent.mkdir(parents=True, exist_ok=True)
+    shot.write_bytes(_png_bytes(1280, 900))
+    shot.unlink()
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "xray.png" in result.stdout
+    assert "missing required file: assets/screenshots/xray.png" in result.stdout
+    assert "broken local link" in result.stdout
+    assert "missing image file" in result.stdout
+
+
+def test_site_release_check_rejects_invalid_screenshot_bytes(tmp_path: Path) -> None:
+    """Screenshot files must be PNGs, not arbitrary bytes."""
+
+    isolated = _isolated_site(tmp_path)
+    shot = isolated / "site" / "assets" / "screenshots" / "hub.png"
+    shot.parent.mkdir(parents=True, exist_ok=True)
+    shot.write_bytes(b"this is not a png file")
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "hub.png is not a PNG" in result.stdout
+
+
+def test_site_release_check_rejects_truncated_screenshot(tmp_path: Path) -> None:
+    """A PNG signature without an IHDR is still a failed screenshot asset."""
+
+    isolated = _isolated_site(tmp_path)
+    shot = isolated / "site" / "assets" / "screenshots" / "scrub.png"
+    shot.parent.mkdir(parents=True, exist_ok=True)
+    shot.write_bytes(PNG_MAGIC + b"\x00\x00")
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "scrub.png is a truncated PNG" in result.stdout
+
+
+def test_site_release_check_rejects_wrong_screenshot_dimensions(tmp_path: Path) -> None:
+    """Marketing captures are contracted at 1280x900."""
+
+    isolated = _isolated_site(tmp_path)
+    shot = isolated / "site" / "assets" / "screenshots" / "tell.png"
+    shot.parent.mkdir(parents=True, exist_ok=True)
+    shot.write_bytes(_png_bytes(64, 64))
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "assets/screenshots/tell.png: expected 1280x900, got 64x64" in result.stdout
+
+
+def test_site_release_check_rejects_donation_and_personal_credit(tmp_path: Path) -> None:
+    """Public copy may star the project repo, not ask for coffee or personal credit."""
+
+    isolated = _isolated_site(tmp_path)
+    privacy = isolated / "site" / "privacy.html"
+    html = privacy.read_text(encoding="utf-8")
+    privacy.write_text(
+        html.replace("Star on GitHub", "buy me a coffee")
+        + "\n<p>Maintained by @reviewer</p>\n",
+        encoding="utf-8",
+    )
+    readme = isolated / "README.md"
+    readme.write_text(
+        readme.read_text(encoding="utf-8") + "\nMaintained by [@reviewer](https://example.invalid)\n",
+        encoding="utf-8",
+    )
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "donation or coffee copy is not allowed" in result.stdout
+    assert "personal maintainer credit is not allowed" in result.stdout
+    assert "privacy.html: missing Star on GitHub action" in result.stdout

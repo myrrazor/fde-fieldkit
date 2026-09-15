@@ -6,8 +6,7 @@
 - **Character:** exact, field-ready, candid.
 - **Visual vocabulary:** equipment manifests, ruled inspection sheets, copyable commands.
 - **Signature move:** a flat job index opening one full-width working panel.
-- **Product proof:** one wide, captioned Netwatch control-room capture inside its detail
-  panel and docs page; the image uses labelled sample evidence rather than decoration.
+- **Product proof:** the real local hub near the top, plus a captioned UI capture in every selected tool panel and matching docs page. Images use labelled synthetic sample evidence rather than decoration.
 - **What stays quiet:** background, motion, surfaces, and ornament.
 
 ## Direction decision
@@ -17,8 +16,10 @@
 Light equipment-paper background, strong grid rules, survey-flag red, dense Sans
 copy, Mono for commands. It supports daylight use, comparison, and real command
 content without imitating a terminal. Main risk: the required equal grid can feel
-generic, so job labels, hard rules, and the shared detail panel must carry real
-structure. `[P][H]`
+generic, so job labels, hard rules, real screenshots, and the shared detail panel
+must carry structure. `[P][H]`
+
+This polish keeps that system. It does not introduce a new visual language.
 
 ### Rejected: command ledger
 
@@ -43,8 +44,8 @@ the peer comparison slower.
   one compact; 43rem prose measure.
 - **Surfaces:** borders before shadows; no page elevation or decorative blur.
 - **Motion:** color feedback only, 140ms; removed under reduced motion.
-- **Targets:** navigation, tool blocks, summaries, and copy buttons are at least
-  44px tall on compact screens.
+- **Targets:** navigation, tool blocks, summaries, copy buttons, and screenshot
+  full-size links are at least 44px tall on compact screens.
 
 ### Verified contrast pairs
 
@@ -66,7 +67,17 @@ the peer comparison slower.
 | Copy button | default, hover, focus, copied, failure | Text label and polite live status |
 | FAQ disclosure | closed, open, focus | Native `details` / `summary` |
 | Code block | long and short commands | Scrolls inside its own container |
-| Product screenshot | full-width Netwatch dashboard, compact reflow | Informative alt text; visible caption identifies generated sample evidence |
+| Product screenshot | hub plus eight tool captures; compact reflow | Informative alt; width/height; lazy below the fold; visible caption identifies synthetic sample data; accessible full-size link |
+| Star on GitHub | default, hover, focus | The only support action; project repository URL |
+
+## Imagery
+
+- Self-hosted PNG captures at `assets/screenshots/{hub,xray,scrub,mimic,datadiff,debrief,tell,netwatch,awcp}.png`.
+- Hub is above the fold and loads eagerly. It lists installed tools only; no selected tool or dataset.
+- Tool captures lazy-load. Captions describe the pictured result and label synthetic sample data.
+- Tell screenshot is a scrolled report of synthetic slop_sample.md with remote adapters skipped.
+- Netwatch screenshot: one completed generic session and two HTTP requests to a local sample endpoint; generated sample evidence, no customer or external traffic. Counts are that example's measurements.
+- AWCP screenshot is Eval of recorded sample outputs; no model ran. It does not show Check mode.
 
 ## Gates
 
@@ -76,3 +87,4 @@ the peer comparison slower.
 - No non-essential cookies, storage, analytics, embeds, or external assets.
 - awcp's local-only limit (no model, no control plane) remains adjacent to its description and commands.
 - Netwatch imagery never implies customer traffic, usage metrics, or whole-machine coverage.
+- No donation, coffee, or personal maintainer credit copy.

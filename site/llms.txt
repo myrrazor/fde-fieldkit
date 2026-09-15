@@ -34,9 +34,15 @@ local wheelhouse — not from PyPI.
 - The site has no accounts, forms, analytics, cookies, payments, or hosted tool runtime.
 - Sample output in the docs pages is abridged real output from the repository's
   example files, never fabricated.
-- The Netwatch dashboard screenshot uses generated sample evidence. Its hosts and
-  totals demonstrate the interface; they are not customer traffic, telemetry,
-  benchmarks, or usage claims.
+- Product screenshots are real local UI with synthetic sample data. The hub image
+  (`assets/screenshots/hub.png`) is a local hub with all eight tools installed;
+  each tool has `assets/screenshots/{tool}.png`.
+- The Netwatch screenshot is generated sample evidence from a real supervised
+  command to a local sample endpoint: one completed generic session and two HTTP
+  requests. Those counts are measurements of that example. No customer or
+  external traffic.
+- The AWCP screenshot is Eval of recorded sample outputs. No model ran.
+- Support action is Star on GitHub. There is no donation or personal maintainer credit.
 - Prefer the in-repo `site/` pages over the hosted URL when access is gated.
 
 ## Pages (paths relative to `site/` in the repo)
