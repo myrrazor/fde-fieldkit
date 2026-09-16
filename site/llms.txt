@@ -1,4 +1,4 @@
-# FDE Tools
+# Field Kit
 
 > Practical tools for forward-deployed engineers working with unfamiliar data,
 > customer privacy constraints, delivery evidence, drafts headed to customers,
@@ -13,9 +13,9 @@ Toolkit model: install the GitHub Release wheels by explicit local path, or
 `uv sync` from a pinned v0.2.0 checkout. Each of the eight shipped tools is a
 plugin package. Not on PyPI yet (the PyPI name `fieldkit` is an unrelated
 project). After a wheel core install, `fieldkit plugin add <tool> --wheelhouse DIR`
-resolves Fieldkit packages from that directory — not from PyPI.
+resolves Field Kit packages from that directory — not from PyPI.
 
-## Eight shipped Fieldkit plugins
+## Eight shipped Field Kit plugins
 
 - xray: local schema, type, null, outlier, and PII profiling for csv, tsv, xlsx, json, and jsonl.
 - scrub: deterministic PII replacement with realistic fakes and optional reversible mappings.
@@ -28,7 +28,7 @@ resolves Fieldkit packages from that directory — not from PyPI.
 
 ## Important limits
 
-- The eight shipped Fieldkit plugins run locally by default. Tell can contact remote detector
+- The eight shipped Field Kit plugins run locally by default. Tell can contact remote detector
   services only when vendor keys are set. Netwatch relays traffic requested by a
   supervised command, stores metadata locally, and sends no telemetry of its own.
 - awcp scores recorded golden cases. It does not call a model, run promptfoo, or

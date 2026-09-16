@@ -1,6 +1,6 @@
 # Third-party notices
 
-Fieldkit's original code is licensed under [MIT](LICENSE). Bundled third-party
+Field Kit's original code is licensed under [MIT](LICENSE). Bundled third-party
 materials keep the notices and licenses below. Dependency packages installed
 by uv retain their own upstream licenses.
 
@@ -11,7 +11,7 @@ by uv retain their own upstream licenses.
 | Faker English name data | Core PII name lists and synthetic fixtures | [joke2k/faker](https://github.com/joke2k/faker), [MIT](licenses/Faker-MIT.txt) |
 
 The IBM notice includes the reserved font name "Plex". A copy of the OFL is also
-beside the fonts at `site/fonts/OFL.txt`. Fieldkit's MIT grant does not relicense
+beside the fonts at `site/fonts/OFL.txt`. Field Kit's MIT grant does not relicense
 those font files.
 
 The original source identifies the Tell lexicon as derived from no-ai-slop and
@@ -24,7 +24,7 @@ IBM's license text was verified at `bf260093582f04622aacc1e9f9ca604d7ccd0c42`;
 the original font-download revision was not recorded.
 
 The shared working indicator credits Jakub Antalik's `thinking-orbs` for visual
-inspiration. Fieldkit implements its own canvas animation and does not bundle
+inspiration. Field Kit implements its own canvas animation and does not bundle
 that package. The source provenance comment is preserved.
 
 Contributor names in these upstream copyright notices identify third-party

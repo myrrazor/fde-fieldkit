@@ -1,11 +1,11 @@
-# Releasing Fieldkit
+# Releasing Field Kit
 
 Manual GitHub Release for the current workspace versions. There is no publish
 workflow. Do this from a clean, reviewed `main` after the repository checks
 below have passed.
 
-Fieldkit is **not** uploaded to PyPI. The PyPI project named `fieldkit` is
-unrelated. Every Fieldkit wheel must be installed by explicit local path.
+Field Kit is **not** uploaded to PyPI. The PyPI project named `fieldkit` is
+unrelated. Every Field Kit wheel must be installed by explicit local path.
 
 ## Preconditions
 
@@ -67,7 +67,7 @@ Stay at the repository root. Use a throwaway directory:
 (cd dist && shasum -a 256 -c SHA256SUMS)
 ```
 
-`wheels/*.whl` selects every Fieldkit wheel by path, including the core.
+`wheels/*.whl` selects every Field Kit wheel by path, including the core.
 Do not `pip install fieldkit` from an index. Later plugin operations use
 `--wheelhouse wheels`.
 

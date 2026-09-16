@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Field Kit caliper mark</title>
+  <desc id="desc">Two opposed caliper jaws joined by one central slide.</desc>
+  <path fill="#f4f2ea" d="M8 8h20v8H16v32h12v8H8V8Zm48 0H36v8h12v32H36v8h20V8Z"/><path fill="#ed8274" d="M16 28h32v8H16z"/>
+</svg>

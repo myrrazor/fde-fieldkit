@@ -1,10 +1,10 @@
-# FDE Tools product context
+# Field Kit product context
 
 ## Product
 
-- **Name:** FDE Tools (Fieldkit)
+- **Name:** Field Kit
 - **One-sentence purpose:** Help forward-deployed engineers choose and run the right local utility for an immediate field problem.
-- **Maturity:** fieldkit is working development software with eight shipped plugins. awcp is the local spec-check slice, not a delivery control plane.
+- **Maturity:** Field Kit is working development software with eight shipped plugins. awcp is the local spec-check slice, not a delivery control plane.
 - **Platform:** static website pointing to local CLI and browser software.
 - **Business model or service model:** no accounts, payments, subscriptions, or hosted runtime on this site.
 
@@ -29,7 +29,7 @@
 
 ## Critical journey
 
-1. Read what Fieldkit is, that it is not on PyPI, and how to install GitHub wheels or `uv sync` from a pinned checkout.
+1. Read what Field Kit is, that it is not on PyPI, and how to install GitHub wheels or `uv sync` from a pinned checkout.
 2. See the local hub with all eight tools installed.
 3. Match the current job to one of eight shipped plugins.
 4. Open one tool without losing the index; see its UI, capability, and limit.

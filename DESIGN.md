@@ -1,4 +1,4 @@
-# fieldkit — design notes
+# Field Kit — design notes
 
 ## Product context
 

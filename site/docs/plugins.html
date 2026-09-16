@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>plugins docs — add and manage fieldkit tools</title>
+    <title>plugins docs — add and manage Field Kit tools</title>
     <meta
       name="description"
       content="One core, tools as plugins: how fieldkit plugin add, remove, and update work, where installs resolve from today, and how the hub treats missing tools."
@@ -11,20 +11,20 @@
     <link rel="canonical" href="https://fde-tools-review.vercel.app/docs/plugins.html">
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="FDE Tools">
-    <meta property="og:title" content="plugins docs — add and manage fieldkit tools">
+    <meta property="og:site_name" content="Field Kit">
+    <meta property="og:title" content="plugins docs — add and manage Field Kit tools">
     <meta
       property="og:description"
-      content="The fieldkit plugin manager: list, add, remove, update, and install sources."
+      content="The Field Kit plugin manager: list, add, remove, update, and install sources."
     >
     <meta property="og:url" content="https://fde-tools-review.vercel.app/docs/plugins.html">
     <meta property="og:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
+    <meta property="og:image:alt" content="Field Kit: eight shipped plugins">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="plugins docs — FDE Tools">
-    <meta name="twitter:description" content="The fieldkit plugin manager: list, add, remove, update, and install sources.">
+    <meta name="twitter:title" content="plugins docs — Field Kit">
+    <meta name="twitter:description" content="The Field Kit plugin manager: list, add, remove, update, and install sources.">
     <meta name="twitter:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
@@ -34,8 +34,8 @@
     <a class="skip-link" href="#main">Skip to plugin docs</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a class="brand" href="../index.html" aria-label="FDE Tools home">
-          <img src="../assets/wordmark.svg" alt="FDE Tools">
+        <a class="brand" href="../index.html" aria-label="Field Kit home">
+          <img src="../assets/wordmark.svg" alt="Field Kit">
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
           <a href="../index.html#tools">Tools</a>
@@ -55,7 +55,7 @@
       <p class="detail-kicker"><a href="index.html">Docs</a> / The toolkit</p>
       <h1>Plugins</h1>
       <p class="docs-page__dek">
-        Fieldkit is one small core plus eight shipped plugins. Add only the tools
+        Field Kit is one small core plus eight shipped plugins. Add only the tools
         you need. This page is the manager reference: list, add, remove, and update,
         where installs come from, what a missing tool looks like, and how to write a
         plugin of your own.
@@ -64,7 +64,7 @@
       <div class="docs-callout">
         <p>
           <strong>Not on PyPI yet</strong>
-          The fieldkit packages are not on PyPI yet. The PyPI name <code>fieldkit</code>
+          The Field Kit packages are not on PyPI yet. The PyPI name <code>fieldkit</code>
           is an unrelated project. Install GitHub Release wheels by explicit path
           from <a href="https://github.com/myrrazor/fde-fieldkit/releases/latest">the latest release</a>,
           then use <code>--wheelhouse</code> for later plugin operations. A pinned
@@ -155,7 +155,7 @@ add one with: fieldkit plugin add scrub</code></pre>
       <p>
         Takes one or more tool names and installs their packages into the same
         environment the core runs from. Extras ride along per tool. A wheelhouse
-        directory selects local Fieldkit wheels; other dependencies may still be
+        directory selects local Field Kit wheels; other dependencies may still be
         retrieved from a package index:
       </p>
       <div class="command-box">
@@ -196,7 +196,7 @@ fieldkit plugin add xray --wheelhouse ./dist</code></pre>
             <tr>
               <td><code>--wheelhouse DIR</code></td>
               <td>off</td>
-              <td>Resolve Fieldkit packages from local wheels. Other dependencies may still require network access.</td>
+              <td>Resolve Field Kit packages from local wheels. Other dependencies may still require network access.</td>
             </tr>
           </tbody>
         </table>
@@ -254,23 +254,23 @@ fieldkit plugin update xray --wheelhouse ./dist</code></pre>
           <tbody>
             <tr>
               <td>Repo checkout</td>
-              <td>You are running fieldkit from a pinned <code>fde-fieldkit</code> checkout.</td>
+              <td>You are running Field Kit from a pinned <code>fde-fieldkit</code> checkout.</td>
               <td>The tool installs straight from <code>plugins/fieldkit-&lt;tool&gt;</code> on disk.</td>
             </tr>
             <tr>
               <td>Git subdirectory</td>
               <td>No checkout on disk, and you did not pass <code>--wheelhouse</code>.</td>
-              <td>pip pulls the plugin from the GitHub repo's <code>plugins/</code> subdirectory. The core must already be our Fieldkit wheel or checkout; do not let the resolver fetch PyPI <code>fieldkit</code>.</td>
+              <td>pip pulls the plugin from the GitHub repo's <code>plugins/</code> subdirectory. The core must already be our Field Kit wheel or checkout; do not let the resolver fetch PyPI <code>fieldkit</code>.</td>
             </tr>
             <tr>
               <td>Wheelhouse</td>
               <td><code>--wheelhouse DIR</code>. GitHub Release wheels and local builds.</td>
-              <td>Fieldkit packages resolve from those wheels; other dependencies may still contact a package index. This option does not enforce offline installation.</td>
+              <td>Field Kit packages resolve from those wheels; other dependencies may still contact a package index. This option does not enforce offline installation.</td>
             </tr>
             <tr>
               <td>PyPI</td>
               <td>Not available. Do not use <code>--source pypi</code>.</td>
-              <td>Fieldkit packages are not published. The PyPI project named <code>fieldkit</code> is unrelated. Prefer explicit GitHub wheel paths, <code>--wheelhouse</code>, or <code>uv sync</code> from a checkout.</td>
+              <td>Field Kit packages are not published. The PyPI project named <code>fieldkit</code> is unrelated. Prefer explicit GitHub wheel paths, <code>--wheelhouse</code>, or <code>uv sync</code> from a checkout.</td>
             </tr>
           </tbody>
         </table>
@@ -329,7 +329,7 @@ uv run fieldkit plugin list</code></pre>
       <div class="site-footer__inner">
         <div class="site-footer__support">
           <p>
-            Fieldkit is free and built in the open. Star the repository so the next
+            Field Kit is free and built in the open. Star the repository so the next
             engineer with a mystery CSV can find it.
           </p>
           <div class="site-footer__support-links">
@@ -337,7 +337,7 @@ uv run fieldkit plugin list</code></pre>
           </div>
         </div>
         <div class="site-footer__row">
-          <p>FDE Tools / practical software for field constraints.</p>
+          <p>Field Kit / practical software for field constraints.</p>
           <nav aria-label="Footer navigation">
             <a href="../index.html">Home</a>
             <a href="index.html">Docs</a>

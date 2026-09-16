@@ -1,4 +1,4 @@
-# Announcement drafts for Fieldkit 0.2.0
+# Announcement drafts for Field Kit 0.2.0
 
 These are drafts, not posts. Before publishing, read each community's rules
 (Show HN guidelines, subreddit self-promotion policy, and X norms). Do not
@@ -17,12 +17,12 @@ Facts this copy may use:
 
 ## Show HN
 
-Title: `Show HN: Fieldkit – local CLI tools for messy field-engineering data`
+Title: `Show HN: Field Kit – local CLI tools for messy field-engineering data`
 
 First comment:
 
 ```
-Fieldkit is a local toolkit for the days you get a mystery CSV, a locked-down
+Field Kit is a local toolkit for the days you get a mystery CSV, a locked-down
 laptop, and a Friday status deadline.
 
 One `fieldkit` core plus eight plugins: profile a file (xray), replace detected
@@ -44,10 +44,10 @@ tool is missing for real field days.
 
 ## r/commandline
 
-Title: `Fieldkit: local CLI toolkit for profiling, PII replacement, diffs, and agent network traces`
+Title: `Field Kit: local CLI toolkit for profiling, PII replacement, diffs, and agent network traces`
 
 ```
-Fieldkit is a local CLI (and loopback hub) for field-engineering grunt work:
+Field Kit is a local CLI (and loopback hub) for field-engineering grunt work:
 mystery dumps, PII before you share a file, seeded demo data, dump diffs,
 Friday status notes, draft checks, agent connection traces, and AI workload
 spec checks.
@@ -64,7 +64,7 @@ Happy to answer command questions.
 
 ## r/opensource
 
-Title: `Fieldkit 0.2.0 — MIT-licensed local toolkit (CLI + plugins) for FDE data work`
+Title: `Field Kit 0.2.0 — MIT-licensed local toolkit (CLI + plugins) for FDE data work`
 
 ```
 Open-source (MIT) local toolkit aimed at forward-deployed engineers. Core
@@ -83,7 +83,7 @@ and docs is welcome.
 
 Draft thread. Link on the last post, not the first.
 
-1. Mystery CSV, locked-down laptop, Friday status. Fieldkit runs that work on your machine — no telemetry, no hosted upload.
+1. Mystery CSV, locked-down laptop, Friday status. Field Kit runs that work on your machine — no telemetry, no hosted upload.
 2. Eight plugins: xray, scrub, mimic, datadiff, debrief, tell, netwatch, awcp. Local by default. Tell remote and Netwatch relay only after you ask.
 3. MIT, Python 3.12+. Not on PyPI (that name is taken by a different project). GitHub wheels or `uv sync` from the v0.2.0 tag.
 4. First public GitHub release is 0.2.0. Early software. Limits are in the README: 50 MB inputs, detectors miss things, Netwatch is not a firewall.

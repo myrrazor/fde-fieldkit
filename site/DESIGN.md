@@ -1,4 +1,4 @@
-# FDE Tools design system
+# Field Kit design system
 
 ## Design thesis
 
@@ -38,8 +38,11 @@ the peer comparison slower.
 - **Colors:** background `#f4f2ea`; surface `#fbfaf5`; text `#1e2628`; muted
   `#566064`; accent `#a13d36`; focus `#145f9f`; code `#20282a`.
 - **Type:** IBM Plex Sans 100–700 for prose and hierarchy; IBM Plex Mono 400/600
-  for commands, tool names, labels, and the wordmark. All files self-hosted with
+  for commands, tool names, and labels. All files self-hosted with
   `font-display: swap`.
+- **Mark:** a minimal two-color caliper on a square 64 viewBox, paired with an
+  outlined horizontal Field Kit wordmark on a 322×64 viewBox. Two flat paths and
+  open negative space keep the mark legible at small sizes.
 - **Layout:** 76rem maximum width; three tool columns expanded, two at medium,
   one compact; 43rem prose measure.
 - **Surfaces:** borders before shadows; no page elevation or decorative blur.
