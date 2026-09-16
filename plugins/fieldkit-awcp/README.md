@@ -14,7 +14,7 @@ uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml
 ```
 
 Docs: in-repo [`site/docs/awcp.html`](../../site/docs/awcp.html) and
-https://fde-tools-review.vercel.app/docs/awcp.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/awcp.html. If the hosted page is
 unreachable, use the in-repo copy. Scoring uses recorded cases; it does not
 call a model or a control plane. Source contributions, support, and private
 security reports follow the policies in the main repository.

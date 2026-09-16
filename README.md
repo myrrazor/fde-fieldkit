@@ -76,7 +76,7 @@ cross-origin writes get 403.
 <p><a href="site/assets/screenshots/hub.png">Open full-size hub screenshot</a>. Local hub with all eight tools installed.</p>
 
 [Docs in `site/`](site/docs/index.html)
-· [Public site](https://fde-tools-review.vercel.app/docs/)
+· [Public site](https://fde-fieldkit.vercel.app/docs/)
 · [Brand images](brand/README.md)
 · [Release](https://github.com/myrrazor/fde-fieldkit/releases/latest)
 · [Contributing](CONTRIBUTING.md)
@@ -84,7 +84,7 @@ cross-origin writes get 403.
 · [Security](SECURITY.md)
 · [Star on GitHub](https://github.com/myrrazor/fde-fieldkit)
 
-Public docs: https://fde-tools-review.vercel.app. If that host is unreachable, use
+Public docs: https://fde-fieldkit.vercel.app. If that host is unreachable, use
 the in-repo `site/` tree.
 
 Limits, up front: inputs are capped at 50 MB (`MAX_DATASET_BYTES`); detector

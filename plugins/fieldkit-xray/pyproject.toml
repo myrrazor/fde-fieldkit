@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://fde-tools-review.vercel.app"
-Documentation = "https://fde-tools-review.vercel.app/docs/"
+Homepage = "https://fde-fieldkit.vercel.app"
+Documentation = "https://fde-fieldkit.vercel.app/docs/"
 Repository = "https://github.com/myrrazor/fde-fieldkit"
 Issues = "https://github.com/myrrazor/fde-fieldkit/issues"
 Changelog = "https://github.com/myrrazor/fde-fieldkit/blob/main/CHANGELOG.md"

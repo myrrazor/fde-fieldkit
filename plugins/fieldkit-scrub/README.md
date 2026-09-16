@@ -14,7 +14,7 @@ uv run fieldkit scrub examples/customers.csv -o customers_safe.csv
 ```
 
 Docs: in-repo [`site/docs/scrub.html`](../../site/docs/scrub.html) and
-https://fde-tools-review.vercel.app/docs/scrub.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/scrub.html. If the hosted page is
 unreachable, use the in-repo copy. Detection can miss values. Source
 contributions, support, and private security reports follow the policies in
 the main repository.

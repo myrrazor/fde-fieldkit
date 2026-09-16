@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fde-tools-review.vercel.app/sitemap.xml
+Sitemap: https://fde-fieldkit.vercel.app/sitemap.xml

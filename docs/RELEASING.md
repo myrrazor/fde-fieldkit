@@ -117,7 +117,7 @@ gh release create v0.2.0 --draft --verify-tag --title "v0.2.0" \
 ## Publish
 
 1. Confirm hosted CI and CodeQL on the tagged commit.
-2. Confirm https://fde-tools-review.vercel.app is serving the static site.
+2. Confirm https://fde-fieldkit.vercel.app is serving the static site.
    In-repo `site/` remains the fallback. Do not change the protected
    `fde-tools.vercel.app` alias here.
 3. Download each GitHub asset and re-check `SHA256SUMS`.
