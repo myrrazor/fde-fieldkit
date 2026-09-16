@@ -82,7 +82,7 @@ Additional allowed files, for canonical documentation URL replacement only:
 - site/.well-known/security.txt
 
 Replace the protected fde-tools.vercel.app alias with the existing public production
-address https://fde-tools-review.vercel.app in current project documentation URLs.
+address https://fde-fieldkit.vercel.app in current project documentation URLs.
 Regenerate the static CSP hash after JSON-LD URL changes. No package versions or
 dependency declarations change.
 

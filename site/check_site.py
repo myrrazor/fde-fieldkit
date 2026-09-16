@@ -17,7 +17,7 @@ from xml.etree import ElementTree
 
 SITE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SITE_DIR.parent
-ORIGIN = "https://fde-tools-review.vercel.app"
+ORIGIN = "https://fde-fieldkit.vercel.app"
 
 REQUIRED_HEADERS = {
     "Permissions-Policy": "camera=(), geolocation=(), microphone=()",
@@ -743,8 +743,8 @@ def _check_support_files(errors: list[str]) -> None:
     if "Source of truth: the `site/` tree" not in llms:
         errors.append("llms.txt: must name in-repo site/ as the source of truth")
     if "may require SSO" in llms:
-        errors.append("llms.txt: hosted fde-tools-review.vercel.app is the public site, not an SSO caveat")
-    if "https://fde-tools-review.vercel.app" not in llms:
+        errors.append("llms.txt: hosted fde-fieldkit.vercel.app is the public site, not an SSO caveat")
+    if "https://fde-fieldkit.vercel.app" not in llms:
         errors.append("llms.txt: must name the public hosted site")
     if "in-repo" not in llms.lower() or "fallback" not in llms.lower():
         errors.append("llms.txt: must name in-repo site/ as the fallback copy")

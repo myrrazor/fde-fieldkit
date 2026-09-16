@@ -34,7 +34,7 @@ Must exit 0 before tagging. The script does not recurse into `.venv`, `.git`,
 - [ ] Existing screenshots remain; no recaptures in this work package
 - [ ] https://github.com/myrrazor/fde-fieldkit/releases/latest is linked from README and the site hero
 - [ ] Copy says Not on PyPI; install Field Kit wheels with `wheels/*.whl`
-- [ ] Hosted site copy is https://fde-tools-review.vercel.app with in-repo `site/` fallback
+- [ ] Hosted site copy is https://fde-fieldkit.vercel.app with in-repo `site/` fallback
 - [ ] `python3 site/check_site.py` exits 0
 
 ## Release packaging
@@ -52,7 +52,7 @@ Must exit 0 before tagging. The script does not recurse into `.venv`, `.git`,
 - [ ] `v0.2.0` tag on public `main`
 - [ ] GitHub Release published with the named assets above (not `dist/*`)
 - [ ] `releases/latest/download/fieldkit-0.2.0-wheels.tar.gz` returns 200
-- [ ] https://fde-tools-review.vercel.app is the public site
+- [ ] https://fde-fieldkit.vercel.app is the public site
 - [ ] Downloaded assets match `SHA256SUMS`
 
 ## Announcements (drafts only)

@@ -5,7 +5,7 @@
 > and AI workload governance.
 
 Source of truth: the `site/` tree in https://github.com/myrrazor/fde-fieldkit
-Public site: https://fde-tools-review.vercel.app/ (public production domain).
+Public site: https://fde-fieldkit.vercel.app/ (public production domain).
 In-repo `site/` is the fallback copy if the hosted site is unreachable.
 Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
 

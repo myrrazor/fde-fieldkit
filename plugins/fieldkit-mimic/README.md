@@ -14,7 +14,7 @@ uv run fieldkit mimic learn examples/customers.csv -o spec.yaml
 ```
 
 Docs: in-repo [`site/docs/mimic.html`](../../site/docs/mimic.html) and
-https://fde-tools-review.vercel.app/docs/mimic.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/mimic.html. If the hosted page is
 unreachable, use the in-repo copy. Non-PII source values can remain in a
 learned spec. Source contributions, support, and private security reports
 follow the policies in the main repository.

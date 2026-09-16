@@ -88,7 +88,7 @@ def test_public_install_copy_does_not_claim_pypi_or_offline_wheelhouse() -> None
     assert "Not on PyPI yet" in readme
     links = _markdown_http_links(readme)
     assert urlsplit("https://github.com/myrrazor/fde-fieldkit/releases/latest") in links
-    assert urlsplit("https://fde-tools-review.vercel.app/docs/") in links
+    assert urlsplit("https://fde-fieldkit.vercel.app/docs/") in links
     assert "wheels/*.whl" in readme
     assert "PyPI installs arrive" not in plugins_docs
     assert "does not disable" in readme or "does not enforce offline" in plugins_docs

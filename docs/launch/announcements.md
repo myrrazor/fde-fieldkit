@@ -8,7 +8,7 @@ Facts this copy may use:
 
 - Repository: https://github.com/myrrazor/fde-fieldkit
 - GitHub Release (intended): https://github.com/myrrazor/fde-fieldkit/releases/latest
-- Website: https://fde-tools-review.vercel.app
+- Website: https://fde-fieldkit.vercel.app
 - License: MIT
 - Python >= 3.12
 - Not on PyPI. The PyPI name `fieldkit` is an unrelated project.
@@ -36,7 +36,7 @@ fieldkit is unrelated. Install the GitHub Release wheels by explicit path, or
 
 Repo: https://github.com/myrrazor/fde-fieldkit
 Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
-Site: https://fde-tools-review.vercel.app
+Site: https://fde-fieldkit.vercel.app
 
 I would like feedback on whether the GitHub wheel install is clear, and which
 tool is missing for real field days.
@@ -57,7 +57,7 @@ Release wheels or a pinned v0.2.0 checkout.
 
 https://github.com/myrrazor/fde-fieldkit
 https://github.com/myrrazor/fde-fieldkit/releases/latest
-https://fde-tools-review.vercel.app
+https://fde-fieldkit.vercel.app
 
 Happy to answer command questions.
 ```
@@ -73,7 +73,7 @@ the project site. Not published to PyPI; GitHub Release assets only.
 
 https://github.com/myrrazor/fde-fieldkit
 https://github.com/myrrazor/fde-fieldkit/releases/latest
-https://fde-tools-review.vercel.app
+https://fde-fieldkit.vercel.app
 
 This is a first public GitHub release (0.2.0), not a 1.0. Feedback on packaging
 and docs is welcome.
@@ -87,4 +87,4 @@ Draft thread. Link on the last post, not the first.
 2. Eight plugins: xray, scrub, mimic, datadiff, debrief, tell, netwatch, awcp. Local by default. Tell remote and Netwatch relay only after you ask.
 3. MIT, Python 3.12+. Not on PyPI (that name is taken by a different project). GitHub wheels or `uv sync` from the v0.2.0 tag.
 4. First public GitHub release is 0.2.0. Early software. Limits are in the README: 50 MB inputs, detectors miss things, Netwatch is not a firewall.
-5. Repo https://github.com/myrrazor/fde-fieldkit — release https://github.com/myrrazor/fde-fieldkit/releases/latest — site https://fde-tools-review.vercel.app
+5. Repo https://github.com/myrrazor/fde-fieldkit — release https://github.com/myrrazor/fde-fieldkit/releases/latest — site https://fde-fieldkit.vercel.app

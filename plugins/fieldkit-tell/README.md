@@ -14,7 +14,7 @@ uv run fieldkit tell check draft.md
 ```
 
 Docs: in-repo [`site/docs/tell.html`](../../site/docs/tell.html) and
-https://fde-tools-review.vercel.app/docs/tell.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/tell.html. If the hosted page is
 unreachable, use the in-repo copy. Source contributions, support, and private
 security reports follow the policies in the main repository.
 

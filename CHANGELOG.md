@@ -5,6 +5,7 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+- Public site hostname is https://fde-fieldkit.vercel.app.
 - Public product name is Field Kit. Repository, packages, and CLI remain
   `fde-fieldkit` / `fieldkit`.
 - A minimal caliper logo replaces the illustrated tile in the README and site.
@@ -53,7 +54,7 @@ This is not a PyPI publication and is not a 1.0 maturity claim.
 
 - README and the public site show real local-hub and tool screenshots with
   synthetic sample data, and link the GitHub Release.
-- Public docs use https://fde-tools-review.vercel.app as the hosted site, with
+- Public docs use https://fde-fieldkit.vercel.app as the hosted site, with
   the in-repo `site/` tree as the fallback copy. They no longer describe that
   URL as SSO-gated.
 - Install copy tells people to install every Field Kit wheel by explicit local

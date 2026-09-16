@@ -14,7 +14,7 @@ uv run fieldkit xray examples/customers.csv
 ```
 
 Docs: in-repo [`site/docs/xray.html`](../../site/docs/xray.html) and
-https://fde-tools-review.vercel.app/docs/xray.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/xray.html. If the hosted page is
 unreachable, use the in-repo copy. Source contributions, support, and private
 security reports follow the policies in the main repository.
 

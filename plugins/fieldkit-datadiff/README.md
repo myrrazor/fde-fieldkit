@@ -14,7 +14,7 @@ uv run fieldkit datadiff examples/customers.csv examples/customers_v2.csv
 ```
 
 Docs: in-repo [`site/docs/datadiff.html`](../../site/docs/datadiff.html) and
-https://fde-tools-review.vercel.app/docs/datadiff.html. If the hosted page is
+https://fde-fieldkit.vercel.app/docs/datadiff.html. If the hosted page is
 unreachable, use the in-repo copy. Source contributions, support, and private
 security reports follow the policies in the main repository.
 
