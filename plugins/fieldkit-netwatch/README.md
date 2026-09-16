@@ -2,7 +2,7 @@
 
 See and control the network destinations an AI coding agent reaches.
 
-This plugin is part of [Fieldkit](https://github.com/myrrazor/fde-fieldkit).
+This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
 `fieldkit plugin add netwatch --wheelhouse <wheels-dir>`. A pinned `v0.2.0`
@@ -115,7 +115,7 @@ and command arguments are never stored. HTTP content passes through memory when 
 is not written to evidence.
 
 Netwatch mutation routes unlock only for a direct loopback browser and require a
-per-process control token, same-origin request metadata, and JSON. The regular Fieldkit
+per-process control token, same-origin request metadata, and JSON. The regular Field Kit
 default is `127.0.0.1`; do not bind the server to a wider interface if other machines should
 not be able to read its evidence.
 

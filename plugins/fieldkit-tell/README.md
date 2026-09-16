@@ -2,7 +2,7 @@
 
 Inspect writing for local stylistic signals. Optional classifiers need explicit consent and are not evidence of authorship.
 
-This plugin is part of [Fieldkit](https://github.com/myrrazor/fde-fieldkit).
+This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
 `fieldkit plugin add tell --wheelhouse <wheels-dir>`. A pinned `v0.2.0`

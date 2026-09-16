@@ -3,30 +3,30 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FDE Tools — Local utilities for field work</title>
+    <title>Field Kit — Local utilities for field work</title>
     <meta
       name="description"
-      content="Eight shipped Fieldkit plugins: inspect data, remove PII, build demos, compare dumps, report, check drafts, watch agents, and check AI workload specs."
+      content="Eight shipped Field Kit plugins: inspect data, remove PII, build demos, compare dumps, report, check drafts, watch agents, and check AI workload specs."
     >
     <link rel="canonical" href="https://fde-tools-review.vercel.app/">
     <meta name="theme-color" content="#f4f2ea">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="FDE Tools">
-    <meta property="og:title" content="FDE Tools — Local utilities for field work">
+    <meta property="og:site_name" content="Field Kit">
+    <meta property="og:title" content="Field Kit — Local utilities for field work">
     <meta
       property="og:description"
-      content="Eight shipped Fieldkit plugins for inspect, sanitize, synthesize, compare, report, draft checks, agent network evidence, and local workload-spec checks."
+      content="Eight shipped Field Kit plugins for inspect, sanitize, synthesize, compare, report, draft checks, agent network evidence, and local workload-spec checks."
     >
     <meta property="og:url" content="https://fde-tools-review.vercel.app/">
     <meta property="og:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FDE Tools: eight shipped Fieldkit plugins">
+    <meta property="og:image:alt" content="Field Kit: eight shipped plugins">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="FDE Tools — Local utilities for field work">
+    <meta name="twitter:title" content="Field Kit — Local utilities for field work">
     <meta
       name="twitter:description"
-      content="Eight shipped Fieldkit plugins, described with real commands and explicit limits."
+      content="Eight shipped Field Kit plugins, described with real commands and explicit limits."
     >
     <meta name="twitter:image" content="https://fde-tools-review.vercel.app/assets/og.png">
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
@@ -50,8 +50,8 @@
       {
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": "FDE Tools",
-        "description": "Eight shipped Fieldkit plugins for forward-deployed engineering work.",
+        "name": "Field Kit",
+        "description": "Eight shipped Field Kit plugins for forward-deployed engineering work.",
         "url": "https://fde-tools-review.vercel.app/",
         "numberOfItems": 8,
         "itemListElement": [
@@ -153,8 +153,8 @@
     <a class="skip-link" href="#main">Skip to tools</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a class="brand" href="index.html" aria-label="FDE Tools home">
-          <img src="assets/wordmark.svg" alt="FDE Tools">
+        <a class="brand" href="index.html" aria-label="Field Kit home">
+          <img src="assets/wordmark.svg" alt="Field Kit">
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
           <a href="#tools" data-active-section="true">Tools</a>
@@ -175,7 +175,7 @@
       <section class="hero" aria-labelledby="page-title">
         <div>
           <p class="hero__kicker">Field utilities / local by default</p>
-          <h1 id="page-title">FDE Tools</h1>
+          <h1 id="page-title">Field Kit</h1>
           <p class="hero__lede">
             Local toolkit for the work between “we got the dump” and “the customer
             can trust the result.” Inspect, sanitize, synthesize, compare, report,
@@ -188,10 +188,10 @@
             <a class="hero__action hero__action--ghost" href="https://github.com/myrrazor/fde-fieldkit">Star on GitHub <span aria-hidden="true">★</span></a>
           </div>
         </div>
-        <aside class="hero__field-note" aria-label="Field kit facts">
+        <aside class="hero__field-note" aria-label="Field Kit facts">
           <p>FIELD NOTE / 001</p>
           <ul>
-            <li><strong>Install</strong><span>One fieldkit core with eight optional plugins</span></li>
+            <li><strong>Install</strong><span>One Field Kit core with eight optional plugins</span></li>
             <li><strong>Runtime</strong><span>Local by default; tell needs vendor keys and an explicit remote run, and Netwatch's supervised relay is the other explicit egress</span></li>
             <li><strong>Input</strong><span>CSV, TSV, XLSX, JSON, JSONL, text, and agent processes</span></li>
             <li><strong>Output</strong><span>Local dashboards, CLI, JSON, CSV, markdown, and HTML</span></li>
@@ -891,7 +891,7 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
         <ul class="principles__list">
           <li>
             <strong>Keep it local</strong>
-            <span>Fieldkit runs locally by default. Tell needs vendor keys and an explicit remote run, and it names each destination first. Netwatch relays only traffic requested by the command you supervise and stores metadata locally.</span>
+            <span>Field Kit runs locally by default. Tell needs vendor keys and an explicit remote run, and it names each destination first. Netwatch relays only traffic requested by the command you supervise and stores metadata locally.</span>
           </li>
           <li>
             <strong>Show the work</strong>
@@ -916,9 +916,9 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
           </div>
           <div class="faq__items">
             <details>
-              <summary>What is FDE Tools?</summary>
+              <summary>What is Field Kit?</summary>
               <p>
-                It is the index for the Fieldkit toolkit: one <code>fieldkit</code> core
+                It is the index for the Field Kit toolkit: one <code>fieldkit</code> core
                 you install once, and eight tools you add with
                 <code>fieldkit plugin add</code>.
               </p>
@@ -933,7 +933,7 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
             <details>
               <summary>Where does my data go?</summary>
               <p>
-                Fieldkit runs locally by default. <code>tell</code> contacts remote detector
+                Field Kit runs locally by default. <code>tell</code> contacts remote detector
                 services only when you set their vendor keys and explicitly authorize a remote
                 run, and it warns before any text leaves the machine. Netwatch is a
                 user-requested relay: it opens the destinations requested by the supervised
@@ -959,7 +959,7 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
       <div class="site-footer__inner">
         <div class="site-footer__support">
           <p>
-            Fieldkit is free and built in the open. Star the repository so the next
+            Field Kit is free and built in the open. Star the repository so the next
             engineer with a mystery CSV can find it.
           </p>
           <div class="site-footer__support-links">
@@ -967,7 +967,7 @@ uv run fieldkit awcp eval examples/awcp/support-ticket-triage.yaml --suite examp
           </div>
         </div>
         <div class="site-footer__row">
-          <p>FDE Tools / practical software for field constraints.</p>
+          <p>Field Kit / practical software for field constraints.</p>
           <nav aria-label="Footer navigation">
             <a href="docs/index.html">Docs</a>
             <a href="privacy.html">Privacy</a>

@@ -213,7 +213,8 @@ p {
   margin-bottom: var(--space-5);
   font-size: clamp(3.7rem, 8vw, 7.3rem);
   font-weight: 580;
-  letter-spacing: -0.075em;
+  letter-spacing: -0.055em;
+  word-spacing: 0.08em;
   line-height: 0.88;
 }
 

@@ -2,7 +2,7 @@
 
 Learn an editable YAML spec and generate seeded synthetic rows.
 
-This plugin is part of [Fieldkit](https://github.com/myrrazor/fde-fieldkit).
+This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
 `fieldkit plugin add mimic --wheelhouse <wheels-dir>`. A pinned `v0.2.0`

@@ -1,13 +1,19 @@
 # Changelog
 
-Dates describe published GitHub releases. Fieldkit is not on PyPI; the PyPI
+Dates describe published GitHub releases. Field Kit is not on PyPI; the PyPI
 project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+- Public product name is Field Kit. Repository, packages, and CLI remain
+  `fde-fieldkit` / `fieldkit`.
+- A minimal caliper logo replaces the illustrated tile in the README and site.
+  The `brand/` folder includes light/dark logos, wordmarks, GitHub and website
+  social previews, a portfolio card, and ready-to-upload PNGs with SVG sources.
+
 ## 0.2.0 — 2026-09-15
 
-First public GitHub release of the Fieldkit 0.2.0 packages. Install the
+First public GitHub release of the Field Kit 0.2.0 packages. Install the
 core and all eight plugin wheels from
 [GitHub Releases](https://github.com/myrrazor/fde-fieldkit/releases/latest).
 This is not a PyPI publication and is not a 1.0 maturity claim.
@@ -50,7 +56,7 @@ This is not a PyPI publication and is not a 1.0 maturity claim.
 - Public docs use https://fde-tools-review.vercel.app as the hosted site, with
   the in-repo `site/` tree as the fallback copy. They no longer describe that
   URL as SSO-gated.
-- Install copy tells people to install every Fieldkit wheel by explicit local
+- Install copy tells people to install every Field Kit wheel by explicit local
   path, then use `--wheelhouse` for later plugin operations. A pinned `v0.2.0`
   source checkout remains supported.
 

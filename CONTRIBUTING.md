@@ -1,6 +1,6 @@
 # Contributing
 
-Fieldkit is a local toolkit for the messy parts of field engineering. Small,
+Field Kit is a local toolkit for the messy parts of field engineering. Small,
 reproducible fixes are welcome. For a new tool or a change to the network boundary,
 open an issue with the use case before investing in a large implementation.
 

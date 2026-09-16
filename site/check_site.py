@@ -111,6 +111,7 @@ PERSONAL_CREDIT = re.compile(
     r"maintained by\s*\[?@|class=[\"']support-credit[\"']",
     re.IGNORECASE,
 )
+OBSOLETE_PUBLIC_NAMES = re.compile(r"FDE Tools|FDE Fieldkit|FDE Toolkit")
 
 TOOL_SCREENSHOTS = (
     "xray",
@@ -320,6 +321,8 @@ def _check_pages(errors: list[str]) -> dict[str, PageParser]:
             errors.append(f"{name}: og:image mismatch")
         if page.meta.get("twitter:image") != f"{ORIGIN}/assets/og.png":
             errors.append(f"{name}: twitter:image mismatch")
+        if page.meta.get("og:site_name") != "Field Kit":
+            errors.append(f"{name}: og:site_name must be Field Kit")
 
         html_text = path.read_text(encoding="utf-8")
         if not re.search(r"<html\s+lang=[\"']en[\"']", html_text):
@@ -397,6 +400,8 @@ def _check_json_ld(index: PageParser, errors: list[str]) -> None:
         return
     if data.get("@type") != "ItemList" or data.get("numberOfItems") != 8:
         errors.append("index.html: JSON-LD must be an eight-item ItemList")
+    if data.get("name") != "Field Kit":
+        errors.append("index.html: JSON-LD name must be Field Kit")
     items = data.get("itemListElement", [])
     names = [entry.get("item", {}).get("name") for entry in items]
     if names != ["xray", "scrub", "mimic", "datadiff", "debrief", "tell", "netwatch", "AWCP"]:
@@ -511,7 +516,7 @@ def _check_product_screenshots(parsed: dict[str, PageParser], errors: list[str])
     index = parsed.get("index.html")
     index_html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
     if "Eight shipped plugins" not in index_html:
-        errors.append("index.html: must describe eight shipped Fieldkit plugins")
+        errors.append("index.html: must describe eight shipped Field Kit plugins")
     if "Concept preview" in index_html or "not yet shipped" in index_html:
         errors.append("index.html: AWCP is a shipped plugin and must not be labelled a preview")
     if "netwatch-dashboard.png" in index_html:
@@ -586,6 +591,47 @@ def _check_product_screenshots(parsed: dict[str, PageParser], errors: list[str])
             continue
         if (width, height) != (1280, 900):
             errors.append(f"{relative}: expected 1280x900, got {width}x{height}")
+
+
+def _html_without_code_samples(html: str) -> str:
+    """Drop pre/code so CLI transcripts can keep historical Fieldkit wording."""
+
+    html = re.sub(r"(?is)<pre\b.*?</pre>", " ", html)
+    html = re.sub(r"(?is)<code\b.*?</code>", " ", html)
+    return html
+
+
+def _check_public_brand_name(errors: list[str]) -> None:
+    """Public marketing copy uses Field Kit. Package ids and CLI transcripts stay."""
+
+    for relative in PAGE_RULES:
+        path = SITE_DIR / relative
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if OBSOLETE_PUBLIC_NAMES.search(text):
+            errors.append(f"{relative}: obsolete public brand name remains")
+        if re.search(r"Fieldkit", _html_without_code_samples(text)):
+            errors.append(f"{relative}: title-case Fieldkit remains in visible copy")
+
+    readme = REPO_ROOT / "README.md"
+    if readme.exists():
+        text = readme.read_text(encoding="utf-8")
+        if OBSOLETE_PUBLIC_NAMES.search(text):
+            errors.append("README.md: obsolete public brand name remains")
+        visible = re.sub(r"```.*?```", " ", text, flags=re.S)
+        if re.search(r"Fieldkit", visible):
+            errors.append("README.md: title-case Fieldkit remains in visible copy")
+        if "brand/logo.svg" not in text or "brand/logo-reversed.svg" not in text:
+            errors.append("README.md: missing light/dark Field Kit logo picture")
+        if "brand/README.md" not in text:
+            errors.append("README.md: missing brand/README.md link")
+
+    llms = SITE_DIR / "llms.txt"
+    if llms.exists():
+        text = llms.read_text(encoding="utf-8")
+        if OBSOLETE_PUBLIC_NAMES.search(text) or re.search(r"Fieldkit", text):
+            errors.append("llms.txt: obsolete public brand name remains")
 
 
 def _check_support_copy(errors: list[str]) -> None:
@@ -711,7 +757,7 @@ def _check_support_files(errors: list[str]) -> None:
     if "assets/screenshots" not in llms:
         errors.append("llms.txt: missing product screenshot paths")
     if "unrelated project" not in llms and "Not on PyPI yet" not in llms:
-        errors.append("llms.txt: must stay honest that Fieldkit is not on PyPI")
+        errors.append("llms.txt: must stay honest that Field Kit is not on PyPI")
     if f"Canonical site: {ORIGIN}/" in llms:
         errors.append("llms.txt: must not claim the hosted URL as the sole canonical site")
 
@@ -759,6 +805,7 @@ def main() -> int:
         _check_json_ld(index, errors)
     _check_plugin_story(parsed, errors)
     _check_product_screenshots(parsed, errors)
+    _check_public_brand_name(errors)
     _check_support_copy(errors)
     _check_placeholders(errors)
     _check_support_files(errors)

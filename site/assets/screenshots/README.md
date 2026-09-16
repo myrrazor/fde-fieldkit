@@ -1,6 +1,6 @@
-# Fieldkit UI screenshots
+# Field Kit UI screenshots
 
-Captured on 2026-09-15 from the real local Fieldkit application with all eight
+Captured on 2026-09-15 from the real local Field Kit application with all eight
 plugins installed. Each image is an unaltered 1280 × 900 browser viewport capture;
 some views are scrolled to show the result. No UI, scores, or traffic were painted
 into the images. All input data and notes are synthetic examples.

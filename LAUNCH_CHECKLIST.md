@@ -1,4 +1,4 @@
-# Launch checklist — Fieldkit
+# Launch checklist — Field Kit
 
 Reusable release procedure for maintainers. Unchecked boxes are not evidence
 that the step happened. Record completion separately. This is not an
@@ -33,7 +33,7 @@ Must exit 0 before tagging. The script does not recurse into `.venv`, `.git`,
 - [ ] README 5-second test: name, what it is, hub screenshot, GitHub install
 - [ ] Existing screenshots remain; no recaptures in this work package
 - [ ] https://github.com/myrrazor/fde-fieldkit/releases/latest is linked from README and the site hero
-- [ ] Copy says Not on PyPI; install Fieldkit wheels with `wheels/*.whl`
+- [ ] Copy says Not on PyPI; install Field Kit wheels with `wheels/*.whl`
 - [ ] Hosted site copy is https://fde-tools-review.vercel.app with in-repo `site/` fallback
 - [ ] `python3 site/check_site.py` exits 0
 

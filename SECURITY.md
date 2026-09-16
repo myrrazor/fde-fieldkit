@@ -17,7 +17,7 @@ where practical. There is no paid response SLA or bug-bounty program.
 
 ## Supported code
 
-Fieldkit is in early development. Security fixes target the current `main`
+Field Kit is in early development. Security fixes target the current `main`
 branch and the latest GitHub release (0.2.0). There is no separate
 long-term-support branch and no LTS promise.
 

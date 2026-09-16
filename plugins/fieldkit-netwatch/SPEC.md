@@ -398,9 +398,9 @@ or obtain Netwatch controls.
 
 ## Session ownership and deletion
 
-The dashboard can stop only operations launched by the current Fieldkit application
+The dashboard can stop only operations launched by the current Field Kit application
 instance. CLI-owned runs and operations from an earlier server process remain visible but
-are not controllable through its Stop button. Separate Fieldkit app instances own and shut
+are not controllable through its Stop button. Separate Field Kit app instances own and shut
 down their work independently, even when they run inside the same Python process.
 
 Stopping a dashboard-owned supervised run cancels supervision and terminates its process

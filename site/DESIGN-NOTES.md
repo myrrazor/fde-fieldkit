@@ -1,16 +1,16 @@
-# FDE Tools design notes
+# Field Kit design notes
 
 The site uses a light “field manifest” instead of a dark terminal skin. Graphite,
 warm equipment-paper neutrals, and one survey-flag red accent feel at home beside a
 deployment checklist without turning the page into terminal cosplay. IBM Plex Sans
-handles dense reading; IBM Plex Mono is reserved for commands, tool names, labels,
-and the terminal-style wordmark.
+handles dense reading; IBM Plex Mono is reserved for commands, tool names, and
+labels.
 
 The shipped tools are peers, so the three-column index is a real comparison
 surface rather than a decorative card wall. Flat rules, no icons, no shadows, and
-job labels (`Inspect`, `Sanitize`, `Compare`) keep the blocks useful. The small
-parchment caliper in the wordmark follows the repo’s Relic Parchment logo rule while
-the surrounding site stays contemporary and quiet.
+job labels (`Inspect`, `Sanitize`, `Compare`) keep the blocks useful. The header
+pairs a minimal two-color caliper mark with an outlined Field Kit wordmark. Two
+flat paths retain the opposed jaws and central slide of the original instrument.
 
 Tool detail is a same-page fragment panel. It keeps the index as context, deep-links
 to every tool, and works without JavaScript through

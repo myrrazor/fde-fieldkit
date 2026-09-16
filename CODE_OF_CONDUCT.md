@@ -1,6 +1,6 @@
 # Code of conduct
 
-Fieldkit welcomes people with different backgrounds, experience, and viewpoints.
+Field Kit welcomes people with different backgrounds, experience, and viewpoints.
 Everyone should be able to ask a question, report a bug, or contribute without
 being harassed or having private information exposed.
 

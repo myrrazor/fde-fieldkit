@@ -96,12 +96,26 @@ def test_site_release_check_rejects_unqualified_mimic_privacy_claim(tmp_path: Pa
     assert "missing portable-spec disclosure 'non-pii source values can remain'" in result.stdout
 
 
+def test_site_release_check_rejects_obsolete_public_brand_name(tmp_path: Path) -> None:
+    """Public HTML must not keep the retired FDE Tools name."""
+
+    isolated = _isolated_site(tmp_path)
+    index = isolated / "site" / "index.html"
+    html = index.read_text(encoding="utf-8")
+    index.write_text(html.replace("Field Kit", "FDE Tools", 1), encoding="utf-8")
+
+    result = _run_check(isolated, tmp_path)
+
+    assert result.returncode == 1
+    assert "obsolete public brand name remains" in result.stdout
+
+
 def test_site_release_check_rejects_unfinished_legal_placeholders(tmp_path: Path) -> None:
     """Public legal pages cannot regress to private-launch template text."""
     isolated = _isolated_site(tmp_path)
     terms = isolated / "site" / "terms.html"
     html = terms.read_text(encoding="utf-8")
-    terms.write_text(html.replace("Fieldkit is maintained", "{{LEGAL_ENTITY}} is maintained"))
+    terms.write_text(html.replace("Field Kit is maintained", "{{LEGAL_ENTITY}} is maintained"))
     result = _run_check(isolated, tmp_path)
     assert result.returncode == 1
     assert "unexpected placeholder" in result.stdout

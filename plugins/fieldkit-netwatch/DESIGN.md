@@ -1,6 +1,6 @@
 # Netwatch interface direction
 
-Netwatch uses a source-first control room. The visual language extends Fieldkit's
+Netwatch uses a source-first control room. The visual language extends Field Kit's
 evidence-sheet system: warm paper, dark utility rail, near-black ink, thin rules, compact
 monospace metadata, and tables that carry the visual weight. It should feel like a field
 instrument, not a generic security operations center.

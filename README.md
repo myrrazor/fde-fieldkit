@@ -1,8 +1,11 @@
 <p align="center">
-  <img src="site/assets/mark.svg" width="64" height="64" alt="Fieldkit">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/logo-reversed.svg">
+    <img src="brand/logo.svg" width="64" height="64" alt="Field Kit">
+  </picture>
 </p>
 
-# Fieldkit
+# Field Kit
 
 Local toolkit for forward-deployed engineers. Profile a mystery dump, replace
 detected PII, build a demo, explain what changed, write Friday's status, check a
@@ -40,7 +43,7 @@ uv pip install --python fresh/bin/python wheels/*.whl
 fresh/bin/fieldkit --version
 ```
 
-`wheels/*.whl` selects every Fieldkit wheel by path, including the core. Later
+`wheels/*.whl` selects every Field Kit wheel by path, including the core. Later
 plugin adds use `fresh/bin/fieldkit plugin add xray --wheelhouse wheels`. Do
 not `pip install fieldkit` from a package index.
 
@@ -74,6 +77,7 @@ cross-origin writes get 403.
 
 [Docs in `site/`](site/docs/index.html)
 · [Public site](https://fde-tools-review.vercel.app/docs/)
+· [Brand images](brand/README.md)
 · [Release](https://github.com/myrrazor/fde-fieldkit/releases/latest)
 · [Contributing](CONTRIBUTING.md)
 · [Changelog](CHANGELOG.md)
@@ -110,7 +114,7 @@ uv pip install --python fresh/bin/python dist/fieldkit-0.2.0-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 
-Install Fieldkit wheels by path (`wheels/*.whl` from the release bundle, or
+Install Field Kit wheels by path (`wheels/*.whl` from the release bundle, or
 named files under `dist/`). `--wheelhouse` does not disable network access
 for pandas and other third-party dependencies. It is not a complete offline
 bundle. See [docs/RELEASING.md](docs/RELEASING.md) for checksums and the
@@ -539,9 +543,9 @@ fieldkit plugin update netwatch
 
 `add` resolves a tool from the checkout you are running in when there is one,
 otherwise from this repository's git subdirectory. After a GitHub wheel
-install, pass `--wheelhouse` at the directory that holds the Fieldkit wheels.
+install, pass `--wheelhouse` at the directory that holds the Field Kit wheels.
 PyPI is refused: the PyPI name `fieldkit` is an unrelated project.
-`--wheelhouse <dir>` selects local Fieldkit wheels; other dependencies may
+`--wheelhouse <dir>` selects local Field Kit wheels; other dependencies may
 still be retrieved from a package index. It does not make an install offline.
 `update` reinstalls only the tools you name (or everything installed) and
 leaves the core alone.
@@ -568,7 +572,7 @@ runs locally except for these actions you explicitly request:
   someone else's traffic, and it never phones home itself.
 
 The optional `tell check --ml` detector may download model weights on first
-use, then evaluates the text locally. Installing Fieldkit or adding plugins
+use, then evaluates the text locally. Installing Field Kit or adding plugins
 also retrieves packages. These downloads are separate from sending a draft
 to a detector service.
 
@@ -610,7 +614,7 @@ CSS, and JavaScript with no build step.
 
 ## License
 
-Fieldkit is available under the [MIT License](LICENSE). Bundled third-party
+Field Kit is available under the [MIT License](LICENSE). Bundled third-party
 materials retain their own notices; see [Third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## Support
