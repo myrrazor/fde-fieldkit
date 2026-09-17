@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import StrEnum
 
 import pandas as pd
@@ -164,5 +164,10 @@ def _shape(value: str) -> str:
 def _coerce_temporal(
     series: pd.Series, parser: Callable[[str], datetime | None]
 ) -> pd.Series:
-    parsed = [parser(str(value)) if not pd.isna(value) else None for value in series]
+    parsed = []
+    for value in series:
+        converted = parser(str(value)) if not pd.isna(value) else None
+        if converted is not None and converted.tzinfo is not None:
+            converted = converted.astimezone(timezone.utc).replace(tzinfo=None)
+        parsed.append(converted)
     return pd.Series(parsed, index=series.index, dtype="datetime64[ns]")

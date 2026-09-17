@@ -10,7 +10,7 @@ from openpyxl import Workbook
 
 from fieldkit.core import io as core_io
 from fieldkit.core import private_files
-from fieldkit.core.io import MAX_DATASET_BYTES, detect_format, load_table, write_table
+from fieldkit.core.io import detect_format, load_table, write_table
 from fieldkit.core.private_files import atomic_write_private, ensure_private_regular_file
 from fieldkit.core.report import render_page
 
@@ -103,6 +103,18 @@ def test_xlsx_merged_cells_emit_warning(tmp_path: Path) -> None:
     assert loaded.warnings == ["sheet 'Sheet' contains merged cells"]
 
 
+def test_xlsx_duplicate_headers_are_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "duplicate-headers.xlsx"
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["customer_id", "customer_id"])
+    sheet.append(["left", "right"])
+    workbook.save(path)
+
+    with pytest.raises(ValueError, match="duplicate column names.*customer_id"):
+        load_table(path)
+
+
 @pytest.mark.parametrize("fmt", ["csv", "tsv", "json", "jsonl"])
 def test_write_table_text_round_trip(fmt: str) -> None:
     original = pd.DataFrame({"name": ["Ada", "Grace"], "score": ["10", pd.NA]})
@@ -170,9 +182,11 @@ def test_json_export_preserves_formula_like_strings() -> None:
     assert '"=2+2"' in buffer.getvalue()
 
 
-def test_xlsx_uncompressed_size_uses_dataset_contract(
+def test_xlsx_uncompressed_size_counts_inflated_bytes_instead_of_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(core_io, "MAX_DATASET_BYTES", 8)
+
     class FakeArchive:
         def __init__(self, _source: object):
             pass
@@ -184,11 +198,14 @@ def test_xlsx_uncompressed_size_uses_dataset_contract(
             pass
 
         def infolist(self) -> list[SimpleNamespace]:
-            return [SimpleNamespace(file_size=MAX_DATASET_BYTES + 1)]
+            return [SimpleNamespace(file_size=1, is_dir=lambda: False)]
+
+        def open(self, _item: object) -> BytesIO:
+            return BytesIO(b"123456789")
 
     monkeypatch.setattr(core_io, "ZipFile", FakeArchive)
 
-    with pytest.raises(ValueError, match="XLSX expands beyond the 50 MB"):
+    with pytest.raises(ValueError, match="XLSX expands beyond"):
         core_io._validate_xlsx_archive(b"PK")
 
 

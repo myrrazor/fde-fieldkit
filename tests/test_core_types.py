@@ -79,3 +79,15 @@ def test_coerce_turns_invalid_values_into_missing() -> None:
     assert typed["count"].tolist()[0] == 10
     assert pd.isna(typed.loc[1, "count"])
     assert pd.isna(typed.loc[1, "when"])
+
+
+def test_coerce_normalizes_timezone_aware_iso_datetimes_to_utc() -> None:
+    df = pd.DataFrame(
+        {"when": ["2025-01-01T12:30:00+02:00", "2025-01-01T10:30:00Z"]}
+    )
+
+    assert infer_column(df["when"]) == ColType.DATETIME
+    typed = coerce(df, {"when": ColType.DATETIME})
+
+    assert str(typed["when"].dtype) == "datetime64[ns]"
+    assert typed["when"].tolist() == [pd.Timestamp("2025-01-01T10:30:00")] * 2

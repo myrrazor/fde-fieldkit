@@ -207,6 +207,15 @@ def _read_xlsx(raw: bytes, sheet: str | None) -> tuple[pd.DataFrame, list[str]]:
         return pd.DataFrame(), []
 
     headers = [str(value) if value is not None else "" for value in rows[0]]
+    seen_headers: set[str] = set()
+    duplicates: set[str] = set()
+    for header in headers:
+        if header in seen_headers:
+            duplicates.add(header)
+        seen_headers.add(header)
+    if duplicates:
+        labels = ", ".join(repr(header) for header in sorted(duplicates))
+        raise ValueError(f"XLSX header row contains duplicate column names: {labels}")
     warnings = []
     if worksheet.merged_cells.ranges:
         warnings.append(f"sheet {worksheet.title!r} contains merged cells")
@@ -274,11 +283,20 @@ def formula_safe_value(value: object) -> object:
 def _validate_xlsx_archive(raw: bytes) -> None:
     try:
         with ZipFile(BytesIO(raw)) as archive:
-            expanded_bytes = sum(item.file_size for item in archive.infolist())
-    except BadZipFile as exc:
+            expanded_bytes = 0
+            for item in archive.infolist():
+                if item.is_dir():
+                    continue
+                with archive.open(item) as member:
+                    while chunk := member.read(min(1024 * 1024, MAX_DATASET_BYTES + 1)):
+                        expanded_bytes += len(chunk)
+                        if expanded_bytes > MAX_DATASET_BYTES:
+                            limit_mb = MAX_DATASET_BYTES // (1024 * 1024)
+                            raise ValueError(
+                                f"XLSX expands beyond the {limit_mb} MB total dataset limit"
+                            )
+    except (BadZipFile, RuntimeError) as exc:
         raise ValueError("invalid XLSX archive") from exc
-    if expanded_bytes > MAX_DATASET_BYTES:
-        raise ValueError("XLSX expands beyond the 50 MB total dataset limit")
 
 
 def _write_text(dest: Path | IO[str] | IO[bytes], text: str) -> None:
