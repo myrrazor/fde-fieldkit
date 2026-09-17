@@ -169,7 +169,16 @@ def test_eval_fails_when_the_gate_is_higher_than_the_score(tmp_path: Path) -> No
     suite = service.create_suite(
         name="tight-gate",
         config={"gates": {"minOverallScore": 0.95}},
-        cases=[{"id": "case-1", "score": 0.5, "pii_leakage_rate": 0.0, "unsupported_claim_rate": 0.0}],
+        cases=[
+            {
+                "id": "case-1",
+                "score": 0.5,
+                "latency_ms": 10,
+                "cost_usd_estimate": 0.01,
+                "pii_leakage_rate": 0.0,
+                "unsupported_claim_rate": 0.0,
+            }
+        ],
     )
     run = service.start_run(suite.id, "wlv_local", workload_version_spec={"spec": {}})
 
@@ -182,7 +191,7 @@ def test_missing_required_pii_metric_fails_closed(tmp_path: Path) -> None:
     suite = service.create_suite(
         name="safety",
         config={"gates": {"maxPiiLeakageRate": 0.0}},
-        cases=[{"id": "case-1", "score": 1.0}],
+        cases=[{"id": "case-1", "score": 1.0, "latency_ms": 10, "cost_usd_estimate": 0.01}],
     )
 
     with pytest.raises(EvalSafetyMeasurementError) as caught:
@@ -199,7 +208,15 @@ def test_malformed_required_safety_metrics_fail_closed(tmp_path: Path, value: ob
     suite = service.create_suite(
         name="safety",
         config={"gates": {"maxPiiLeakageRate": 0.0}},
-        cases=[{"id": "case-1", "score": 1.0, "pii_leakage_rate": value}],
+        cases=[
+            {
+                "id": "case-1",
+                "score": 1.0,
+                "latency_ms": 10,
+                "cost_usd_estimate": 0.01,
+                "pii_leakage_rate": value,
+            }
+        ],
     )
 
     with pytest.raises(EvalSafetyMeasurementError) as caught:
@@ -214,7 +231,15 @@ def test_non_finite_safety_metrics_fail_closed(tmp_path: Path, value: float) -> 
     suite = service.create_suite(
         name="safety",
         config={"gates": {"maxPiiLeakageRate": 0.0}},
-        cases=[{"id": "case-1", "score": 1.0, "pii_leakage_rate": value}],
+        cases=[
+            {
+                "id": "case-1",
+                "score": 1.0,
+                "latency_ms": 10,
+                "cost_usd_estimate": 0.01,
+                "pii_leakage_rate": value,
+            }
+        ],
     )
 
     with pytest.raises(EvalSafetyMeasurementError) as caught:
@@ -227,6 +252,39 @@ def test_eval_suite_without_cases_is_rejected(tmp_path: Path) -> None:
     service = EvalService(artifact_store=ArtifactStore(tmp_path))
     with pytest.raises(EvalError, match="at least one eval case"):
         service.create_suite(name="empty", cases=[])
+
+
+@pytest.mark.parametrize("expected", [None, "", "   ", {}, []])
+def test_empty_expected_values_are_rejected(tmp_path: Path, expected: object) -> None:
+    service = EvalService(artifact_store=ArtifactStore(tmp_path))
+    with pytest.raises(EvalError, match="expected value must not be empty"):
+        service.create_suite(
+            name="empty-expected",
+            cases=[
+                {
+                    "id": "case-1",
+                    "actual": {},
+                    "expected": expected,
+                    "latency_ms": 10,
+                    "cost_usd_estimate": 0.01,
+                }
+            ],
+        )
+
+
+@pytest.mark.parametrize("missing", ["latency_ms", "cost_usd_estimate"])
+def test_missing_latency_or_cost_is_rejected(tmp_path: Path, missing: str) -> None:
+    service = EvalService(artifact_store=ArtifactStore(tmp_path))
+    case = {
+        "id": "case-1",
+        "score": 1.0,
+        "latency_ms": 10,
+        "cost_usd_estimate": 0.01,
+    }
+    case.pop(missing)
+
+    with pytest.raises(EvalError, match=f"missing required {missing}"):
+        service.create_suite(name="missing-metric", cases=[case])
 
 
 def test_cli_check_diff_and_eval(example_dir: Path, tmp_path: Path) -> None:

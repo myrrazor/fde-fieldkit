@@ -131,6 +131,7 @@ class EvalService:
         for index, case in enumerate(case_dicts):
             if not str(case.get("id", "")).strip():
                 raise EvalError(f"eval case {index} id is required")
+            _validate_case_evidence(case, index)
         eval_suite = EvalSuite(
             id=suite_id or _new_id("evals"),
             name=name,
@@ -358,8 +359,8 @@ def _score_case(
             score = 0.0
             reason = "actual did not match expected"
 
-    latency_ms = _non_negative_int_at(case, "latency_ms", 100 + index)
-    cost = _float_at(case, "cost_usd_estimate", 0.001, minimum=0.0)
+    latency_ms = _required_non_negative_int_at(case, "latency_ms", index)
+    cost = _required_float_at(case, "cost_usd_estimate", index, minimum=0.0)
     required = required_safety_metrics or set()
     return EvalCaseResult(
         case_id=case_id,
@@ -424,6 +425,23 @@ def _mapping_overlap_score(actual: Mapping[str, Any], expected: Mapping[str, Any
     return round(matches / len(expected), 6)
 
 
+def _validate_case_evidence(case: Mapping[str, Any], index: int) -> None:
+    for metric in ("latency_ms", "cost_usd_estimate"):
+        if metric not in case:
+            raise EvalError(f"eval case {index} is missing required {metric}")
+    has_expected = "expected" in case or "expected_output" in case
+    if has_expected:
+        expected = case.get("expected", case.get("expected_output"))
+        if expected is None or (
+            isinstance(expected, (str, Mapping, list, tuple)) and not expected
+        ):
+            raise EvalError(f"eval case {index} expected value must not be empty")
+        if isinstance(expected, str) and not expected.strip():
+            raise EvalError(f"eval case {index} expected value must not be empty")
+    elif "score" not in case:
+        raise EvalError(f"eval case {index} requires an expected value or explicit score")
+
+
 def _safe_artifact_part(value: str) -> bool:
     return bool(value) and "/" not in value and "\\" not in value and value not in {".", ".."}
 
@@ -484,9 +502,11 @@ def _p95(values: list[int]) -> int:
     return ordered[index]
 
 
-def _non_negative_int_at(parent: Mapping[str, Any], key: str, fallback: int) -> int:
+def _required_non_negative_int_at(
+    parent: Mapping[str, Any], key: str, case_index: int
+) -> int:
     if key not in parent:
-        return fallback
+        raise EvalError(f"eval case {case_index} is missing required {key}")
     try:
         value = finite_number(
             parent[key],
@@ -500,6 +520,21 @@ def _non_negative_int_at(parent: Mapping[str, Any], key: str, fallback: int) -> 
     if not value.is_integer():
         raise EvalError(f"{key}: non_integer")
     return int(value)
+
+
+def _required_float_at(
+    parent: Mapping[str, Any],
+    key: str,
+    case_index: int,
+    *,
+    minimum: Optional[float] = None,
+) -> float:
+    if key not in parent:
+        raise EvalError(f"eval case {case_index} is missing required {key}")
+    try:
+        return finite_number(parent[key], field=key, minimum=minimum)
+    except NumericValidationError as exc:
+        raise EvalError(str(exc)) from exc
 
 
 def _float_at(
