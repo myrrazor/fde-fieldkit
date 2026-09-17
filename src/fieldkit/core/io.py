@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import json
 import re
+import struct
+import zlib
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO, IO
-from zipfile import BadZipFile, ZipFile
+from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, ZipFile, ZipInfo
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -280,23 +282,92 @@ def formula_safe_value(value: object) -> object:
     return f"'{value}" if dangerous else value
 
 
+_ZIP_LOCAL_HEADER = 30
+_ZIP_ENCRYPTED = 0x1
+
+
+def _xlsx_limit_error() -> ValueError:
+    limit_mb = MAX_DATASET_BYTES // (1024 * 1024)
+    return ValueError(f"XLSX expands beyond the {limit_mb} MB total dataset limit")
+
+
+def _compressed_member_bytes(raw: bytes, item: ZipInfo) -> bytes:
+    start = item.header_offset
+    header = raw[start : start + _ZIP_LOCAL_HEADER]
+    if len(header) != _ZIP_LOCAL_HEADER or header[:4] != b"PK\x03\x04":
+        raise ValueError("invalid XLSX archive")
+    name_len, extra_len = struct.unpack_from("<HH", header, 26)
+    data_start = start + _ZIP_LOCAL_HEADER + name_len + extra_len
+    data_end = data_start + item.compress_size
+    if data_start < 0 or data_end > len(raw):
+        raise ValueError("invalid XLSX archive")
+    return raw[data_start:data_end]
+
+
+def _inflated_member_size(compressed: bytes, compress_type: int, limit: int) -> int:
+    if compress_type == ZIP_STORED:
+        return len(compressed)
+    if compress_type != ZIP_DEFLATED:
+        raise ValueError("invalid XLSX archive")
+    try:
+        decoder = zlib.decompressobj(-zlib.MAX_WBITS)
+        produced = 0
+        pending = compressed
+        while pending:
+            budget = limit - produced + 1
+            if budget <= 0:
+                return produced
+            chunk = decoder.decompress(pending, budget)
+            produced += len(chunk)
+            leftover = decoder.unconsumed_tail
+            if produced > limit:
+                return produced
+            if decoder.eof:
+                return produced
+            if leftover == pending and not chunk:
+                raise ValueError("invalid XLSX archive")
+            pending = leftover
+        while not decoder.eof:
+            budget = limit - produced + 1
+            if budget <= 0:
+                return produced
+            chunk = decoder.decompress(b"", budget)
+            produced += len(chunk)
+            if produced > limit or not chunk:
+                return produced
+    except zlib.error as exc:
+        raise ValueError("invalid XLSX archive") from exc
+    return produced
+
+
 def _validate_xlsx_archive(raw: bytes) -> None:
     try:
-        with ZipFile(BytesIO(raw)) as archive:
-            expanded_bytes = 0
-            for item in archive.infolist():
-                if item.is_dir():
-                    continue
-                with archive.open(item) as member:
-                    while chunk := member.read(min(1024 * 1024, MAX_DATASET_BYTES + 1)):
-                        expanded_bytes += len(chunk)
-                        if expanded_bytes > MAX_DATASET_BYTES:
-                            limit_mb = MAX_DATASET_BYTES // (1024 * 1024)
-                            raise ValueError(
-                                f"XLSX expands beyond the {limit_mb} MB total dataset limit"
-                            )
-    except (BadZipFile, RuntimeError) as exc:
+        archive = ZipFile(BytesIO(raw))
+    except BadZipFile as exc:
         raise ValueError("invalid XLSX archive") from exc
+    try:
+        expanded_bytes = 0
+        for item in archive.infolist():
+            if item.is_dir():
+                continue
+            if item.flag_bits & _ZIP_ENCRYPTED:
+                raise ValueError("invalid XLSX archive")
+            member_bytes = _inflated_member_size(
+                _compressed_member_bytes(raw, item),
+                item.compress_type,
+                MAX_DATASET_BYTES,
+            )
+            if member_bytes > MAX_DATASET_BYTES:
+                raise _xlsx_limit_error()
+            if member_bytes != item.file_size:
+                raise ValueError("invalid XLSX archive")
+            expanded_bytes += member_bytes
+            if expanded_bytes > MAX_DATASET_BYTES:
+                raise _xlsx_limit_error()
+    except RuntimeError as exc:
+        raise ValueError("invalid XLSX archive") from exc
+    finally:
+        archive.close()
 
 
 def _write_text(dest: Path | IO[str] | IO[bytes], text: str) -> None:
