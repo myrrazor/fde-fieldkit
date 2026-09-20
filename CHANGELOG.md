@@ -5,6 +5,9 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+- XLSX loading inflates ZIP members itself and rejects archives whose declared
+  uncompressed size does not match the inflated byte count. The 50 MB dataset
+  cap still applies to those inflated bytes, not to ZIP metadata.
 - Public site hostname is https://fde-fieldkit.vercel.app.
 - Public product name is Field Kit. Repository, packages, and CLI remain
   `fde-fieldkit` / `fieldkit`.

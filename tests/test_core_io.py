@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import struct
+import zipfile
+import zlib
 from io import BytesIO, StringIO
 from pathlib import Path
-from types import SimpleNamespace
 
 import pandas as pd
 import pytest
@@ -13,6 +15,29 @@ from fieldkit.core import private_files
 from fieldkit.core.io import detect_format, load_table, write_table
 from fieldkit.core.private_files import atomic_write_private, ensure_private_regular_file
 from fieldkit.core.report import render_page
+
+
+def _zip_with_declared_size(
+    payload: bytes,
+    *,
+    declared_size: int,
+    crc_payload: bytes,
+    compression: int = zipfile.ZIP_DEFLATED,
+    name: str = "xl/sharedStrings.xml",
+) -> bytes:
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=compression) as archive:
+        archive.writestr(name, payload)
+    data = bytearray(buffer.getvalue())
+    crc = zlib.crc32(crc_payload) & 0xFFFFFFFF
+    with zipfile.ZipFile(BytesIO(bytes(data))) as archive:
+        local_offset = archive.infolist()[0].header_offset
+        central_offset = archive.start_dir
+    struct.pack_into("<I", data, local_offset + 14, crc)
+    struct.pack_into("<I", data, local_offset + 22, declared_size)
+    struct.pack_into("<I", data, central_offset + 16, crc)
+    struct.pack_into("<I", data, central_offset + 24, declared_size)
+    return bytes(data)
 
 
 @pytest.mark.parametrize(
@@ -182,31 +207,50 @@ def test_json_export_preserves_formula_like_strings() -> None:
     assert '"=2+2"' in buffer.getvalue()
 
 
+def test_xlsx_rejects_understated_zipinfo_file_size() -> None:
+    payload = b"A" * 64
+    raw = _zip_with_declared_size(payload, declared_size=1, crc_payload=payload[:1])
+
+    with zipfile.ZipFile(BytesIO(raw)) as archive:
+        info = archive.infolist()[0]
+        assert info.file_size == 1
+        assert archive.read(info.filename) == b"A"
+
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        core_io._validate_xlsx_archive(raw)
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        load_table(BytesIO(raw), filename="lied.xlsx")
+
+
+def test_xlsx_rejects_overstated_zipinfo_file_size() -> None:
+    payload = b"A" * 64
+    raw = _zip_with_declared_size(payload, declared_size=1000, crc_payload=payload)
+
+    with zipfile.ZipFile(BytesIO(raw)) as archive:
+        info = archive.infolist()[0]
+        assert info.file_size == 1000
+        assert archive.read(info.filename) == payload
+
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        core_io._validate_xlsx_archive(raw)
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        load_table(BytesIO(raw), filename="lied.xlsx")
+
+
 def test_xlsx_uncompressed_size_counts_inflated_bytes_instead_of_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(core_io, "MAX_DATASET_BYTES", 8)
-
-    class FakeArchive:
-        def __init__(self, _source: object):
-            pass
-
-        def __enter__(self) -> FakeArchive:
-            return self
-
-        def __exit__(self, *_args: object) -> None:
-            pass
-
-        def infolist(self) -> list[SimpleNamespace]:
-            return [SimpleNamespace(file_size=1, is_dir=lambda: False)]
-
-        def open(self, _item: object) -> BytesIO:
-            return BytesIO(b"123456789")
-
-    monkeypatch.setattr(core_io, "ZipFile", FakeArchive)
+    payload = b"123456789"
+    raw = _zip_with_declared_size(
+        payload,
+        declared_size=len(payload),
+        crc_payload=payload,
+        compression=zipfile.ZIP_STORED,
+    )
 
     with pytest.raises(ValueError, match="XLSX expands beyond"):
-        core_io._validate_xlsx_archive(b"PK")
+        core_io._validate_xlsx_archive(raw)
 
 
 def test_atomic_private_write_is_owner_only_and_preserves_old_file_on_failure(
