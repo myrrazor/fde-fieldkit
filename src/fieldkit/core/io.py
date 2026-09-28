@@ -219,7 +219,12 @@ def _read_delimited(raw: bytes, table_fmt: str, source: str) -> pd.DataFrame:
 
 def _read_xlsx(raw: bytes, sheet: str | None) -> tuple[pd.DataFrame, list[str]]:
     _validate_xlsx_archive(raw)
-    workbook = load_workbook(BytesIO(raw), data_only=True, read_only=False)
+    try:
+        workbook = load_workbook(BytesIO(raw), data_only=True, read_only=False)
+    except (KeyError, OSError, BadZipFile, ValueError) as exc:
+        # A zip that is not a workbook raises KeyError from inside openpyxl.
+        # That is bad input, on a small file and a large one alike.
+        raise ValueError("invalid XLSX archive") from exc
     if sheet is not None and sheet not in workbook.sheetnames:
         available = ", ".join(workbook.sheetnames)
         raise ValueError(f"sheet {sheet!r} not found; available sheets: {available}")

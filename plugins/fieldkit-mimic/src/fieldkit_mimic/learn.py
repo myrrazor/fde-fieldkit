@@ -127,11 +127,10 @@ def load_spec(path: Path) -> MimicSpec:
 
     text = path.read_text(encoding="utf-8")
     try:
-        from fieldkit.core.yaml_safe import reject_yaml_aliases
+        from fieldkit.core.yaml_safe import load_yaml
 
-        reject_yaml_aliases(text)
-        payload = yaml.safe_load(text)
-    except (yaml.YAMLError, ValueError) as exc:
+        payload = load_yaml(text)
+    except ValueError as exc:
         raise ValueError(f"invalid mimic spec: {exc}") from exc
     if not isinstance(payload, dict):
         raise ValueError("mimic spec must be a YAML mapping")

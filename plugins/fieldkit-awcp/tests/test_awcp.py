@@ -46,6 +46,11 @@ def test_yaml_aliases_allow_ordinary_anchors_and_reject_bombs() -> None:
     )
     with pytest.raises(WorkloadSpecError, match="expand too far"):
         load_mapping(bomb, source="bomb.yaml")
+    with pytest.raises(WorkloadSpecError, match="Circular reference detected"):
+        load_mapping("a: &a\n  self: *a\n", source="cycle.yaml")
+    deep = "a: " + ("[" * 600) + "1" + ("]" * 600)
+    with pytest.raises(WorkloadSpecError, match="nesting too deep"):
+        load_mapping(deep, source="deep.yaml")
 
 
 def test_sample_workload_validates(example_dir: Path) -> None:

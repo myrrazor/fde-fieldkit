@@ -841,6 +841,76 @@ def test_tell_html_can_include_unslop_provenance(fixture_dir: Path) -> None:
     assert rewrite.final.splitlines()[0] in html
 
 
+def test_queue_endpoint_reports_server_waiting_state(client: TestClient) -> None:
+    from fieldkit.web.routes.jobs import _note_waiting
+
+    assert client.get("/api/queue/abcdefgh").json() == {"waiting": False}
+    _note_waiting("abcdefgh", True)
+    try:
+        assert client.get("/api/queue/abcdefgh").json() == {"waiting": True}
+    finally:
+        _note_waiting("abcdefgh", False)
+
+
+def test_a_full_heavy_queue_replies_busy(
+    client: TestClient, fixture_dir: Path
+) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    held = []
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+            held.append(request)
+        small = client.post(
+            "/api/xray",
+            files={"file": _file(fixture_dir / "customers.csv")},
+        )
+        assert small.status_code == 200
+        body = b"x" * (jobs_mod.HEAVY_REQUEST_BYTES + 32)
+        rejected = client.post(
+            "/api/xray",
+            content=body,
+            headers={"content-type": "application/octet-stream"},
+        )
+        assert rejected.status_code == 429
+        assert rejected.json() == {"error": "busy, try again"}
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
+
+
+def test_spec_field_larger_than_one_megabyte_is_accepted(client: TestClient) -> None:
+    spec = (
+        "name: big\nrows_sampled: 1\ncolumns:\n"
+        "- name: c\n  kind: text\n  params: {avg_words: 3}\n"
+        "  unique: false\n  null_rate: 0\n"
+        "# " + ("x" * (1024 * 1024 + 128)) + "\n"
+    )
+    response = client.post(
+        "/api/mimic/generate",
+        data={"n": "1", "spec_yaml": spec, "seed": "0", "fmt": "csv"},
+    )
+    assert "Part exceeded" not in response.text
+    assert response.status_code == 200, response.text
+
+
+def test_zip_without_a_workbook_is_a_validation_error(client: TestClient) -> None:
+    import zipfile
+    from io import BytesIO
+
+    raw = BytesIO()
+    with zipfile.ZipFile(raw, "w") as archive:
+        archive.writestr("hello.txt", "not a workbook")
+    response = client.post(
+        "/api/xray",
+        files={"file": ("plain.xlsx", raw.getvalue(), "application/octet-stream")},
+    )
+    assert response.status_code == 422
+    assert response.json() == {"error": "invalid XLSX archive"}
+
+
 def _clear_tell_keys(monkeypatch: pytest.MonkeyPatch) -> None:
     for adapter in ADAPTERS:
         for env_var in adapter.env_vars:

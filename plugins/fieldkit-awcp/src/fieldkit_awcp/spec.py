@@ -34,14 +34,13 @@ def load_mapping(raw: str, *, source: str) -> Dict[str, Any]:
     try:
         loaded: Any = json.loads(raw)
     except json.JSONDecodeError:
-        import yaml
-
-        from fieldkit.core.yaml_safe import reject_yaml_aliases
+        from fieldkit.core.yaml_safe import load_yaml
 
         try:
-            reject_yaml_aliases(raw)
-            loaded = yaml.safe_load(raw)
-        except (yaml.YAMLError, ValueError) as exc:
+            loaded = load_yaml(raw)
+        except ValueError as exc:
+            if str(exc) == "Circular reference detected":
+                raise WorkloadSpecError("Circular reference detected") from exc
             raise WorkloadSpecError(f"could not parse {source}: {exc}") from exc
 
     if not isinstance(loaded, dict):

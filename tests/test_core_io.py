@@ -237,6 +237,15 @@ def test_xlsx_rejects_overstated_zipinfo_file_size() -> None:
         load_table(BytesIO(raw), filename="lied.xlsx")
 
 
+def test_xlsx_without_a_workbook_is_invalid_input() -> None:
+    raw = BytesIO()
+    with zipfile.ZipFile(raw, "w") as archive:
+        archive.writestr("hello.txt", "not a workbook")
+
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        load_table(BytesIO(raw.getvalue()), filename="plain.xlsx")
+
+
 def test_xlsx_uncompressed_size_counts_inflated_bytes_instead_of_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

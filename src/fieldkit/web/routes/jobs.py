@@ -7,25 +7,33 @@ import ctypes
 import gc
 import multiprocessing as mp
 import os
+import re
 import signal
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from queue import Empty
 from typing import Any
 
 from starlette.requests import Request
 
 # Past this size the work runs in a child process. Two children is enough for
-# a small profile to start while a large scrub is still going, without a pile
-# of 49 MB jobs resident at once. Further work waits in submit order.
-_ISOLATE_BYTES = 1_000_000
+# a small profile to start while a large scrub is still going. Further work
+# waits in arrival order. Only a few large bodies may sit in that queue.
+HEAVY_REQUEST_BYTES = 1_000_000
 _HEAVY_SLOTS = 2
+_MAX_WAITING = 4
+_MAX_ADMITTED = _HEAVY_SLOTS + _MAX_WAITING
+_JOB_ID = re.compile(r"^[A-Za-z0-9]{8,64}$")
+
 _LIVE: set[mp.Process] = set()
 _POOL: list[_Worker] = []
-_semaphore: asyncio.Semaphore | None = None
 _idle: asyncio.Queue[_Worker] | None = None
+_tickets: list[_Ticket] = []
+_waiting: set[str] = set()
+_admitted = 0
+_seq = 0
 _shutting_down = False
 
 
@@ -53,6 +61,17 @@ class _Worker:
     closed: bool = False
 
 
+@dataclass
+class _Ticket:
+    """One heavy request, in the order its headers arrived."""
+
+    seq: int
+    ready: bool = False
+    running: bool = False
+    done: bool = False
+    granted: asyncio.Event = field(default_factory=asyncio.Event)
+
+
 def arm_heavy_jobs() -> None:
     """Allow isolated jobs. A previous server in this process may have stopped them."""
 
@@ -69,15 +88,58 @@ def stop_heavy_jobs() -> None:
     _reset_pool()
 
 
+def begin_heavy_request(request: Request) -> bool:
+    """Reserve a place for a large upload. False when the waiting queue is full."""
+
+    global _admitted, _seq
+    if _shutting_down or _admitted >= _MAX_ADMITTED:
+        return False
+    _admitted += 1
+    _seq += 1
+    ticket = _Ticket(_seq)
+    _tickets.append(ticket)
+    request.state.heavy_admitted = True
+    request.state.heavy_ticket = ticket
+    return True
+
+
+async def end_heavy_request(request: Request) -> None:
+    """Drop a large upload's buffers once the request is over."""
+
+    global _admitted
+    if not getattr(request.state, "heavy_admitted", False):
+        return
+    request.state.heavy_admitted = False
+    if _admitted:
+        _admitted -= 1
+    ticket = getattr(request.state, "heavy_ticket", None)
+    if ticket is not None and not ticket.done:
+        _finish_ticket(ticket)
+    await _drop_request_buffers(request)
+    _release_memory()
+
+
+def job_is_waiting(job_id: str) -> bool:
+    """True when this browser request is queued behind another heavy job."""
+
+    return bool(job_id) and job_id in _waiting
+
+
 def _reset_pool() -> None:
-    global _semaphore, _idle
+    global _idle, _admitted, _seq
     for worker in list(_POOL):
         _dispose(worker)
     for proc in list(_LIVE):
         _kill(proc)
     _POOL.clear()
     _LIVE.clear()
-    _semaphore = None
+    for ticket in _tickets:
+        ticket.done = True
+        ticket.granted.set()
+    _tickets.clear()
+    _waiting.clear()
+    _admitted = 0
+    _seq = 0
     _idle = None
 
 
@@ -96,8 +158,9 @@ async def run_job(
     the work. The child exits if this process dies hard.
     """
 
-    if isolate or weight >= _ISOLATE_BYTES:
+    if isolate or weight >= HEAVY_REQUEST_BYTES:
         return await _run_isolated(request, fn, args)
+    _skip_heavy_ticket(request)
     from starlette.concurrency import run_in_threadpool
 
     return await run_in_threadpool(fn, *args)
@@ -109,11 +172,15 @@ async def _run_isolated(request: Request, fn: Callable[..., Any], args: tuple[An
     # the ASGI receive channel instead; the body has already been read.
     gone = asyncio.Event()
     watcher = asyncio.create_task(_watch_disconnect(request, gone))
-    sem: asyncio.Semaphore | None = None
+    ticket = _claim_ticket(request)
+    job_id = _job_id(request)
     worker: _Worker | None = None
     reuse = False
     try:
-        sem, worker = await _acquire_worker(gone)
+        await _await_slot(ticket, gone, job_id)
+        if _shutting_down or gone.is_set():
+            raise _gone_now()
+        worker = await _take_worker()
         if _shutting_down or gone.is_set():
             raise _gone_now()
         result = await _invoke(worker, fn, args, gone)
@@ -123,6 +190,7 @@ async def _run_isolated(request: Request, fn: Callable[..., Any], args: tuple[An
         reuse = not _heavy_payload(args)
         return result
     finally:
+        _note_waiting(job_id, False)
         watcher.cancel()
         try:
             await watcher
@@ -135,8 +203,7 @@ async def _run_isolated(request: Request, fn: Callable[..., Any], args: tuple[An
                 _idle_workers().put_nowait(worker)
             else:
                 _dispose(worker)
-        if sem is not None:
-            sem.release()
+        _finish_ticket(ticket)
         _release_memory()
 
 
@@ -165,48 +232,106 @@ def _heavy_payload(args: tuple[Any, ...]) -> bool:
     return total >= 8_000_000
 
 
-async def _acquire_worker(gone: asyncio.Event) -> tuple[asyncio.Semaphore, _Worker]:
-    sem = _heavy_semaphore()
-    await _acquire_permit(sem, gone)
-    try:
-        worker = await _take_worker()
-    except BaseException:
-        sem.release()
-        raise
-    return sem, worker
+def _job_id(request: Request) -> str:
+    raw = request.headers.get("x-fieldkit-job", "")
+    return raw if _JOB_ID.fullmatch(raw) else ""
 
 
-async def _acquire_permit(sem: asyncio.Semaphore, gone: asyncio.Event) -> None:
-    # Waiting on acquire() itself keeps submit order. A timeout that cancels
-    # the wait puts the oldest job at the back of the line.
-    waiting = asyncio.create_task(sem.acquire())
-    stopper = asyncio.create_task(_until_stopped(gone))
-    try:
-        done, _pending = await asyncio.wait(
-            {waiting, stopper}, return_when=asyncio.FIRST_COMPLETED
-        )
-    except asyncio.CancelledError:
-        stopper.cancel()
-        if waiting.done() and not waiting.cancelled():
-            sem.release()
-        else:
-            waiting.cancel()
-        raise
-    if waiting in done:
+def _note_waiting(job_id: str, waiting: bool) -> None:
+    if not job_id:
+        return
+    if waiting:
+        _waiting.add(job_id)
+    else:
+        _waiting.discard(job_id)
+
+
+def _claim_ticket(request: Request) -> _Ticket:
+    """Take this request's arrival ticket, or open a new one at the back."""
+
+    global _seq
+    ticket = getattr(request.state, "heavy_ticket", None)
+    if ticket is None or ticket.done:
+        _seq += 1
+        ticket = _Ticket(_seq, ready=True)
+        _tickets.append(ticket)
+        request.state.heavy_ticket = ticket
+    else:
+        ticket.ready = True
+    _pump()
+    return ticket
+
+
+def _skip_heavy_ticket(request: Request) -> None:
+    """This request will not take a worker. Let later jobs pass it."""
+
+    ticket = getattr(request.state, "heavy_ticket", None)
+    if ticket is None or ticket.done or ticket.running:
+        return
+    ticket.done = True
+    request.state.heavy_ticket = None
+    _pump()
+
+
+def _finish_ticket(ticket: _Ticket) -> None:
+    if ticket.done:
+        return
+    ticket.done = True
+    ticket.running = False
+    _pump()
+
+
+def _pump() -> None:
+    """Hand free slots to the earliest requests whose bodies are already here.
+
+    A request that is still uploading keeps its place, so a later body that
+    happens to finish first cannot start ahead of it.
+    """
+
+    while _tickets and _tickets[0].done:
+        _tickets.pop(0)
+    running = sum(1 for ticket in _tickets if ticket.running)
+    for ticket in _tickets:
+        if ticket.done or ticket.running:
+            continue
+        if not ticket.ready:
+            break
+        if running >= _HEAVY_SLOTS:
+            break
+        ticket.running = True
+        running += 1
+        ticket.granted.set()
+
+
+async def _await_slot(ticket: _Ticket, gone: asyncio.Event, job_id: str) -> None:
+    if not ticket.granted.is_set():
+        _note_waiting(job_id, True)
+        waiter = asyncio.create_task(ticket.granted.wait())
+        stopper = asyncio.create_task(_until_stopped(gone))
+        try:
+            done, _pending = await asyncio.wait(
+                {waiter, stopper}, return_when=asyncio.FIRST_COMPLETED
+            )
+        except asyncio.CancelledError:
+            stopper.cancel()
+            waiter.cancel()
+            _note_waiting(job_id, False)
+            _finish_ticket(ticket)
+            raise
+        _note_waiting(job_id, False)
+        if waiter not in done or _shutting_down or gone.is_set():
+            stopper.cancel()
+            if not waiter.done():
+                waiter.cancel()
+            await _quiet(stopper)
+            await _quiet(waiter)
+            _finish_ticket(ticket)
+            raise _gone_now()
         stopper.cancel()
         await _quiet(stopper)
-        if _shutting_down or gone.is_set():
-            sem.release()
-            raise _gone_now()
-        return
-    waiting.cancel()
-    try:
-        await waiting
-    except asyncio.CancelledError:
-        pass
-    else:
-        sem.release()
-    raise _gone_now()
+    if _shutting_down or gone.is_set():
+        _finish_ticket(ticket)
+        raise _gone_now()
 
 
 async def _until_stopped(gone: asyncio.Event) -> None:
@@ -274,9 +399,9 @@ def _unwrap(kind: str, payload: Any) -> Any:
     if isinstance(payload, ValueError):
         raise payload
     if isinstance(payload, BaseException):
-        reason = str(payload).strip() or payload.__class__.__name__
-        raise JobCrashed(reason)
-    raise JobCrashed(str(payload))
+        # The class name is enough. The message can be a parser's internal text.
+        raise JobCrashed(type(payload).__name__)
+    raise JobCrashed("stopped before returning a result")
 
 
 def _warm_worker(inbox: mp.Queue[Any], outbox: mp.Queue[Any]) -> None:
@@ -320,13 +445,6 @@ def _die_with_parent() -> None:
     threading.Thread(target=_watch, name="fieldkit-parent", daemon=True).start()
 
 
-def _heavy_semaphore() -> asyncio.Semaphore:
-    global _semaphore
-    if _semaphore is None:
-        _semaphore = asyncio.Semaphore(_HEAVY_SLOTS)
-    return _semaphore
-
-
 def _idle_workers() -> asyncio.Queue[_Worker]:
     global _idle
     if _idle is None:
@@ -356,6 +474,20 @@ def _kill(proc: mp.Process) -> None:
     if proc.is_alive():
         proc.kill()
         proc.join(timeout=0.5)
+
+
+async def _drop_request_buffers(request: Request) -> None:
+    """Close spooled uploads and drop the parsed form so the bytes can leave RSS."""
+
+    form = getattr(request, "_form", None)
+    if form is not None:
+        try:
+            await form.close()
+        except Exception:
+            pass
+        request._form = None  # noqa: SLF001
+    if hasattr(request, "_body"):
+        request._body = b""  # noqa: SLF001
 
 
 def _release_memory() -> None:

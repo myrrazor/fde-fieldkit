@@ -15,17 +15,44 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.formparsers import MultiPartParser
+from starlette.requests import Request as StarletteRequest
 
 from fieldkit import __version__
 from fieldkit.plugins import REGISTRY, installed_plugins, web_modules
 from fieldkit.web.routes import (
+    HEAVY_REQUEST_BYTES,
     MAX_UPLOAD_BYTES,
     ClientGone,
     JobCrashed,
     UploadTooLarge,
     arm_heavy_jobs,
+    begin_heavy_request,
+    end_heavy_request,
+    job_is_waiting,
     stop_heavy_jobs,
 )
+
+# A mimic spec is one form field, not a file part. Starlette's default cuts
+# that field off at 1 MB, which is smaller than the dataset upload cap.
+_starlette_form = StarletteRequest.form
+
+
+def _form_with_upload_limit(  # type: ignore[no-untyped-def]
+    self,
+    *,
+    max_files: int | float = 1000,
+    max_fields: int | float = 1000,
+    max_part_size: int = MAX_UPLOAD_BYTES,
+):
+    return _starlette_form(
+        self,
+        max_files=max_files,
+        max_fields=max_fields,
+        max_part_size=max_part_size,
+    )
+
+
+StarletteRequest.form = _form_with_upload_limit  # type: ignore[method-assign]
 
 logger = logging.getLogger(__name__)
 _PLUGIN_CACHE_SECONDS = 2.0
@@ -93,6 +120,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     app.state.mounted_plugins = frozenset()
     app.state.installed_at_start = frozenset(installed_plugins())
     MultiPartParser.spool_max_size = MAX_UPLOAD_BYTES
+    MultiPartParser.max_part_size = MAX_UPLOAD_BYTES
     tool_pages = set()
 
     @app.middleware("http")
@@ -153,6 +181,21 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     )
                 )
 
+        holding_upload = False
+        if (
+            request.method not in _SAFE_METHODS
+            and raw_length is not None
+            and parsed_length >= HEAVY_REQUEST_BYTES
+        ):
+            if not begin_heavy_request(request):
+                # Read and drop the body first. Closing early makes the browser
+                # report a network error instead of this message.
+                await _discard_unread_body(request)
+                return _secured(
+                    JSONResponse(status_code=429, content={"error": "busy, try again"})
+                )
+            holding_upload = True
+
         received = 0
         body_limit_exceeded = False
         receive = request.receive
@@ -173,37 +216,41 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         # callback keeps the cap in front of multipart parsing and disk spooling.
         request._receive = receive_with_limit  # noqa: SLF001
         try:
-            response = await call_next(request)
-        except ClientGone as exc:
-            if exc.reason == "shutdown":
+            try:
+                response = await call_next(request)
+            except ClientGone as exc:
+                if exc.reason == "shutdown":
+                    response = JSONResponse(
+                        status_code=499,
+                        content={"error": "server stopped before the job finished"},
+                    )
+                else:
+                    response = Response(status_code=499)
+            except JobCrashed as exc:
+                logger.warning("heavy job crashed: %s", exc.reason)
                 response = JSONResponse(
-                    status_code=499,
-                    content={"error": "server stopped before the job finished"},
+                    status_code=500,
+                    content={"error": _crash_message(exc.reason)},
                 )
-            else:
-                response = Response(status_code=499)
-        except JobCrashed as exc:
-            logger.warning("heavy job crashed: %s", exc.reason)
-            response = JSONResponse(
-                status_code=500,
-                content={"error": f"the job crashed: {exc.reason}"},
-            )
-        except UploadTooLarge:
-            response = JSONResponse(
-                status_code=413,
-                content={"error": "request too large (50 MB total max)"},
-            )
-        except Exception:
-            logger.exception("unhandled API error")
-            response = JSONResponse(status_code=500, content={"error": "internal error"})
-        # FastAPI normalizes receive errors raised while parsing form data to a
-        # generic 400. The wrapper still records the authoritative cause.
-        if body_limit_exceeded:
-            response = JSONResponse(
-                status_code=413,
-                content={"error": "request too large (50 MB total max)"},
-            )
-        return _secured(response)
+            except UploadTooLarge:
+                response = JSONResponse(
+                    status_code=413,
+                    content={"error": "request too large (50 MB total max)"},
+                )
+            except Exception:
+                logger.exception("unhandled API error")
+                response = JSONResponse(status_code=500, content={"error": "internal error"})
+            # FastAPI normalizes receive errors raised while parsing form data to a
+            # generic 400. The wrapper still records the authoritative cause.
+            if body_limit_exceeded:
+                response = JSONResponse(
+                    status_code=413,
+                    content={"error": "request too large (50 MB total max)"},
+                )
+            return _secured(response)
+        finally:
+            if holding_upload:
+                await end_heavy_request(request)
 
     @app.exception_handler(UploadTooLarge)
     async def upload_too_large(_request: Request, _exc: UploadTooLarge) -> JSONResponse:
@@ -233,6 +280,12 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         """Report the local service version and readiness."""
 
         return {"status": "ok", "version": __version__}
+
+    @app.get("/api/queue/{job_id}")
+    async def queue_state(job_id: str) -> dict[str, bool]:
+        """Whether the heavy job tagged with this id is waiting for a slot."""
+
+        return {"waiting": job_is_waiting(job_id)}
 
     @app.get("/api/plugins")
     async def plugins() -> dict[str, object]:
@@ -341,6 +394,25 @@ def _simple_page(title: str, message: str) -> str:
         f"<body><div class=shell><h1>{safe_title}</h1><p>{safe_message}</p>"
         '<p><a href="/">Back to fieldkit</a></p></div></body></html>'
     )
+
+
+async def _discard_unread_body(request: Request) -> None:
+    while True:
+        message = await request.receive()
+        kind = message.get("type")
+        if kind == "http.disconnect" or kind != "http.request":
+            return
+        if not message.get("more_body", False):
+            return
+
+
+def _crash_message(reason: str) -> str:
+    """A short crash label. Parser text stays in the log, not in the toast."""
+
+    cleaned = " ".join(reason.split())
+    if not cleaned or len(cleaned) > 80:
+        return "the job crashed"
+    return f"the job crashed: {cleaned}"
 
 
 def _secured(response: Response) -> Response:

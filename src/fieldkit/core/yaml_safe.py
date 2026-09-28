@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import yaml
 
 # Alias bombs stay small on disk and only become huge once each alias is
@@ -9,6 +11,19 @@ import yaml
 # cap applies to expansion past the composed graph, not to the graph itself.
 _MAX_EXPANDED_NODES = 20_000
 _EXPANSION_RATIO = 4
+_CIRCULAR = "Circular reference detected"
+
+
+def load_yaml(text: str) -> Any:
+    """Parse one document, rejecting bombs and runaway nesting."""
+
+    reject_yaml_aliases(text)
+    try:
+        return yaml.safe_load(text)
+    except RecursionError as exc:
+        raise ValueError("nesting too deep") from exc
+    except yaml.YAMLError as exc:
+        raise ValueError(f"invalid YAML: {exc}") from exc
 
 
 def reject_yaml_aliases(text: str) -> None:
@@ -16,15 +31,20 @@ def reject_yaml_aliases(text: str) -> None:
 
     Ordinary anchors and aliases are fine, including inside a large spec.
     A bomb is a small document whose aliases multiply (ten references to a
-    node that itself has ten references).
+    node that itself has ten references). Documents with no anchors skip
+    the walk; composing a wide spec twice was the slow part.
     """
 
+    if "&" not in text and "*" not in text:
+        return
     try:
         loader = yaml.SafeLoader(text)
         try:
             node = loader.get_single_node()
         finally:
             loader.dispose()
+    except RecursionError as exc:
+        raise ValueError("nesting too deep") from exc
     except yaml.YAMLError as exc:
         raise ValueError(f"invalid YAML: {exc}") from exc
     if node is None:
@@ -74,9 +94,7 @@ def _compose_graph(
             continue
         if ident in seen:
             if ident in active:
-                raise ValueError(
-                    "YAML aliases expand too far — the document is larger than it looks"
-                )
+                raise ValueError(_CIRCULAR)
             continue
         seen.add(ident)
         active.add(ident)
@@ -110,9 +128,7 @@ def _expanded_size(
         if ident in memo:
             continue
         if ident in visiting:
-            raise ValueError(
-                "YAML aliases expand too far — the document is larger than it looks"
-            )
+            raise ValueError(_CIRCULAR)
         visiting.add(ident)
         stack.append((node, True))
         for kid in children_of.get(ident, ()):
