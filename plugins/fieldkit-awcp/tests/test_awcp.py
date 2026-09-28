@@ -22,11 +22,16 @@ from fieldkit_awcp.evals import (
     run_eval,
 )
 from fieldkit_awcp.fingerprint import fingerprint_workload_spec
-from fieldkit_awcp.spec import load_mapping, load_workload_spec, validate_workload_spec
+from fieldkit_awcp.spec import WorkloadSpecError, load_mapping, load_workload_spec, validate_workload_spec
 from fieldkit_awcp.web import router as awcp_router
 
 
 runner = CliRunner()
+
+
+def test_yaml_aliases_are_rejected_before_expansion() -> None:
+    with pytest.raises(WorkloadSpecError, match="aliases and anchors"):
+        load_mapping("a: &anchor hello\nb: *anchor\n", source="bomb.yaml")
 
 
 def test_sample_workload_validates(example_dir: Path) -> None:

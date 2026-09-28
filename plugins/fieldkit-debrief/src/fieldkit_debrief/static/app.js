@@ -30,6 +30,9 @@ week.addEventListener("change", refresh);
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const button = form.querySelector("button[type=submit]");
+  if (button.disabled) return;
+  button.disabled = true;
   const tag = document.querySelector("#tags input:checked").value;
   try {
     await api("/api/debrief/entries", {
@@ -41,12 +44,15 @@ form.addEventListener("submit", async (e) => {
     refresh();
   } catch (err) {
     toast(err.message);
+  } finally {
+    button.disabled = false;
   }
 });
 
 entries.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-id]");
   if (!btn) return;
+  if (!window.confirm("Delete this entry?")) return;
   try {
     await api(`/api/debrief/entries/${btn.dataset.id}`, { method: "DELETE" });
     refresh();
@@ -108,4 +114,15 @@ async function refresh() {
   }
 }
 
+async function loadMeta() {
+  try {
+    const meta = await api("/api/debrief/meta", { method: "GET" });
+    const slot = document.getElementById("db-path");
+    if (slot && meta.db_path) slot.textContent = meta.db_path;
+  } catch {
+    // Keep the default path label if the hub can't be reached.
+  }
+}
+
+loadMeta();
 refresh();

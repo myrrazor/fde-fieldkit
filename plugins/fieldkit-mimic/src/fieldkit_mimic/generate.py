@@ -23,6 +23,7 @@ from faker.providers.lorem.en_US import Provider as LoremProvider
 from faker.providers.person.en_US import Provider as PersonProvider
 from faker.providers.phone_number.en_US import Provider as PhoneProvider
 
+from fieldkit.core.faker_fast import install_fast_faker
 from fieldkit.core.io import MAX_DATASET_BYTES, formula_safe_value
 from fieldkit.core.pii import scan_text
 from fieldkit_mimic.learn import ColumnSpec, MimicSpec
@@ -51,6 +52,7 @@ def generate(spec: MimicSpec, n: int, seed: int = 0, *, fmt: str = "csv") -> pd.
 def _iter_prepared_rows(
     columns: list[_PreparedColumn], n: int, seed: int
 ) -> Iterator[dict[str, Any]]:
+    install_fast_faker()
     rng = random.Random(seed)
     faker = Faker("en_US")
     faker.seed_instance(seed)

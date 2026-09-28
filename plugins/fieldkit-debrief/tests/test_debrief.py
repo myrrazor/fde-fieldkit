@@ -26,6 +26,18 @@ def test_store_crud_round_trip(tmp_path: Path) -> None:
     assert db.stat().st_mode & 0o777 == 0o600
 
 
+def test_store_rejects_notes_over_500_characters(tmp_path: Path) -> None:
+    store = Store(tmp_path / "debrief.db")
+
+    with pytest.raises(ValueError, match="500"):
+        store.add("x" * 501, Tag.NOTE)
+
+
+def test_far_future_iso_week_is_a_clean_error() -> None:
+    with pytest.raises(ValueError, match="does not fit"):
+        build_report([], "9999-W52")
+
+
 def test_store_rejects_empty_or_whitespace_notes(tmp_path: Path) -> None:
     store = Store(tmp_path / "debrief.db")
     for text in ("", "   ", "\n\t"):

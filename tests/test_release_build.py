@@ -26,7 +26,7 @@ def packager():
     return _load_packager()
 
 
-def _touch_expected(packager, directory: Path, version: str = "0.2.0") -> list[Path]:
+def _touch_expected(packager, directory: Path, version: str = "0.2.1") -> list[Path]:
     projects = packager.workspace_projects(ROOT)
     assert packager.release_version(projects) == version
     paths = []
@@ -42,11 +42,11 @@ def test_workspace_projects_cover_core_and_eight_plugins(packager) -> None:
     names = [project["name"] for project in projects]
     assert names[0] == "fieldkit"
     assert set(names) == set(packager.WHEEL_PACKAGES)
-    assert packager.release_version(projects) == "0.2.0"
+    assert packager.release_version(projects) == "0.2.1"
     expected = packager.expected_distribution_names(projects)
     assert len(expected) == 18
-    assert "fieldkit-0.2.0-py3-none-any.whl" in expected
-    assert "fieldkit_xray-0.2.0.tar.gz" in expected
+    assert "fieldkit-0.2.1-py3-none-any.whl" in expected
+    assert "fieldkit_xray-0.2.1.tar.gz" in expected
     assert "fieldkit-xray-0.2.0.tar.gz" not in expected
 
 
@@ -147,8 +147,8 @@ def test_build_release_keeps_unknown_files_and_rejects_incomplete(
     hashed = packager.build_release(tmp_path, root=ROOT, run_build=True)
     assert notes.is_file()
     names = {path.name for path in hashed}
-    assert "fieldkit-0.2.0-py3-none-any.whl" in names
-    assert "fieldkit-0.2.0-wheels.tar.gz" in names
+    assert "fieldkit-0.2.1-py3-none-any.whl" in names
+    assert "fieldkit-0.2.1-wheels.tar.gz" in names
     assert "release-manifest.json" in names
     assert len(hashed) == 20
     checksums = (tmp_path / "SHA256SUMS").read_text(encoding="utf-8")

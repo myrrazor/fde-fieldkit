@@ -134,3 +134,9 @@ def test_entropy_secret_accepts_punctuation() -> None:
     token = "aB3$dE5!fG7#hJ9%kL2&mN4*"
 
     assert PIIKind.SECRET in {match.kind for match in scan_text(token)}
+
+
+def test_entropy_secret_skips_markup_and_javascript_urls() -> None:
+    text = "<a href='javascript:alert(1)'>click</a>"
+
+    assert PIIKind.SECRET not in {match.kind for match in scan_text(text)}

@@ -1,4 +1,4 @@
-import { api, dropzone, esc, renderTable, downloadB64, downloadText, toast, withBusy } from "/fieldkit.js";
+import { api, dropzone, esc, renderTable, downloadB64, downloadText, toast, withBusy, latestRequest } from "/fieldkit.js";
 
 const KINDS = ["email", "phone", "ssn", "credit_card", "ip", "name", "secret"];
 
@@ -12,9 +12,20 @@ const chip = drop.parentElement.querySelector(".file-chip");
 document.getElementById("kinds").innerHTML = KINDS.map(
   (k) => `<label class="check-pill"><input type="checkbox" value="${k}" checked> ${k.replace("_", " ")}</label>`
 ).join("");
+document.getElementById("kinds").insertAdjacentHTML(
+  "afterend",
+  `<p class="hint">Name matching uses a common-name list. Uncommon names may remain.</p>`,
+);
 
-dropzone(drop, () => { go.disabled = false; result.innerHTML = ""; });
+const jobs = latestRequest();
+
+dropzone(drop, () => {
+  jobs.invalidate();
+  go.disabled = false;
+  result.innerHTML = "";
+});
 chip.querySelector("button").addEventListener("click", () => {
+  jobs.invalidate();
   chip.hidden = true;
   drop.file = null;
   go.disabled = true;
@@ -33,6 +44,7 @@ async function scrub() {
   const kinds = selectedKinds();
   if (!kinds.length) return toast("pick at least one kind to scrub");
 
+  const job = jobs.start();
   result.innerHTML = "";
   try {
     await withBusy(result, `scrubbing ${file.name}…`, async () => {
@@ -40,10 +52,12 @@ async function scrub() {
       fd.append("file", file);
       fd.append("kinds", kinds.join(","));
       fd.append("include_mapping", mapping.checked ? "true" : "false");
-      const r = await api("/api/scrub", { body: fd });
+      const r = await api("/api/scrub", { body: fd, signal: job.signal });
+      if (!job.current()) return;
       await render(r, file);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }
@@ -93,6 +107,11 @@ async function render(r, file) {
   }
 }
 
+function decodeBase64Utf8(b64) {
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
 // small quoted-field csv parser — preview only, server output is well-formed
 function parseCsv(text, delim) {
   const rows = [];
@@ -118,7 +137,7 @@ async function beforeAfterPreview(r, file) {
   const delim = ext === "tsv" ? "\t" : ",";
 
   const before = parseCsv(await file.text(), delim);
-  const after = parseCsv(atob(r.file.content_b64), delim);
+  const after = parseCsv(decodeBase64Utf8(r.file.content_b64), delim);
   if (before.length < 2 || after.length < 2) return "";
 
   const cols = Math.min(before[0].length, 8);

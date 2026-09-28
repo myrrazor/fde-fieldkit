@@ -3,11 +3,13 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from fieldkit.core.io import SUPPORTED_FORMATS, load_table
+from fieldkit.cli import SingleCommandGroup
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, require_regular_file
 from fieldkit_xray.profile import profile_table, to_json
 from fieldkit_xray.render import render_html, render_terminal
 
 app = typer.Typer(
+    cls=SingleCommandGroup,
     help="Profile a data file: schema, types, nulls, stats, PII flags",
     context_settings={"allow_interspersed_args": True},
 )
@@ -15,7 +17,7 @@ app = typer.Typer(
 
 @app.callback(invoke_without_command=True)
 def main(
-    file: Path = typer.Argument(..., dir_okay=False, help="Data file to profile."),
+    file: Path = typer.Argument(..., metavar="FILE", dir_okay=False, help="Data file to profile."),
     json_path: Path | None = typer.Option(
         None, "--json", metavar="PATH", help="Also write the profile as JSON."
     ),
@@ -37,9 +39,11 @@ def main(
 ) -> None:
     """Profile FILE and optionally save JSON and HTML reports."""
 
-    if not file.is_file():
-        typer.echo(f"error: file not found: {file}", err=True)
-        raise typer.Exit(1)
+    try:
+        require_regular_file(file)
+    except ValueError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from exc
 
     try:
         result = profile_table(

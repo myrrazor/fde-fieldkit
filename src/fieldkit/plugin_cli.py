@@ -106,6 +106,7 @@ def add(
         raise typer.Exit(code)
     for name in names:
         typer.secho(f"✓ {name} installed — try: fieldkit {name} --help", fg="green")
+    _after_plugin_change(requirements)
 
 
 @app.command()
@@ -123,6 +124,7 @@ def remove(names: list[str] = typer.Argument(..., help="Tool names to uninstall.
         raise typer.Exit(code)
     for name in names:
         typer.secho(f"✓ {name} removed", fg="green")
+    _after_plugin_change([])
 
 
 @app.command()
@@ -158,3 +160,10 @@ def update(
     if code != 0:
         raise typer.Exit(code)
     typer.secho(f"✓ updated: {', '.join(targets)}", fg="green")
+    _after_plugin_change(requirements)
+
+
+def _after_plugin_change(requirements: list[str]) -> None:
+    if any("git+" in requirement for requirement in requirements):
+        typer.echo("left the installed fieldkit core unchanged")
+    typer.echo("if fieldkit serve is running, restart it to pick up plugin changes")

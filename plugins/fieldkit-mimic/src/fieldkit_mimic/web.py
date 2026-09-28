@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated, Literal, cast
 
 from fastapi import APIRouter, File, Form, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from fieldkit.core.io import load_table
 from fieldkit.web.routes import read_upload, safe_filename
@@ -29,9 +30,8 @@ async def learn_upload(file: Annotated[UploadFile, File()]) -> dict[str, str]:
     """Learn a portable generation spec from an uploaded sample."""
 
     filename = safe_filename(file.filename)
-    table = load_table(BytesIO(await read_upload(file)), filename=filename)
-    spec = learn_spec(table, name=Path(filename).stem)
-    return {"spec_yaml": dump_spec(spec)}
+    content = await read_upload(file)
+    return await run_in_threadpool(_learn, content, filename)
 
 
 @router.post("/generate")
@@ -48,7 +48,7 @@ async def generate_upload(
         raise ValueError("provide exactly one of file or spec_yaml")
 
     spec = await _resolve_spec(file, spec_yaml)
-    output, preview = generate_serialized(spec, n, seed=seed, fmt=fmt)
+    output, preview = await run_in_threadpool(generate_serialized, spec, n, seed=seed, fmt=fmt)
     stem = Path(safe_filename(spec.name, fallback="synthetic")).stem or "synthetic"
     return {
         "preview": preview,
@@ -61,7 +61,7 @@ async def generate_upload(
 
 async def _resolve_spec(file: UploadFile | None, spec_yaml: str | None) -> MimicSpec:
     if spec_yaml is not None:
-        return _load_yaml(spec_yaml)
+        return await run_in_threadpool(_load_yaml, spec_yaml)
     if file is None:  # guarded above, but keeps the invariant local
         raise ValueError("provide exactly one of file or spec_yaml")
 
@@ -69,10 +69,21 @@ async def _resolve_spec(file: UploadFile | None, spec_yaml: str | None) -> Mimic
     content = await read_upload(file)
     if Path(filename).suffix.lower() in {".yaml", ".yml"}:
         try:
-            return _load_yaml(content.decode("utf-8-sig"))
+            text = content.decode("utf-8-sig")
         except UnicodeDecodeError as exc:
             raise ValueError(f"invalid mimic spec encoding: {exc}") from exc
+        return await run_in_threadpool(_load_yaml, text)
+    return await run_in_threadpool(_learn_table, content, filename)
+
+
+def _learn_table(content: bytes, filename: str) -> MimicSpec:
     return learn_spec(load_table(BytesIO(content), filename=filename), name=Path(filename).stem)
+
+
+def _learn(content: bytes, filename: str) -> dict[str, str]:
+    table = load_table(BytesIO(content), filename=filename)
+    spec = learn_spec(table, name=Path(filename).stem)
+    return {"spec_yaml": dump_spec(spec)}
 
 
 def _load_yaml(content: str) -> MimicSpec:

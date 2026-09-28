@@ -55,8 +55,12 @@ class _LdJsonScriptParser(HTMLParser):
 def ld_json_script_bodies(html: bytes | str) -> list[bytes]:
     """Return inline JSON-LD script bodies in document order."""
 
+    text = html.decode("utf-8") if isinstance(html, bytes) else html
+    # html.parser only recognizes a bare </script>. Closing tags with spaces
+    # or leftover attributes still end the script for this checker.
+    text = re.sub(r"</script\b[^>]*>", "</script>", text, flags=re.IGNORECASE)
     parser = _LdJsonScriptParser()
-    parser.feed(html.decode("utf-8") if isinstance(html, bytes) else html)
+    parser.feed(text)
     parser.close()
     return parser.bodies
 

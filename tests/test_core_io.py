@@ -286,6 +286,14 @@ def test_private_regular_file_rejects_symlinks(tmp_path: Path) -> None:
     assert target.read_text(encoding="utf-8") == "do not touch"
 
 
+def test_json_document_forced_as_csv_is_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "rows.json"
+    path.write_text('[{"customer": "ada"}]\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="looks like JSON"):
+        load_table(path, fmt="csv")
+
+
 def test_base_report_escapes_context() -> None:
     rendered = render_page("base.html", title="<customer>")
 

@@ -159,6 +159,8 @@ def test_update_with_uv_never_upgrades_the_core(monkeypatch):
     assert argv.count("--upgrade-package") == 2
     assert argv.count("--reinstall-package") == 2
     assert "fieldkit" not in argv
+    assert "--no-sources" in argv
+    assert "--constraint" in argv
 
 
 def test_update_with_pip_keeps_plain_upgrade(monkeypatch):

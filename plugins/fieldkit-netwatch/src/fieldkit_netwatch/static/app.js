@@ -904,17 +904,32 @@ function updateTerminalCommand() {
   $("#terminal-command").textContent = parts.map(shellQuote).join(" ");
 }
 
-async function mutate(url, { method, body }) {
+async function mutate(url, { method, body }, retried = false) {
+  if (!state.token) await loadControl();
   if (!state.token) throw new Error("Local controls are locked. Open Fieldkit directly on localhost or 127.0.0.1.");
-  return api(url, {
-    method,
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-      "X-Fieldkit-Control": state.token,
-    },
-  });
+  try {
+    return await api(url, {
+      method,
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Fieldkit-Control": state.token,
+      },
+    });
+  } catch (error) {
+    if (!retried && /local control token/i.test(error.message || "")) {
+      await loadControl();
+      return mutate(url, { method, body }, true);
+    }
+    throw error;
+  }
 }
+
+window.addEventListener("beforeunload", (event) => {
+  if (!state.policyDirty) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
 
 function syncSessionUrl() {
   const url = new URL(window.location.href);

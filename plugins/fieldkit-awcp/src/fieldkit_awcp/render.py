@@ -31,7 +31,7 @@ def render_check_terminal(result: SpecCheck, console: Console) -> None:
         errors = Table(title="Errors")
         errors.add_column("error")
         for error in result.validation.errors:
-            errors.add_row(error)
+            errors.add_row(Text(error))
         console.print(errors)
 
     tools = Table(title="Tools")
@@ -40,9 +40,9 @@ def render_check_terminal(result: SpecCheck, console: Console) -> None:
     tools.add_column("risk")
     for tool in result.tools:
         tools.add_row(
-            tool.name,
+            Text(tool.name),
             "required" if tool.requires_approval else "none",
-            ", ".join(tool.risk_tokens) or "—",
+            Text(", ".join(tool.risk_tokens) or "—"),
         )
     if result.denied_tools:
         tools.add_row("denied", "—", ", ".join(result.denied_tools))
@@ -50,7 +50,7 @@ def render_check_terminal(result: SpecCheck, console: Console) -> None:
         console.print(tools)
 
     for warning in result.warnings:
-        console.print(f"warning: {warning}", style="yellow")
+        console.print(Text("warning: ") + Text(warning), style="yellow")
     if result.ok and not result.warnings:
         console.print("local check only — no model, control plane, or network call")
 

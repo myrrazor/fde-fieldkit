@@ -212,6 +212,9 @@ def _entropy(value: str) -> float:
 def _valid_entropy_secret(value: str) -> bool:
     if _EMAIL_RE.search(value):
         return False
+    # Markup and javascript: URLs are long single tokens, not secrets.
+    if any(char in value for char in "<>\"'`") or "javascript:" in value.lower():
+        return False
     return _entropy(value) > 4.0
 
 

@@ -33,7 +33,10 @@ def build_report(
     """Route entries into fixed stakeholder report sections."""
 
     start = _week_start(week)
-    end = start + timedelta(days=6)
+    try:
+        end = start + timedelta(days=6)
+    except OverflowError as exc:
+        raise ValueError(f"invalid ISO week {week!r}; the week does not fit in a date") from exc
     ordered = sorted(entries, key=lambda entry: (datetime.fromisoformat(entry.ts), entry.id))
     sections = [
         (heading, [entry for entry in ordered if entry.tag == tag])

@@ -165,6 +165,7 @@ def _read_text(file: str) -> str:
     if file == "-":
         return typer.get_text_stream("stdin").read()
     path = Path(file)
-    if not path.is_file():
-        raise ValueError(f"file not found: {path}")
+    from fieldkit.core.io import require_regular_file
+
+    require_regular_file(path)
     return path.read_text(encoding="utf-8")

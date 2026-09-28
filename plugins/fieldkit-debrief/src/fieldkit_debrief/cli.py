@@ -7,6 +7,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 
 from fieldkit_debrief.report import build_report, render_html, render_markdown
 from fieldkit_debrief.store import Store, Tag, default_db_path
@@ -54,7 +55,7 @@ def list_command(
     table.add_column("tag")
     table.add_column("text")
     for entry in entries:
-        table.add_row(str(entry.id), entry.ts, entry.tag.value, entry.text)
+        table.add_row(str(entry.id), entry.ts, entry.tag.value, Text(entry.text))
     Console().print(table)
 
 

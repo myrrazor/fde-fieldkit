@@ -108,7 +108,9 @@ class ArtifactStore:
 class EvalService:
     """In-memory golden scorer. Runner labels are recorded, never executed."""
 
-    artifact_store: ArtifactStore = field(default_factory=lambda: ArtifactStore(Path(".awcp-artifacts")))
+    artifact_store: ArtifactStore = field(
+        default_factory=lambda: ArtifactStore(Path.home() / ".fieldkit" / "awcp-artifacts")
+    )
     suites: dict[str, EvalSuite] = field(default_factory=dict)
     runs: dict[str, EvalRun] = field(default_factory=dict)
 

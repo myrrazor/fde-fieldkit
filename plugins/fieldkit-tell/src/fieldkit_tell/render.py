@@ -102,9 +102,9 @@ def render_unslop(result: UnslopResult, console: Console) -> None:
     suggestions.add_column("advice")
     for item in result.suggestions:
         suggestions.add_row(
-            item.pattern,
-            " ".join(item.excerpt.split())[:100],
-            item.advice,
+            Text(item.pattern),
+            Text(" ".join(item.excerpt.split())[:100]),
+            Text(item.advice),
         )
     if not result.suggestions:
         suggestions.add_row("—", "—", "none")

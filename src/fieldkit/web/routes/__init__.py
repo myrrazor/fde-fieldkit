@@ -27,5 +27,7 @@ async def read_upload(upload: UploadFile) -> bytes:
 def safe_filename(filename: str | None, *, fallback: str = "upload") -> str:
     """Return a basename safe to echo in a generated filename."""
 
-    name = PurePosixPath((filename or "").replace("\\", "/")).name
+    raw = (filename or "").splitlines()[0] if filename else ""
+    cleaned = "".join(char for char in raw if char.isprintable() and char not in {'"', "'", "`"})
+    name = PurePosixPath(cleaned.replace("\\", "/")).name
     return fallback if name in {"", ".", ".."} else name

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, File, Form, Query, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from fieldkit.core.io import load_table
 from fieldkit.web.routes import read_upload, safe_filename
@@ -28,9 +29,23 @@ async def diff_uploads(
 
     name_a = safe_filename(file_a.filename, fallback="file_a")
     name_b = safe_filename(file_b.filename, fallback="file_b")
-    table_a = load_table(BytesIO(await read_upload(file_a)), filename=name_a)
-    table_b = load_table(BytesIO(await read_upload(file_b)), filename=name_b)
-    result = diff_tables(table_a, table_b, keys=_parse_keys(keys))
+    content_a = await read_upload(file_a)
+    content_b = await read_upload(file_b)
+    parsed_keys = _parse_keys(keys)
+    return await run_in_threadpool(_diff, content_a, name_a, content_b, name_b, parsed_keys, output)
+
+
+def _diff(
+    content_a: bytes,
+    name_a: str,
+    content_b: bytes,
+    name_b: str,
+    keys: list[str] | None,
+    output: str,
+) -> dict[str, object]:
+    table_a = load_table(BytesIO(content_a), filename=name_a)
+    table_b = load_table(BytesIO(content_b), filename=name_b)
+    result = diff_tables(table_a, table_b, keys=keys)
     if output == "html":
         return {"html": render_html(result)}
     return json.loads(to_json(result))

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import importlib
 import logging
 import re
+from html import escape
 from ipaddress import ip_address
 from pathlib import Path
 from typing import Awaitable, Callable
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.formparsers import MultiPartParser
 
 from fieldkit import __version__
@@ -50,6 +53,8 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     )
     # plugins that care (debrief) fall back to their own default when unset
     app.state.debrief_db = debrief_db
+    app.state.mounted_plugins = frozenset()
+    app.state.installed_at_start = frozenset(installed_plugins())
     MultiPartParser.spool_max_size = MAX_UPLOAD_BYTES
     tool_pages = set()
 
@@ -69,6 +74,23 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
             )
 
         path = request.url.path
+        tool = _tool_segment(path, app.state.mounted_plugins)
+        if tool is not None:
+            issue = _plugin_restart_issue(
+                tool,
+                mounted=set(app.state.mounted_plugins),
+                started=set(app.state.installed_at_start),
+            )
+            if issue:
+                if _wants_html(request):
+                    return _secured(
+                        HTMLResponse(
+                            _simple_page("Restart fieldkit serve", issue),
+                            status_code=503,
+                        )
+                    )
+                return _secured(JSONResponse(status_code=503, content={"error": issue}))
+
         if request.method in {"GET", "HEAD"} and path.startswith("/") and path.count("/") == 1:
             tool = path[1:]
             if tool in tool_pages:
@@ -143,6 +165,18 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     async def invalid_input(_request: Request, exc: ValueError) -> JSONResponse:
         return JSONResponse(status_code=422, content={"error": str(exc)})
 
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exception(request: Request, exc: StarletteHTTPException) -> Response:
+        if exc.status_code == 404 and _wants_html(request):
+            return HTMLResponse(
+                _simple_page(
+                    "Not found",
+                    "That page is not part of this Fieldkit hub.",
+                ),
+                status_code=404,
+            )
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
     @app.get("/api/health")
     async def health() -> dict[str, str]:
         """Report the local service version and readiness."""
@@ -153,21 +187,35 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     async def plugins() -> dict[str, object]:
         """Which tools this environment has, and what else exists."""
 
+        importlib.invalidate_caches()
         installed = installed_plugins()
+        live = set(installed)
+        mounted = set(app.state.mounted_plugins)
+        started = set(app.state.installed_at_start)
         rows = [
             {
                 "name": name,
                 "summary": known.summary,
-                "status": "installed" if name in installed else "available",
+                "status": "installed" if name in live else "available",
+                "runtime": _runtime_label(name, live, started, mounted),
             }
             for name, known in REGISTRY.items()
         ]
         rows += [
-            {"name": name, "summary": "(third-party plugin)", "status": "installed"}
-            for name in sorted(set(installed) - set(REGISTRY))
+            {
+                "name": name,
+                "summary": "(third-party plugin)",
+                "status": "installed",
+                "runtime": _runtime_label(name, live, started, mounted),
+            }
+            for name in sorted(live - set(REGISTRY))
         ]
-        return {"plugins": rows}
+        return {
+            "plugins": rows,
+            "restart_required": any(row["runtime"] == "restart" for row in rows),
+        }
 
+    mounted_plugins: set[str] = set()
     for name, ep in sorted(web_modules().items()):
         try:
             module = ep.load()
@@ -175,14 +223,74 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
             logger.exception("web plugin %s failed to load", name)
             continue
         app.include_router(module.router, prefix="/api")
+        mounted_plugins.add(name)
         static_dir = getattr(module, "STATIC_DIR", None)
         if static_dir and Path(static_dir).is_dir():
             tool_pages.add(name)
             app.mount(f"/{name}", StaticFiles(directory=static_dir, html=True), name=name)
 
+    app.state.mounted_plugins = frozenset(mounted_plugins)
     static_dir = Path(__file__).parent / "static"
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
     return app
+
+
+def _runtime_label(name: str, live: set[str], started: set[str], mounted: set[str]) -> str:
+    if (name in live) != (name in started) or (name in live and name not in mounted):
+        return "restart"
+    return "ready" if name in live else "absent"
+
+
+def _tool_segment(path: str, mounted: set[str]) -> str | None:
+    parts = [part for part in path.split("/") if part]
+    if not parts:
+        return None
+    if parts[0] == "api":
+        if len(parts) < 2 or parts[1] in {"health", "plugins"}:
+            return None
+        return parts[1]
+    if parts[0] in REGISTRY or parts[0] in mounted:
+        return parts[0]
+    return None
+
+
+def _plugin_restart_issue(name: str, *, mounted: set[str], started: set[str]) -> str | None:
+    importlib.invalidate_caches()
+    live = set(installed_plugins())
+    # Web-only modules mounted at startup have no CLI entry. They are not a
+    # plugin that was removed out from under the hub.
+    if name in mounted and name not in started:
+        return None
+    if name in live and name not in started:
+        return (
+            f"{name} is installed but not loaded in this hub — "
+            "restart fieldkit serve to load it"
+        )
+    if name in started and name not in live:
+        return (
+            f"{name} was removed after this hub started — "
+            "restart fieldkit serve to unload it"
+        )
+    return None
+
+
+def _wants_html(request: Request) -> bool:
+    if request.url.path.startswith("/api/"):
+        return False
+    accept = request.headers.get("accept", "")
+    return "text/html" in accept
+
+
+def _simple_page(title: str, message: str) -> str:
+    safe_title = escape(title)
+    safe_message = escape(message)
+    return (
+        "<!doctype html><html lang=en><meta charset=utf-8>"
+        f"<title>{safe_title} — fieldkit</title>"
+        '<link rel="stylesheet" href="/fieldkit.css">'
+        f"<body><div class=shell><h1>{safe_title}</h1><p>{safe_message}</p>"
+        '<p><a href="/">Back to fieldkit</a></p></div></body></html>'
+    )
 
 
 def _secured(response: Response) -> Response:

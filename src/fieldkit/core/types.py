@@ -2,14 +2,22 @@ from __future__ import annotations
 
 import math
 import re
-from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import timezone
 from enum import StrEnum
 
+import numpy as np
 import pandas as pd
 
 _THRESHOLD = 0.95
 _INTEGER_RE = re.compile(r"^[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)$")
+# Python's float() literal, including underscores between digits. Non-finite
+# values still have to be rejected after the match.
+_FLOAT_RE = re.compile(
+    r"^[+-]?(?:"
+    r"(?:[0-9](?:_?[0-9])*)(?:\.(?:[0-9](?:_?[0-9])*)?)?"
+    r"|\.[0-9](?:_?[0-9])*"
+    r")(?:[eE][+-]?[0-9](?:_?[0-9])*)?$"
+)
 _DATE_FORMATS = ("%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y")
 _DATETIME_FORMATS = (
     "%Y-%m-%d %H:%M:%S",
@@ -18,6 +26,14 @@ _DATETIME_FORMATS = (
     "%Y-%m-%dT%H:%M:%S%z",
     "%Y-%m-%dT%H:%M:%S.%f",
     "%Y-%m-%dT%H:%M:%S.%f%z",
+)
+# Supersets of what strptime accepts for the formats above. A column that
+# misses the shape cannot clear the 95% threshold, so plain text never pays
+# for a parse. Matches still go through the real formats, in the same order.
+_DATE_SHAPE = re.compile(r"^(?:[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}|[0-9]{1,2}/[0-9]{1,2}/[0-9]{4})$")
+_DATETIME_SHAPE = re.compile(
+    r"^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[Tt ][0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}"
+    r"(?:\.[0-9]{1,6})?(?:[Zz]|[+-][0-9]{2}:?[0-9]{2})?$"
 )
 
 
@@ -41,27 +57,27 @@ def infer_column(s: pd.Series) -> ColType:
     values = s.dropna().map(str)
     if values.empty:
         return ColType.EMPTY
+    values = values.astype("string")
 
     lowered = values.str.strip().str.lower()
     bool_words = {"true", "false", "yes", "no"}
-    bool_rate = lowered.isin(bool_words).mean()
-    if bool_rate >= _THRESHOLD:
+    if float(lowered.isin(bool_words).mean()) >= _THRESHOLD:
         return ColType.BOOLEAN
-    if set(lowered) == {"0", "1"}:
+    if bool(lowered.isin(("0", "1")).all()) and int(lowered.nunique()) == 2:
         return ColType.BOOLEAN
 
-    if _parse_rate(values, _parse_integer) >= _THRESHOLD:
+    if _integer_rate(values) >= _THRESHOLD:
         return ColType.INTEGER
-    if _parse_rate(values, _parse_float) >= _THRESHOLD:
+    if _float_rate(values) >= _THRESHOLD:
         return ColType.FLOAT
-    if _parse_rate(values, _parse_date) >= _THRESHOLD:
+    if _temporal_rate(values, _DATE_SHAPE, _DATE_FORMATS) >= _THRESHOLD:
         return ColType.DATE
-    if _parse_rate(values, _parse_datetime) >= _THRESHOLD:
+    if _temporal_rate(values, _DATETIME_SHAPE, _DATETIME_FORMATS) >= _THRESHOLD:
         return ColType.DATETIME
     if _is_id_like(values):
         return ColType.ID_LIKE
 
-    distinct = values.nunique()
+    distinct = int(values.nunique())
     if distinct <= 20 or distinct / len(values) <= 0.05:
         return ColType.CATEGORICAL
     return ColType.TEXT
@@ -93,23 +109,65 @@ def coerce(df: pd.DataFrame, types: dict[str, ColType]) -> pd.DataFrame:
                 {"true": True, "yes": True, "1": True, "false": False, "no": False, "0": False}
             ).astype("boolean")
         elif col_type == ColType.DATE:
-            typed[column] = _coerce_temporal(series, _parse_date)
+            typed[column] = _coerce_temporal(series, _DATE_FORMATS)
         elif col_type == ColType.DATETIME:
-            typed[column] = _coerce_temporal(series, _parse_datetime)
+            typed[column] = _coerce_temporal(series, _DATETIME_FORMATS)
         else:
             typed[column] = series.astype("string")
     return typed
 
 
-def _parse_rate(values: pd.Series, parser: Callable[[str], object | None]) -> float:
-    return sum(parser(value) is not None for value in values) / len(values)
+def _integer_rate(values: pd.Series) -> float:
+    return float(values.str.strip().str.fullmatch(_INTEGER_RE, na=False).mean())
 
 
-def _parse_integer(value: str) -> int | None:
-    text = value.strip()
-    if not _INTEGER_RE.fullmatch(text):
-        return None
-    return int(text.replace(",", ""))
+def _float_rate(values: pd.Series) -> float:
+    cleaned = values.str.strip().str.replace(",", "", regex=False)
+    matched = cleaned.str.fullmatch(_FLOAT_RE, na=False)
+    count = 0
+    if bool(matched.any()):
+        bare = cleaned.loc[matched].str.replace("_", "", regex=False)
+        nums = pd.to_numeric(bare, errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
+        count = int(np.isfinite(nums).sum())
+    if count / len(cleaned) >= _THRESHOLD:
+        return count / len(cleaned)
+    # float() also accepts non-ASCII digits. Only scan those when the ASCII
+    # literal rate cannot already settle the column.
+    if bool(matched.all()):
+        return count / len(cleaned)
+    rest = cleaned.loc[~matched]
+    exotic = rest.str.contains(r"[^\x00-\x7F]", na=False)
+    if bool(exotic.any()):
+        count += sum(_parse_float(value) is not None for value in rest.loc[exotic])
+    return count / len(cleaned)
+
+
+def _temporal_rate(values: pd.Series, shape: re.Pattern[str], formats: tuple[str, ...]) -> float:
+    stripped = values.str.strip()
+    pending = stripped.str.fullmatch(shape, na=False)
+    if float(pending.mean()) < _THRESHOLD:
+        return 0.0
+    ok = _match_formats(stripped, pending, formats)
+    return float(ok.sum()) / len(stripped)
+
+
+def _match_formats(text: pd.Series, pending: pd.Series, formats: tuple[str, ...]) -> pd.Series:
+    """True where ``text`` matches a format. Earlier formats win the cell."""
+
+    matched = pd.Series(False, index=text.index)
+    still = pending.fillna(False).to_numpy(dtype=bool, copy=True)
+    for fmt in formats:
+        positions = np.flatnonzero(still)
+        if len(positions) == 0:
+            break
+        parsed = pd.to_datetime(text.iloc[positions], format=fmt, errors="coerce")
+        good = parsed.notna().to_numpy()
+        if not good.any():
+            continue
+        hit = positions[good]
+        matched.iloc[hit] = True
+        still[hit] = False
+    return matched
 
 
 def _parse_float(value: str) -> float | None:
@@ -120,35 +178,26 @@ def _parse_float(value: str) -> float | None:
     return parsed if math.isfinite(parsed) else None
 
 
-def _parse_date(value: str) -> datetime | None:
-    return _parse_formats(value.strip(), _DATE_FORMATS)
-
-
-def _parse_datetime(value: str) -> datetime | None:
-    return _parse_formats(value.strip(), _DATETIME_FORMATS)
-
-
-def _parse_formats(value: str, formats: tuple[str, ...]) -> datetime | None:
-    for fmt in formats:
-        try:
-            return datetime.strptime(value, fmt)
-        except ValueError:
-            continue
-    return None
+def _parse_integer(value: str) -> int | None:
+    text = value.strip()
+    if not _INTEGER_RE.fullmatch(text):
+        return None
+    return int(text.replace(",", ""))
 
 
 def _is_id_like(values: pd.Series) -> bool:
     if len(values) < 3 or values.nunique() != len(values):
         return False
 
-    integers = [_parse_integer(value) for value in values]
-    if all(value is not None for value in integers):
-        nums = [value for value in integers if value is not None]
-        deltas = [right - left for left, right in zip(nums, nums[1:], strict=False)]
-        increasing = sum(delta > 0 for delta in deltas)
-        decreasing = sum(delta < 0 for delta in deltas)
-        if max(increasing, decreasing) / len(deltas) >= 0.9:
-            return True
+    stripped = values.str.strip()
+    if bool(stripped.str.fullmatch(_INTEGER_RE, na=False).all()):
+        nums = [_parse_integer(value) for value in values]
+        if all(value is not None for value in nums):
+            deltas = [right - left for left, right in zip(nums, nums[1:], strict=False)]
+            increasing = sum(delta > 0 for delta in deltas)
+            decreasing = sum(delta < 0 for delta in deltas)
+            if max(increasing, decreasing) / len(deltas) >= 0.9:
+                return True
 
     shapes = {_shape(value) for value in values}
     if len(shapes) != 1:
@@ -161,13 +210,28 @@ def _shape(value: str) -> str:
     return "".join("A" if char.isalpha() else "9" if char.isdigit() else char for char in value)
 
 
-def _coerce_temporal(
-    series: pd.Series, parser: Callable[[str], datetime | None]
-) -> pd.Series:
-    parsed = []
-    for value in series:
-        converted = parser(str(value)) if not pd.isna(value) else None
-        if converted is not None and converted.tzinfo is not None:
-            converted = converted.astimezone(timezone.utc).replace(tzinfo=None)
-        parsed.append(converted)
-    return pd.Series(parsed, index=series.index, dtype="datetime64[ns]")
+def _coerce_temporal(series: pd.Series, formats: tuple[str, ...]) -> pd.Series:
+    present = series.notna()
+    text = pd.Series(pd.NA, index=series.index, dtype="string")
+    if bool(present.any()):
+        text.loc[present] = series.loc[present].map(lambda value: str(value).strip())
+    pending = text.notna() & text.ne("")
+    parsed_at = pd.Series(pd.NaT, index=series.index, dtype="datetime64[ns]")
+    still = pending.fillna(False).to_numpy(dtype=bool, copy=True)
+    for fmt in formats:
+        positions = np.flatnonzero(still)
+        if len(positions) == 0:
+            break
+        parsed = pd.to_datetime(text.iloc[positions], format=fmt, errors="coerce")
+        good = parsed.notna().to_numpy()
+        if not good.any():
+            continue
+        chosen = parsed.iloc[np.flatnonzero(good)]
+        tz = getattr(chosen.dtype, "tz", None)
+        if tz is not None:
+            chosen = chosen.dt.tz_convert(timezone.utc).dt.tz_localize(None)
+        chosen = chosen.astype("datetime64[ns]")
+        hit = positions[good]
+        parsed_at.iloc[hit] = chosen.to_numpy()
+        still[hit] = False
+    return parsed_at

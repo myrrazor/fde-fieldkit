@@ -1,4 +1,4 @@
-import { api, dropzone, esc, renderTable, toast, withBusy } from "/fieldkit.js";
+import { api, dropzone, esc, renderTable, toast, withBusy, latestRequest } from "/fieldkit.js";
 
 const result = document.getElementById("result");
 const modes = {
@@ -19,10 +19,12 @@ const dropEvalSpec = document.getElementById("drop-eval-spec");
 const dropEvalSuite = document.getElementById("drop-eval-suite");
 const goDiff = document.getElementById("go-diff");
 const goEval = document.getElementById("go-eval");
+const jobs = latestRequest();
 
 function wireChip(el) {
   const chip = el.parentElement.querySelector(".file-chip");
   chip?.querySelector("button")?.addEventListener("click", () => {
+    jobs.invalidate();
     chip.hidden = true;
     el.file = null;
     result.innerHTML = "";
@@ -36,10 +38,10 @@ function refresh() {
 }
 
 dropzone(dropCheck, (file) => check(file));
-dropzone(dropBefore, refresh);
-dropzone(dropAfter, refresh);
-dropzone(dropEvalSpec, refresh);
-dropzone(dropEvalSuite, refresh);
+dropzone(dropBefore, () => { jobs.invalidate(); result.innerHTML = ""; refresh(); });
+dropzone(dropAfter, () => { jobs.invalidate(); result.innerHTML = ""; refresh(); });
+dropzone(dropEvalSpec, () => { jobs.invalidate(); result.innerHTML = ""; refresh(); });
+dropzone(dropEvalSuite, () => { jobs.invalidate(); result.innerHTML = ""; refresh(); });
 for (const el of [dropCheck, dropBefore, dropAfter, dropEvalSpec, dropEvalSuite]) {
   wireChip(el);
 }
@@ -58,42 +60,58 @@ goDiff.addEventListener("click", diff);
 goEval.addEventListener("click", score);
 
 async function check(file) {
+  const job = jobs.start();
   result.innerHTML = "";
   try {
     await withBusy(result, `checking ${file.name}…`, async () => {
       const fd = new FormData();
       fd.append("file", file);
-      renderCheck(await api("/api/awcp", { body: fd }));
+      const payload = await api("/api/awcp", { body: fd, signal: job.signal });
+      if (!job.current()) return;
+      renderCheck(payload);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }
 
 async function diff() {
+  const job = jobs.start();
+  const before = dropBefore.file;
+  const after = dropAfter.file;
   result.innerHTML = "";
   try {
     await withBusy(result, "comparing specs…", async () => {
       const fd = new FormData();
-      fd.append("file_a", dropBefore.file);
-      fd.append("file_b", dropAfter.file);
-      renderDiff(await api("/api/awcp/diff", { body: fd }));
+      fd.append("file_a", before);
+      fd.append("file_b", after);
+      const payload = await api("/api/awcp/diff", { body: fd, signal: job.signal });
+      if (!job.current()) return;
+      renderDiff(payload);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }
 
 async function score() {
+  const job = jobs.start();
+  const spec = dropEvalSpec.file;
+  const suite = dropEvalSuite.file;
   result.innerHTML = "";
   try {
     await withBusy(result, "scoring recorded cases…", async () => {
       const fd = new FormData();
-      fd.append("file", dropEvalSpec.file);
-      fd.append("suite", dropEvalSuite.file);
-      renderEval(await api("/api/awcp/eval", { body: fd }));
+      fd.append("file", spec);
+      fd.append("suite", suite);
+      const payload = await api("/api/awcp/eval", { body: fd, signal: job.signal });
+      if (!job.current()) return;
+      renderEval(payload);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }

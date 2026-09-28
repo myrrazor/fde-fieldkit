@@ -36,9 +36,12 @@ def load_mapping(raw: str, *, source: str) -> Dict[str, Any]:
     except json.JSONDecodeError:
         import yaml
 
+        from fieldkit.core.yaml_safe import reject_yaml_aliases
+
         try:
+            reject_yaml_aliases(raw)
             loaded = yaml.safe_load(raw)
-        except yaml.YAMLError as exc:
+        except (yaml.YAMLError, ValueError) as exc:
             raise WorkloadSpecError(f"could not parse {source}: {exc}") from exc
 
     if not isinstance(loaded, dict):

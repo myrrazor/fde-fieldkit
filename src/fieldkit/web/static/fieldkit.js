@@ -6,11 +6,12 @@ export function esc(value) {
   return div.innerHTML;
 }
 
-export async function api(url, { method = "POST", body, headers } = {}) {
+export async function api(url, { method = "POST", body, headers, signal } = {}) {
   let res;
   try {
-    res = await fetch(url, { method, body, headers });
-  } catch {
+    res = await fetch(url, { method, body, headers, signal });
+  } catch (err) {
+    if (err && err.name === "AbortError") throw err;
     throw new Error("can't reach the local server — is `fieldkit serve` still running?");
   }
   if (!res.ok) {
@@ -18,7 +19,7 @@ export async function api(url, { method = "POST", body, headers } = {}) {
     try {
       const data = await res.json();
       if (data.error) msg = data.error;
-      else if (data.detail) msg = typeof data.detail === "string" ? data.detail : msg;
+      else if (data.detail) msg = formatDetail(data.detail) || msg;
     } catch { /* body wasn't json, keep the status message */ }
     throw new Error(msg);
   }
@@ -52,6 +53,42 @@ export function dropzone(el, onFile) {
     el.classList.remove("dragover");
     pick(e.dataTransfer.files[0]);
   });
+}
+
+function formatDetail(detail) {
+  if (typeof detail === "string") return detail;
+  if (!Array.isArray(detail)) return "";
+  return detail
+    .map((item) => {
+      if (typeof item === "string") return item;
+      const loc = Array.isArray(item.loc)
+        ? item.loc.filter((part) => part !== "body" && part !== "query").join(".")
+        : "";
+      const text = item.msg || item.message || "invalid";
+      return loc ? `${loc}: ${text}` : text;
+    })
+    .filter(Boolean)
+    .join("; ");
+}
+
+// Drop the previous in-flight request when the user picks another file.
+export function latestRequest() {
+  let controller = null;
+  let generation = 0;
+  return {
+    start() {
+      if (controller) controller.abort();
+      controller = new AbortController();
+      const token = ++generation;
+      const signal = controller.signal;
+      return { signal, current: () => token === generation && !signal.aborted };
+    },
+    invalidate() {
+      if (controller) controller.abort();
+      controller = null;
+      generation += 1;
+    },
+  };
 }
 
 export function fmtBytes(n) {

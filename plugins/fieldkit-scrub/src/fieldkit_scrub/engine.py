@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import pandas as pd
 from faker import Faker
 
+from fieldkit.core.faker_fast import install_fast_faker
 from fieldkit.core.io import LoadedTable
 from fieldkit.core.pii import PIIMatch, PIIKind, scan_dataframe, scan_text
 
@@ -37,6 +38,7 @@ class Scrubber:
     """Pseudonymize detected PII using an exact-value HMAC mapping."""
 
     def __init__(self, salt: bytes, *, kinds: set[PIIKind] | None = None):
+        install_fast_faker()
         self.salt = salt
         self.kinds = set(PIIKind) if kinds is None else set(kinds)
         self.mapping: dict[str, str] = {}
@@ -76,6 +78,9 @@ class Scrubber:
         by_column: dict[str, dict[str, int]] = {}
 
         reports = scan_dataframe(table.df)
+        # Identical cells scrub to identical strings. Remember the first result so a
+        # repeated extract doesn't re-scan every row.
+        span_cache: dict[str, tuple[str, dict[str, int]]] = {}
         for column, report in reports.items():
             candidates = {kind: score for kind, score in report.kinds.items() if kind in self.kinds}
             column_counts: Counter[str] = Counter()
@@ -89,7 +94,13 @@ class Scrubber:
                     values.append(self.scrub_value(str(value), whole_column_kind))
                     column_counts[whole_column_kind.value] += 1
                 else:
-                    scrubbed_value, value_counts = self._scrub_spans(str(value))
+                    text = str(value)
+                    cached = span_cache.get(text)
+                    if cached is None:
+                        scrubbed_value, value_counts = self._scrub_spans(text)
+                        cached = (scrubbed_value, dict(value_counts))
+                        span_cache[text] = cached
+                    scrubbed_value, value_counts = cached
                     values.append(scrubbed_value)
                     column_counts.update(value_counts)
             scrubbed[column] = pd.Series(values, index=table.df.index, dtype="string")
@@ -115,13 +126,16 @@ class Scrubber:
 
     def _raise_for_residuals(self, values: Iterable[object]) -> None:
         known_fakes = set(self.mapping.values())
+        # Repeated cells share a scan. Multiply by how often the cell occurred so
+        # the reported leftover counts stay the same.
+        frequencies: Counter[str] = Counter(str(value) for value in values)
         residuals: Counter[str] = Counter()
-        for value in values:
-            for match in scan_text(str(value)):
+        for text, freq in frequencies.items():
+            for match in scan_text(text):
                 if match.kind in self.kinds and not _covered_by_known_fake(
                     match.value, known_fakes, self.kinds
                 ):
-                    residuals[match.kind.value] += 1
+                    residuals[match.kind.value] += freq
         if residuals:
             details = ", ".join(
                 f"{kind}={count}" for kind, count in _ordered_counts(residuals).items()

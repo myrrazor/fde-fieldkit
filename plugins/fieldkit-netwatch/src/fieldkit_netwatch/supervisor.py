@@ -70,6 +70,10 @@ async def run_supervised(
                     start_new_session=True,
                 )
             except FileNotFoundError as exc:
+                # A launch that never started is not evidence. Finish first so
+                # delete_session accepts the row, then drop it.
+                store.finish_session(session.id, status="failed", note="command not found")
+                store.delete_session(session.id)
                 raise ValueError(f"command not found: {command[0]}") from exc
             note = "; ".join(prepared.warnings) or None
             store.mark_running(

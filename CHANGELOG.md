@@ -5,6 +5,11 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+- Package version is 0.2.1. The newest GitHub release is still v0.2.0 and is
+  older than this tree. No 0.2.1 wheels have been published.
+- Heavy profiling, scrubbing, diffs, generation, and workload checks run off
+  the hub's event loop. Column typing and tell scoring stay the same and
+  finish faster on large inputs.
 - XLSX loading inflates ZIP members itself and rejects archives whose declared
   uncompressed size does not match the inflated byte count. The 50 MB dataset
   cap still applies to those inflated bytes, not to ZIP metadata.

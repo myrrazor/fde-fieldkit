@@ -3,11 +3,13 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from fieldkit.core.io import SUPPORTED_FORMATS, load_table
+from fieldkit.cli import SingleCommandGroup
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, require_regular_file
 from fieldkit_datadiff.diff import diff_tables, to_json
 from fieldkit_datadiff.render import render_html, render_terminal
 
 app = typer.Typer(
+    cls=SingleCommandGroup,
     help="Schema-aware diff of two data dumps",
     context_settings={"allow_interspersed_args": True},
 )
@@ -15,8 +17,8 @@ app = typer.Typer(
 
 @app.callback(invoke_without_command=True)
 def main(
-    old: Path = typer.Argument(..., dir_okay=False, help="Original data dump."),
-    new: Path = typer.Argument(..., dir_okay=False, help="New data dump."),
+    old: Path = typer.Argument(..., metavar="OLD", dir_okay=False, help="Original data dump."),
+    new: Path = typer.Argument(..., metavar="NEW", dir_okay=False, help="New data dump."),
     key: str | None = typer.Option(
         None, "--key", metavar="COL[,COL]", help="Comma-separated row key columns."
     ),
@@ -41,9 +43,11 @@ def main(
     """Compare OLD and NEW and optionally save JSON and HTML reports."""
 
     for path in (old, new):
-        if not path.is_file():
-            typer.echo(f"error: file not found: {path}", err=True)
-            raise typer.Exit(1)
+        try:
+            require_regular_file(path)
+        except ValueError as exc:
+            typer.echo(f"error: {exc}", err=True)
+            raise typer.Exit(1) from exc
 
     try:
         keys = _parse_key(key)
