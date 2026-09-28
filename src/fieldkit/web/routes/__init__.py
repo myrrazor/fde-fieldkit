@@ -5,6 +5,18 @@ from pathlib import PurePosixPath
 from fastapi import UploadFile
 
 from fieldkit.core.io import MAX_DATASET_BYTES
+from fieldkit.web.routes.jobs import ClientGone, arm_heavy_jobs, run_job, stop_heavy_jobs
+
+__all__ = [
+    "MAX_UPLOAD_BYTES",
+    "ClientGone",
+    "UploadTooLarge",
+    "arm_heavy_jobs",
+    "read_upload",
+    "run_job",
+    "safe_filename",
+    "stop_heavy_jobs",
+]
 
 MAX_UPLOAD_BYTES = MAX_DATASET_BYTES
 

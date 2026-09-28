@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass
 
+import numpy as np
 import pandas as pd
 
 from fieldkit.core.io import LoadedTable
@@ -116,8 +118,13 @@ def _profile_column(
     top_k: int,
     include_values: bool,
 ) -> ColumnProfile:
-    null_count = int(raw.isna().sum())
-    distinct_count = int(raw.nunique(dropna=True))
+    if row_count <= 128:
+        present = [value for value in raw.tolist() if not _missing(value)]
+        null_count = row_count - len(present)
+        distinct_count = len(set(present))
+    else:
+        null_count = int(raw.isna().sum())
+        distinct_count = int(raw.nunique(dropna=True))
     # card/ssn/phone columns parse as numbers, but their "stats" are noise
     if {"credit_card", "ssn", "phone"} & {kind.value for kind in pii_report.kinds}:
         numeric, outlier_count, outlier_examples = None, 0, []
@@ -166,8 +173,15 @@ def _numeric_profile(
         return None, 0, []
 
     values = typed.dropna().astype("float64")
-    q1 = float(values.quantile(0.25))
-    q3 = float(values.quantile(0.75))
+    if values.empty:
+        return None, 0, []
+    array = values.to_numpy(dtype=np.float64, na_value=np.nan)
+    array = array[np.isfinite(array)]
+    if len(array) == 0:
+        return None, 0, []
+    p5, q1, median, q3, p95 = (
+        float(item) for item in np.quantile(array, [0.05, 0.25, 0.5, 0.75, 0.95])
+    )
     iqr = q3 - q1
     lower = q1 - 1.5 * iqr
     upper = q3 + 1.5 * iqr
@@ -175,13 +189,13 @@ def _numeric_profile(
     outliers = outliers.fillna(False)
 
     stats = NumericStats(
-        min=float(values.min()),
-        max=float(values.max()),
-        mean=float(values.mean()),
-        median=float(values.median()),
-        std=float(values.std()) if len(values) > 1 else 0.0,
-        p5=float(values.quantile(0.05)),
-        p95=float(values.quantile(0.95)),
+        min=float(array.min()),
+        max=float(array.max()),
+        mean=float(array.mean()),
+        median=median,
+        std=float(array.std(ddof=1)) if len(array) > 1 else 0.0,
+        p5=p5,
+        p95=p95,
     )
     return (
         stats,
@@ -192,3 +206,9 @@ def _numeric_profile(
 
 def _percentage(part: int, total: int) -> float:
     return part / total * 100 if total else 0.0
+
+
+def _missing(value: object) -> bool:
+    if value is None or value is pd.NA:
+        return True
+    return isinstance(value, float) and math.isnan(value)

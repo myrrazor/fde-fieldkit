@@ -128,7 +128,13 @@ class Scrubber:
         known_fakes = set(self.mapping.values())
         # Repeated cells share a scan. Multiply by how often the cell occurred so
         # the reported leftover counts stay the same.
-        frequencies: Counter[str] = Counter(str(value) for value in values)
+        frequencies: Counter[str] = Counter()
+        for value in values:
+            text = str(value)
+            # Whole-cell pseudonyms are already the mapping's output.
+            if text in known_fakes:
+                continue
+            frequencies[text] += 1
         residuals: Counter[str] = Counter()
         for text, freq in frequencies.items():
             for match in scan_text(text):

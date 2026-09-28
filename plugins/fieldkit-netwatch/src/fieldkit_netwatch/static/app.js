@@ -45,7 +45,8 @@ async function bootstrap() {
   ]);
   const readable = [jobs[1], jobs[4], jobs[5]].some((job) => job.status === "fulfilled");
   if (!readable) {
-    setFreshness("Local API unavailable", true);
+    setFreshness("can't reach the local server — is `fieldkit serve` still running?", true);
+    schedulePoll();
     return;
   }
   await loadSelectedReport(false);
@@ -69,8 +70,14 @@ async function refreshAll(announced) {
 
 function schedulePoll() {
   clearTimeout(state.pollTimer);
-  if (!["starting", "running"].includes(state.report?.session.status)) return;
+  const running = ["starting", "running"].includes(state.report?.session.status);
+  if (!running && !freshnessNeedsRetry()) return;
   state.pollTimer = window.setTimeout(() => refreshAll(false), 2000);
+}
+
+function freshnessNeedsRetry() {
+  const text = $("#freshness")?.textContent || "";
+  return text.startsWith("can't reach") || text === "Local API unavailable";
 }
 
 async function loadControl() {

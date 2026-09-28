@@ -459,12 +459,9 @@ def _provider_attribute(placeholder: str) -> str:
 
 
 def _fake_words(faker: Faker, count: int) -> str:
-    output = StringIO()
-    for index in range(count):
-        if index:
-            output.write(" ")
-        output.write(faker.word())
-    return output.getvalue()
+    # word() draws with Random._randbelow. words(n) draws with Random.random,
+    # so the calls stay one word at a time or the seed stream moves.
+    return " ".join(faker.word() for _ in range(count))
 
 
 def _strftime_bound(fmt: str, minimum: datetime, maximum: datetime) -> int:

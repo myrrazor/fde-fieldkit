@@ -12,7 +12,7 @@ from anyio import from_thread
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import JSONResponse
 
-from fieldkit.web.routes import read_upload, safe_filename
+from fieldkit.web.routes import read_upload, run_job, safe_filename
 from fieldkit_tell.adapters import (
     ADAPTERS,
     active_remote_adapters,
@@ -162,14 +162,28 @@ def check_text(
 
 
 @router.post("/unslop")
-def unslop_text(
+async def unslop_text(
+    request: Request,
     text: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File()] = None,
     max_iterations: Annotated[int, Form(ge=1, le=10)] = 3,
 ) -> dict[str, object]:
     """Rewrite deterministic patterns and return provenance plus a text download."""
 
-    source, filename = _resolve_text(text, file)
+    source, filename = await _resolve_text_async(text, file)
+    # Long drafts are the super-linear case. Isolate them so a disconnect or
+    # a server shutdown can stop the process instead of waiting it out.
+    return await run_job(
+        request,
+        _unslop_payload,
+        source,
+        filename,
+        max_iterations,
+        isolate=len(source) >= 20_000,
+    )
+
+
+def _unslop_payload(source: str, filename: str, max_iterations: int) -> dict[str, object]:
     result = unslop(source, max_iterations=max_iterations)
     payload = asdict(result)
     payload["diff"] = [asdict(operation) for operation in word_diff(source, result.final)]
@@ -179,6 +193,23 @@ def unslop_text(
         "content_b64": base64.b64encode(result.final.encode("utf-8")).decode("ascii"),
     }
     return payload
+
+
+async def _resolve_text_async(text: str | None, file: UploadFile | None) -> tuple[str, str]:
+    if (text is None) == (file is None):
+        raise ValueError("provide exactly one of text or file")
+    if text is not None:
+        return text, "text.txt"
+    if file is None:
+        raise ValueError("provide exactly one of text or file")
+    filename = safe_filename(file.filename, fallback="upload.txt")
+    if Path(filename).suffix.lower() not in {".txt", ".md"}:
+        raise ValueError("tell uploads must be .txt or .md")
+    try:
+        content = await read_upload(file)
+        return content.decode("utf-8-sig"), filename
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"invalid text encoding: {exc}") from exc
 
 
 def _resolve_text(text: str | None, file: UploadFile | None) -> tuple[str, str]:

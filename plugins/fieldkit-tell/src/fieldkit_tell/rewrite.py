@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from difflib import SequenceMatcher
 from typing import Literal, Protocol
 
 from fieldkit_tell.lexicon import load_lexicon, phrase_spans
@@ -475,16 +474,74 @@ def collect_suggestions(doc: Doc) -> list[Suggestion]:
 def word_diff(original: str, final: str) -> list[DiffOp]:
     """Return a lossless word-level diff with replace operations split into delete/insert."""
 
+    if original == final:
+        return [DiffOp("equal", original)] if original else []
     before = _TOKEN_RE.findall(original)
     after = _TOKEN_RE.findall(final)
-    matcher = SequenceMatcher(a=before, b=after, autojunk=False)
+    return _merge_diff_ops(_diff_tokens(before, after))
+
+
+def _diff_tokens(before: list[str], after: list[str]) -> list[DiffOp]:
+    """Greedy local diff. Unslop edits are short, so a fixed window stays linear."""
+
     operations: list[DiffOp] = []
-    for opcode, i1, i2, j1, j2 in matcher.get_opcodes():
-        if opcode in {"equal", "delete", "replace"} and i1 != i2:
-            operations.append(DiffOp("equal" if opcode == "equal" else "delete", "".join(before[i1:i2])))
-        if opcode in {"insert", "replace"} and j1 != j2:
-            operations.append(DiffOp("insert", "".join(after[j1:j2])))
-    return _merge_diff_ops(operations)
+    i = j = 0
+    n, m = len(before), len(after)
+    while i < n and j < m:
+        if before[i] == after[j]:
+            i2, j2 = i + 1, j + 1
+            while i2 < n and j2 < m and before[i2] == after[j2]:
+                i2 += 1
+                j2 += 1
+            operations.append(DiffOp("equal", "".join(before[i:i2])))
+            i, j = i2, j2
+            continue
+        found_i, found_j = _resync(before, after, i, j)
+        if found_i == i and found_j == j:
+            if n - i >= m - j:
+                operations.append(DiffOp("delete", before[i]))
+                i += 1
+            else:
+                operations.append(DiffOp("insert", after[j]))
+                j += 1
+            continue
+        if found_i > i:
+            operations.append(DiffOp("delete", "".join(before[i:found_i])))
+        if found_j > j:
+            operations.append(DiffOp("insert", "".join(after[j:found_j])))
+        i, j = found_i, found_j
+    if i < n:
+        operations.append(DiffOp("delete", "".join(before[i:])))
+    if j < m:
+        operations.append(DiffOp("insert", "".join(after[j:])))
+    return operations
+
+
+def _resync(before: list[str], after: list[str], i: int, j: int, radius: int = 48) -> tuple[int, int]:
+    n, m = len(before), len(after)
+    for distance in range(1, radius + 1):
+        if i + distance < n and before[i + distance] == after[j] and _run(before, after, i + distance, j) >= 3:
+            return i + distance, j
+        if j + distance < m and before[i] == after[j + distance] and _run(before, after, i, j + distance) >= 3:
+            return i, j + distance
+        if (
+            i + distance < n
+            and j + distance < m
+            and before[i + distance] == after[j + distance]
+            and _run(before, after, i + distance, j + distance) >= 3
+        ):
+            return i + distance, j + distance
+    return i, j
+
+
+def _run(before: list[str], after: list[str], i: int, j: int) -> int:
+    count = 0
+    n, m = len(before), len(after)
+    while i + count < n and j + count < m and before[i + count] == after[j + count]:
+        count += 1
+        if count >= 3:
+            return count
+    return count
 
 
 def _opener_edits(

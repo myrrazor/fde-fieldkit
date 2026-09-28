@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib
 import logging
 import re
+import time
+from contextlib import asynccontextmanager
 from html import escape
 from ipaddress import ip_address
 from pathlib import Path
@@ -16,9 +18,42 @@ from starlette.formparsers import MultiPartParser
 
 from fieldkit import __version__
 from fieldkit.plugins import REGISTRY, installed_plugins, web_modules
-from fieldkit.web.routes import MAX_UPLOAD_BYTES, UploadTooLarge
+from fieldkit.web.routes import (
+    MAX_UPLOAD_BYTES,
+    ClientGone,
+    UploadTooLarge,
+    arm_heavy_jobs,
+    stop_heavy_jobs,
+)
 
 logger = logging.getLogger(__name__)
+_PLUGIN_CACHE_SECONDS = 2.0
+_plugin_cache_at = 0.0
+_plugin_cache: set[str] | None = None
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):  # type: ignore[no-untyped-def]
+    arm_heavy_jobs()
+    yield
+    stop_heavy_jobs()
+
+
+def _installed_snapshot() -> set[str]:
+    """Installed plugins, refreshed at most every couple of seconds.
+
+    Scanning entry points and invalidating import caches on every tool request
+    stalls the event loop while a CPU-heavy job holds the GIL.
+    """
+
+    global _plugin_cache_at, _plugin_cache
+    now = time.monotonic()
+    if _plugin_cache is not None and now - _plugin_cache_at < _PLUGIN_CACHE_SECONDS:
+        return _plugin_cache
+    importlib.invalidate_caches()
+    _plugin_cache = set(installed_plugins())
+    _plugin_cache_at = now
+    return _plugin_cache
 
 _BRACKETED_HOST = re.compile(r"^\[([^\]]+)](?::(\d+))?$")
 _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
@@ -50,6 +85,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        lifespan=_lifespan,
     )
     # plugins that care (debrief) fall back to their own default when unset
     app.state.debrief_db = debrief_db
@@ -137,6 +173,8 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         request._receive = receive_with_limit  # noqa: SLF001
         try:
             response = await call_next(request)
+        except ClientGone:
+            response = Response(status_code=499)
         except UploadTooLarge:
             response = JSONResponse(
                 status_code=413,
@@ -255,8 +293,7 @@ def _tool_segment(path: str, mounted: set[str]) -> str | None:
 
 
 def _plugin_restart_issue(name: str, *, mounted: set[str], started: set[str]) -> str | None:
-    importlib.invalidate_caches()
-    live = set(installed_plugins())
+    live = _installed_snapshot()
     # Web-only modules mounted at startup have no CLI entry. They are not a
     # plugin that was removed out from under the hub.
     if name in mounted and name not in started:

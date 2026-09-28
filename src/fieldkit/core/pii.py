@@ -99,7 +99,14 @@ def scan_dataframe(df: pd.DataFrame) -> dict[str, PIIColumnReport]:
     return {str(column): scan_column(df[column], column_name=str(column)) for column in df.columns}
 
 
+# Plain numbers shorter than an SSN cannot be any scanned kind. Wide numeric
+# profiles otherwise pay a full regex pass per cell.
+_SHORT_SCALAR_RE = re.compile(r"^[+-]?\d{1,8}(?:\.\d+)?$")
+
+
 def _scan(text: str, column_name: str) -> list[PIIMatch]:
+    if _SHORT_SCALAR_RE.fullmatch(text):
+        return []
     matches: list[PIIMatch] = []
     matches.extend(_validated_matches(text, _EMAIL_RE, PIIKind.EMAIL, _valid_email))
     matches.extend(_validated_matches(text, _PHONE_RE, PIIKind.PHONE, _valid_phone))
@@ -212,8 +219,10 @@ def _entropy(value: str) -> float:
 def _valid_entropy_secret(value: str) -> bool:
     if _EMAIL_RE.search(value):
         return False
-    # Markup and javascript: URLs are long single tokens, not secrets.
-    if any(char in value for char in "<>\"'`") or "javascript:" in value.lower():
+    # javascript: URLs are one long token and used to look like secrets.
+    # Quotes, tags, and backticks often wrap a real token (`api_key="…"`,
+    # JSON, `<secret>…</secret>`), so those characters stay eligible.
+    if "javascript:" in value.lower():
         return False
     return _entropy(value) > 4.0
 

@@ -254,7 +254,7 @@ def test_scrub_fails_closed_if_selected_pii_survives(
 def test_residual_verification_scans_each_unique_fake_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Unique replacements must not multiply residual scanner work."""
+    """A whole-cell pseudonym is the mapping output, so it is not scanned again."""
 
     row_count = 2_000
     table = LoadedTable(
@@ -286,7 +286,7 @@ def test_residual_verification_scans_each_unique_fake_once(
 
     assert len(output) == row_count
     assert summary.replaced == {"email": row_count}
-    assert scan_calls == row_count
+    assert scan_calls == 0
 
 
 def test_overlap_selection_does_constant_index_work_per_match(

@@ -29,9 +29,23 @@ from fieldkit_awcp.web import router as awcp_router
 runner = CliRunner()
 
 
-def test_yaml_aliases_are_rejected_before_expansion() -> None:
-    with pytest.raises(WorkloadSpecError, match="aliases and anchors"):
-        load_mapping("a: &anchor hello\nb: *anchor\n", source="bomb.yaml")
+def test_yaml_aliases_allow_ordinary_anchors_and_reject_bombs() -> None:
+    loaded = load_mapping("a: &anchor hello\nb: *anchor\n", source="anchor.yaml")
+
+    assert loaded == {"a": "hello", "b": "hello"}
+
+    bomb = "\n".join(
+        [
+            'a: &a ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]',
+            "b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]",
+            "c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]",
+            "d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]",
+            "e: &e [*d, *d, *d, *d, *d, *d, *d, *d, *d, *d]",
+            "f: *e",
+        ]
+    )
+    with pytest.raises(WorkloadSpecError, match="expand too far"):
+        load_mapping(bomb, source="bomb.yaml")
 
 
 def test_sample_workload_validates(example_dir: Path) -> None:

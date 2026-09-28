@@ -5,11 +5,10 @@ from io import BytesIO
 from pathlib import Path
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, File, Form, Query, UploadFile
-from starlette.concurrency import run_in_threadpool
+from fastapi import APIRouter, File, Form, Query, Request, UploadFile
 
 from fieldkit.core.io import load_table
-from fieldkit.web.routes import read_upload, safe_filename
+from fieldkit.web.routes import read_upload, run_job, safe_filename
 from fieldkit_datadiff import diff_tables, to_json
 from fieldkit_datadiff.render import render_html
 
@@ -20,6 +19,7 @@ router = APIRouter(prefix="/datadiff", tags=["datadiff"])
 
 @router.post("")
 async def diff_uploads(
+    request: Request,
     file_a: Annotated[UploadFile, File()],
     file_b: Annotated[UploadFile, File()],
     keys: Annotated[str | None, Form()] = None,
@@ -32,7 +32,17 @@ async def diff_uploads(
     content_a = await read_upload(file_a)
     content_b = await read_upload(file_b)
     parsed_keys = _parse_keys(keys)
-    return await run_in_threadpool(_diff, content_a, name_a, content_b, name_b, parsed_keys, output)
+    return await run_job(
+        request,
+        _diff,
+        content_a,
+        name_a,
+        content_b,
+        name_b,
+        parsed_keys,
+        output,
+        weight=len(content_a) + len(content_b),
+    )
 
 
 def _diff(

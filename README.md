@@ -113,7 +113,7 @@ ignore proxies; awcp never calls a model. Analysis stays local except explicit
 ```
 uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
-uv pip install --python fresh/bin/python dist/fieldkit-0.2.0-py3-none-any.whl
+uv pip install --python fresh/bin/python dist/fieldkit-0.2.1-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 

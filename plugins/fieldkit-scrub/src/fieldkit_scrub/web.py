@@ -6,12 +6,11 @@ from io import BytesIO
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile
-from starlette.concurrency import run_in_threadpool
+from fastapi import APIRouter, File, Form, Request, UploadFile
 
 from fieldkit.core.io import load_table, write_table
 from fieldkit.core.pii import PIIKind
-from fieldkit.web.routes import read_upload, safe_filename
+from fieldkit.web.routes import read_upload, run_job, safe_filename
 from fieldkit_scrub import Scrubber, load_or_create_salt
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -23,6 +22,7 @@ _TEXT_SUFFIXES = {".log", ".txt"}
 
 @router.post("")
 async def scrub_upload(
+    request: Request,
     file: Annotated[UploadFile, File()],
     kinds: Annotated[str | None, Form()] = None,
     include_mapping: Annotated[bool, Form()] = False,
@@ -32,7 +32,9 @@ async def scrub_upload(
     filename = safe_filename(file.filename)
     content = await read_upload(file)
     selected = _parse_kinds(kinds)
-    return await run_in_threadpool(_scrub, content, filename, selected, include_mapping)
+    return await run_job(
+        request, _scrub, content, filename, selected, include_mapping, weight=len(content)
+    )
 
 
 def _scrub(

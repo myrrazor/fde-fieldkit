@@ -91,3 +91,38 @@ def test_coerce_normalizes_timezone_aware_iso_datetimes_to_utc() -> None:
 
     assert str(typed["when"].dtype) == "datetime64[ns]"
     assert typed["when"].tolist() == [pd.Timestamp("2025-01-01T10:30:00")] * 2
+
+
+def test_datetime_edges_match_strptime_and_do_not_crash() -> None:
+    # Long enough to take the vectorized parser, which is where mixed offsets raised.
+    mixed = pd.Series(
+        ["2024-03-09T10:00:00-05:00", "2024-03-11T10:00:00-04:00"] * 100, dtype="string"
+    )
+    doubled = pd.Series(["2024-01-17  10:00:00"] * 200, dtype="string")
+    offset = pd.Series(["2024-01-17T10:00:00+05:30:00"] * 200, dtype="string")
+    leap = pd.Series(["2024-01-17 10:00:60"] * 200, dtype="string")
+    sentinel = pd.Series(["9999-12-31"] * 200, dtype="string")
+
+    assert infer_column(mixed) == ColType.DATETIME
+    assert infer_column(doubled) == ColType.DATETIME
+    assert infer_column(offset) == ColType.DATETIME
+    assert infer_column(leap) == ColType.CATEGORICAL
+    assert infer_column(sentinel) == ColType.CATEGORICAL
+
+    typed = coerce(
+        pd.DataFrame({"when": mixed, "gap": doubled, "zone": offset, "sent": sentinel}),
+        {
+            "when": ColType.DATETIME,
+            "gap": ColType.DATETIME,
+            "zone": ColType.DATETIME,
+            "sent": ColType.DATE,
+        },
+    )
+
+    assert list(typed["when"].iloc[:2]) == [
+        pd.Timestamp("2024-03-09 15:00:00"),
+        pd.Timestamp("2024-03-11 14:00:00"),
+    ]
+    assert list(typed["gap"].iloc[:2]) == [pd.Timestamp("2024-01-17 10:00:00")] * 2
+    assert list(typed["zone"].iloc[:2]) == [pd.Timestamp("2024-01-17 04:30:00")] * 2
+    assert typed["sent"].isna().all()

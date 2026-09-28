@@ -156,10 +156,26 @@ def serve(
         host="127.0.0.1",
         port=actual,
         log_level="info",
+        # A killed heavy job closes its connection within this window, so one
+        # Ctrl+C finishes shutdown instead of waiting out the request.
+        timeout_graceful_shutdown=3,
     )
+    server = uvicorn.Server(config)
+    # capture_signals binds server.handle_exit. Stop isolated jobs in that
+    # handler so the open request can return and the process can exit.
+    handle_exit = getattr(server, "handle_exit", None)
+    if handle_exit is not None:
+
+        def _stop_jobs_then_exit(sig: int, frame: object) -> None:
+            from fieldkit.web.routes import stop_heavy_jobs
+
+            stop_heavy_jobs()
+            handle_exit(sig, frame)
+
+        server.handle_exit = _stop_jobs_then_exit  # type: ignore[method-assign]
     try:
         # hand uvicorn the already-bound socket so nothing can steal the port
-        uvicorn.Server(config).run(sockets=[sock])
+        server.run(sockets=[sock])
     finally:
         sock.close()
 

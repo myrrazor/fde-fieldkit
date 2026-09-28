@@ -122,7 +122,7 @@ function parseCsv(text, delim) {
       if (c === '"') {
         if (text[i + 1] === '"') { cur += '"'; i++; } else quoted = false;
       } else cur += c;
-    } else if (c === '"') quoted = true;
+    } else if (c === '"' && cur === "") quoted = true;
     else if (c === delim) { row.push(cur); cur = ""; }
     else if (c === "\n") { row.push(cur); rows.push(row); row = []; cur = ""; }
     else if (c !== "\r") cur += c;
