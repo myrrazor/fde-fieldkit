@@ -21,6 +21,7 @@ from fieldkit.plugins import REGISTRY, installed_plugins, web_modules
 from fieldkit.web.routes import (
     MAX_UPLOAD_BYTES,
     ClientGone,
+    JobCrashed,
     UploadTooLarge,
     arm_heavy_jobs,
     stop_heavy_jobs,
@@ -173,8 +174,20 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         request._receive = receive_with_limit  # noqa: SLF001
         try:
             response = await call_next(request)
-        except ClientGone:
-            response = Response(status_code=499)
+        except ClientGone as exc:
+            if exc.reason == "shutdown":
+                response = JSONResponse(
+                    status_code=499,
+                    content={"error": "server stopped before the job finished"},
+                )
+            else:
+                response = Response(status_code=499)
+        except JobCrashed as exc:
+            logger.warning("heavy job crashed: %s", exc.reason)
+            response = JSONResponse(
+                status_code=500,
+                content={"error": f"the job crashed: {exc.reason}"},
+            )
         except UploadTooLarge:
             response = JSONResponse(
                 status_code=413,

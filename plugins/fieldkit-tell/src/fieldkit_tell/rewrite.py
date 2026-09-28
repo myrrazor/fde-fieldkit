@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from typing import Literal, Protocol
 
 from fieldkit_tell.lexicon import load_lexicon, phrase_spans
@@ -471,6 +473,11 @@ def collect_suggestions(doc: Doc) -> list[Suggestion]:
     return sorted(unique.values(), key=lambda item: (item.start, item.end, item.pattern))
 
 
+# SequenceMatcher is exact and cheap on a page. Past this, unique words split
+# the draft into short gaps so a 50k-word unslop does not pay a quadratic pass.
+_FINE_TOKENS = 1_500
+
+
 def word_diff(original: str, final: str) -> list[DiffOp]:
     """Return a lossless word-level diff with replace operations split into delete/insert."""
 
@@ -482,6 +489,99 @@ def word_diff(original: str, final: str) -> list[DiffOp]:
 
 
 def _diff_tokens(before: list[str], after: list[str]) -> list[DiffOp]:
+    if len(before) <= _FINE_TOKENS and len(after) <= _FINE_TOKENS:
+        return _sequence_ops(before, after)
+    anchored = _anchored_ops(before, after)
+    if anchored is not None:
+        return anchored
+    return _linear_ops(before, after)
+
+
+def _sequence_ops(before: list[str], after: list[str]) -> list[DiffOp]:
+    matcher = SequenceMatcher(a=before, b=after, autojunk=False)
+    operations: list[DiffOp] = []
+    for opcode, i1, i2, j1, j2 in matcher.get_opcodes():
+        if opcode in {"equal", "delete", "replace"} and i1 != i2:
+            operations.append(
+                DiffOp("equal" if opcode == "equal" else "delete", "".join(before[i1:i2]))
+            )
+        if opcode in {"insert", "replace"} and j1 != j2:
+            operations.append(DiffOp("insert", "".join(after[j1:j2])))
+    return operations
+
+
+def _anchored_ops(before: list[str], after: list[str]) -> list[DiffOp] | None:
+    """Split on words that appear once on each side, then diff the gaps."""
+
+    anchors = _anchor_pairs(before, after)
+    if len(anchors) < 4:
+        return None
+    operations: list[DiffOp] = []
+    left = right = 0
+    for before_at, after_at in anchors:
+        operations.extend(_diff_gap(before[left:before_at], after[right:after_at]))
+        operations.append(DiffOp("equal", before[before_at]))
+        left, right = before_at + 1, after_at + 1
+    operations.extend(_diff_gap(before[left:], after[right:]))
+    return operations
+
+
+def _diff_gap(before: list[str], after: list[str]) -> list[DiffOp]:
+    if len(before) <= _FINE_TOKENS and len(after) <= _FINE_TOKENS:
+        return _sequence_ops(before, after)
+    return _linear_ops(before, after)
+
+
+def _anchor_pairs(before: list[str], after: list[str]) -> list[tuple[int, int]]:
+    before_counts = Counter(before)
+    after_counts = Counter(after)
+    after_at = {
+        token: index
+        for index, token in enumerate(after)
+        if after_counts[token] == 1 and _anchor_token(token)
+    }
+    pairs = [
+        (index, after_at[token])
+        for index, token in enumerate(before)
+        if before_counts[token] == 1 and token in after_at
+    ]
+    return _increasing_pairs(pairs)
+
+
+def _anchor_token(token: str) -> bool:
+    return any(char.isalnum() for char in token) and not token.isspace()
+
+
+def _increasing_pairs(pairs: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Longest increasing subsequence of match positions, so anchors do not cross."""
+
+    if not pairs:
+        return []
+    tails: list[int] = []
+    previous = [-1] * len(pairs)
+    for index, (_before_at, after_at) in enumerate(pairs):
+        lo, hi = 0, len(tails)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if pairs[tails[mid]][1] < after_at:
+                lo = mid + 1
+            else:
+                hi = mid
+        if lo == len(tails):
+            tails.append(index)
+        else:
+            tails[lo] = index
+        previous[index] = tails[lo - 1] if lo else -1
+    chosen: list[tuple[int, int]] = []
+    cursor = tails[-1]
+    while cursor != -1:
+        chosen.append(pairs[cursor])
+        cursor = previous[cursor]
+    chosen.reverse()
+    return chosen
+
+
+def _linear_ops(before: list[str], after: list[str]) -> list[DiffOp]:
     """Greedy local diff. Unslop edits are short, so a fixed window stays linear."""
 
     operations: list[DiffOp] = []

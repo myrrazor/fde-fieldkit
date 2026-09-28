@@ -126,15 +126,12 @@ class Scrubber:
 
     def _raise_for_residuals(self, values: Iterable[object]) -> None:
         known_fakes = set(self.mapping.values())
-        # Repeated cells share a scan. Multiply by how often the cell occurred so
-        # the reported leftover counts stay the same.
+        # One scan per distinct output, multiplied back by how often it occurred.
+        # A whole-cell pseudonym is still scanned: a double-spaced date rewritten
+        # digit-for-digit stays phone-shaped on a span that is not the stored fake.
         frequencies: Counter[str] = Counter()
         for value in values:
-            text = str(value)
-            # Whole-cell pseudonyms are already the mapping's output.
-            if text in known_fakes:
-                continue
-            frequencies[text] += 1
+            frequencies[str(value)] += 1
         residuals: Counter[str] = Counter()
         for text, freq in frequencies.items():
             for match in scan_text(text):

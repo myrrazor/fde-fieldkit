@@ -102,12 +102,19 @@ def test_datetime_edges_match_strptime_and_do_not_crash() -> None:
     offset = pd.Series(["2024-01-17T10:00:00+05:30:00"] * 200, dtype="string")
     leap = pd.Series(["2024-01-17 10:00:60"] * 200, dtype="string")
     sentinel = pd.Series(["9999-12-31"] * 200, dtype="string")
+    tabbed = pd.Series(["2024-01-17\t10:00:00"] * 200, dtype="string")
+    early = pd.Series(["1677-09-22"] * 200, dtype="string")
+    late = pd.Series(["2261-12-31"] * 200, dtype="string")
 
     assert infer_column(mixed) == ColType.DATETIME
     assert infer_column(doubled) == ColType.DATETIME
     assert infer_column(offset) == ColType.DATETIME
     assert infer_column(leap) == ColType.CATEGORICAL
     assert infer_column(sentinel) == ColType.CATEGORICAL
+    assert infer_column(tabbed) == ColType.DATETIME
+    assert infer_column(pd.Series(["2024-01-17\t10:00:00"] * 4, dtype="string")) == ColType.DATETIME
+    assert infer_column(early) == ColType.DATE
+    assert infer_column(late) == ColType.DATE
 
     typed = coerce(
         pd.DataFrame({"when": mixed, "gap": doubled, "zone": offset, "sent": sentinel}),

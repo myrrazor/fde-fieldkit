@@ -39,12 +39,13 @@ _DATETIME_SHAPE = re.compile(
     r"(?:\.[0-9]{1,6})?(?:[Zz]|[+-][0-9]{2}:?[0-9]{2}(?::?[0-9]{2})?)?$"
 )
 _CLOCK_RE = re.compile(r"[T ](\d{1,2}):(\d{1,2}):(\d{1,2})")
-# pandas datetime64[ns] spans roughly 1678–2262. Year 9999 parses as a
-# datetime but cannot be stored, so it stays a plain value instead of crashing.
-_NS_MIN_US = np.datetime64("1678-01-01", "us")
-_NS_MAX_US = np.datetime64("2261-04-11", "us")
-_NS_MIN_PY = datetime(1678, 1, 1)
-_NS_MAX_PY = datetime(2261, 4, 11)
+# pandas datetime64[ns] runs from 1677-09-21 00:12:43.145224193 through
+# 2262-04-11 23:47:16.854775807. Stay a second inside those edges so a value
+# pandas itself stores is kept. Year 9999 is still outside and must not be coerced.
+_NS_MIN_US = np.datetime64("1677-09-21T00:12:44", "us")
+_NS_MAX_US = np.datetime64("2262-04-11T23:47:16", "us")
+_NS_MIN_PY = datetime(1677, 9, 21, 0, 12, 44)
+_NS_MAX_PY = datetime(2262, 4, 11, 23, 47, 16)
 # Wide files are short per column. The vectorized path's Series overhead
 # dominates there; a few dozen Python parses do not.
 _SHORT_COLUMN = 128
@@ -159,7 +160,7 @@ def _float_rate(values: pd.Series) -> float:
 
 
 def _temporal_rate(values: pd.Series, shape: re.Pattern[str], formats: tuple[str, ...]) -> float:
-    stripped = values.str.strip()
+    stripped = _collapse_spaces(values.str.strip())
     pending = stripped.str.fullmatch(shape, na=False)
     if float(pending.mean()) < _THRESHOLD:
         return 0.0
@@ -255,7 +256,9 @@ def _coerce_temporal(series: pd.Series, formats: tuple[str, ...]) -> pd.Series:
 def _collapse_spaces(text: pd.Series) -> pd.Series:
     if text.dtype.name != "string":
         return text
-    if not bool(text.str.contains("  ", regex=False, na=False).any()):
+    # A tab between the date and the clock is whitespace to strptime's %X
+    # formats only after it has been folded into a single space.
+    if not bool(text.str.contains(r"\t|  ", regex=True, na=False).any()):
         return text
     return text.str.replace(r"\s+", " ", regex=True)
 
@@ -351,7 +354,7 @@ def _short_temporal_rate(
 def _parse_temporal_value(
     value: str, shape: re.Pattern[str], formats: tuple[str, ...]
 ) -> datetime | None:
-    if "  " in value:
+    if "\t" in value or "  " in value:
         value = re.sub(r"\s+", " ", value)
     if shape.fullmatch(value) is None or not _clock_ok_text(value):
         return None

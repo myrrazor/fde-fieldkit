@@ -245,6 +245,14 @@ def test_word_diff_is_lossless_for_both_sides() -> None:
     assert rebuilt_final == final
     assert {operation.op for operation in operations} == {"equal", "delete", "insert"}
 
+    # An unchanged word between two edits stays equal, the way a minimal diff reads.
+    swapped = word_diff("Delve leverage — incident review.\n", "Examine leverage. Incident review.\n")
+    deleted = "".join(operation.text for operation in swapped if operation.op == "delete")
+    inserted = "".join(operation.text for operation in swapped if operation.op == "insert")
+    assert "leverage" not in deleted
+    assert "leverage" not in inserted
+    assert "review" not in deleted
+
 
 def test_slop_fixture_improves_without_hiding_judgment_calls(fixture_dir: Path) -> None:
     source = (fixture_dir / "slop_sample.md").read_text(encoding="utf-8")

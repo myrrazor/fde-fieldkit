@@ -48,6 +48,9 @@ def test_luhn_invalid_numbers_are_not_credit_cards() -> None:
     )
 
     assert PIIKind.CREDIT_CARD not in report.kinds
+    assert not any(
+        match.kind is PIIKind.CREDIT_CARD for match in scan_text("0.4111111111111111")
+    )
 
 
 def test_order_ids_are_not_secrets(fixture_dir: Path) -> None:
@@ -92,6 +95,8 @@ def test_real_phones_still_match() -> None:
         "+1 (415) 555-0199",
         "415-555-0199",
         "+441234567890",
+        "212.5551234",
+        "1234.5678901234",
     ]
     for phone in phones:
         assert any(match.kind is PIIKind.PHONE for match in scan_text(phone)), phone

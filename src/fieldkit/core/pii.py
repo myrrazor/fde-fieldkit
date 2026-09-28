@@ -100,12 +100,20 @@ def scan_dataframe(df: pd.DataFrame) -> dict[str, PIIColumnReport]:
 
 
 # Plain numbers shorter than an SSN cannot be any scanned kind. Wide numeric
-# profiles otherwise pay a full regex pass per cell.
+# profiles otherwise pay a full regex pass per cell. 10–15 digits can still
+# be a phone (212.5551234); longer pure floats are not, and used to look like cards.
 _SHORT_SCALAR_RE = re.compile(r"^[+-]?\d{1,8}(?:\.\d+)?$")
 
 
+def _skip_plain_number(text: str) -> bool:
+    if _SHORT_SCALAR_RE.fullmatch(text) is None:
+        return False
+    digits = sum(char.isdigit() for char in text)
+    return digits < 10 or digits > 15
+
+
 def _scan(text: str, column_name: str) -> list[PIIMatch]:
-    if _SHORT_SCALAR_RE.fullmatch(text):
+    if _skip_plain_number(text):
         return []
     matches: list[PIIMatch] = []
     matches.extend(_validated_matches(text, _EMAIL_RE, PIIKind.EMAIL, _valid_email))

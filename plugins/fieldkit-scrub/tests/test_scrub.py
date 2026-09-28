@@ -254,7 +254,7 @@ def test_scrub_fails_closed_if_selected_pii_survives(
 def test_residual_verification_scans_each_unique_fake_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A whole-cell pseudonym is the mapping output, so it is not scanned again."""
+    """Each distinct output cell is scanned once, including a whole-cell pseudonym."""
 
     row_count = 2_000
     table = LoadedTable(
@@ -286,7 +286,22 @@ def test_residual_verification_scans_each_unique_fake_once(
 
     assert len(output) == row_count
     assert summary.replaced == {"email": row_count}
-    assert scan_calls == 0
+    assert scan_calls == row_count
+
+
+def test_double_spaced_datetimes_still_fail_closed() -> None:
+    table = LoadedTable(
+        pd.DataFrame(
+            {"when": ["2023-01-14  20:00:00", "2023-01-15  21:00:00"] * 5},
+            dtype="string",
+        ),
+        fmt="csv",
+        source="dates.csv",
+        warnings=[],
+    )
+
+    with pytest.raises(ValueError, match="scrub stopped: detected selected PII remained"):
+        Scrubber(b"dates-dates-dates", kinds={PIIKind.PHONE}).scrub_dataframe(table)
 
 
 def test_overlap_selection_does_constant_index_work_per_match(

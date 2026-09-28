@@ -148,18 +148,78 @@ export function toast(message) {
   toastTimer = setTimeout(() => el.remove(), 6000);
 }
 
+// Two heavy jobs run at once; anything past that is waiting on the hub.
+// Each tab records only its own key so two pages cannot overwrite each other.
+const BUSY_PREFIX = "fieldkit-busy:";
+const BUSY_SLOTS = 2;
+
+function snapshotBusy(now) {
+  const rows = [];
+  try {
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (!key || !key.startsWith(BUSY_PREFIX)) continue;
+      let row;
+      try {
+        row = JSON.parse(localStorage.getItem(key) || "");
+      } catch {
+        continue;
+      }
+      if (!row || typeof row.started !== "number" || now - row.beat > 2000) continue;
+      rows.push({ id: key, started: row.started });
+    }
+  } catch {
+    return [];
+  }
+  rows.sort((a, b) => a.started - b.started || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return rows;
+}
+
 // busy indicator inside a container while an async task runs
 export async function withBusy(container, label, task) {
+  const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const key = BUSY_PREFIX + id;
+  const started = Date.now();
   const busy = document.createElement("p");
   busy.className = "busy";
-  busy.innerHTML = `<span class="spinner" aria-hidden="true"></span>${esc(label)}`;
+  const spinner = document.createElement("span");
+  spinner.className = "spinner";
+  spinner.setAttribute("aria-hidden", "true");
+  const text = document.createElement("span");
+  busy.append(spinner, text);
+
+  const render = () => {
+    const rows = snapshotBusy(Date.now());
+    const index = rows.findIndex((row) => row.id === key);
+    text.textContent = index >= BUSY_SLOTS ? "waiting for another job…" : label;
+  };
+  const beat = () => {
+    try {
+      localStorage.setItem(key, JSON.stringify({ started, beat: Date.now() }));
+    } catch {
+      text.textContent = label;
+      return;
+    }
+    render();
+  };
+  beat();
   container.append(busy);
-  const stopIndicator = startThinkingOrb(busy.querySelector(".spinner"));
+  const stopIndicator = startThinkingOrb(spinner);
+  const timer = setInterval(beat, 400);
+  window.addEventListener("storage", render);
   try {
-    return await task();
+    const value = await task();
+    document.querySelector(".toast")?.remove();
+    clearTimeout(toastTimer);
+    return value;
   } finally {
+    clearInterval(timer);
+    window.removeEventListener("storage", render);
     stopIndicator();
     busy.remove();
+    try {
+      localStorage.removeItem(key);
+    } catch { /* private mode or a torn-down page */ }
   }
 }
 
