@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO, IO
+from xml.etree.ElementTree import ParseError as XmlParseError
 from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, ZipFile, ZipInfo
 
 import pandas as pd
@@ -125,6 +126,8 @@ def load_table(
         raise ValueError(
             f"can't decode {source!r} as UTF-8 — re-save as UTF-8 before loading"
         ) from exc
+    except (XmlParseError, IndexError, RecursionError) as exc:
+        raise ValueError(f"could not read {source}") from exc
 
     return LoadedTable(_as_nullable_strings(df), table_fmt, source, warnings)
 

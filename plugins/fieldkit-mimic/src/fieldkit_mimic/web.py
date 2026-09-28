@@ -72,7 +72,7 @@ async def _resolve_spec(
     request: Request, file: UploadFile | None, spec_yaml: str | None
 ) -> MimicSpec:
     if spec_yaml is not None:
-        return await run_job(request, _load_yaml, spec_yaml)
+        return await run_job(request, _load_yaml, spec_yaml, weight=len(spec_yaml))
     if file is None:  # guarded above, but keeps the invariant local
         raise ValueError("provide exactly one of file or spec_yaml")
 
@@ -83,7 +83,7 @@ async def _resolve_spec(
             text = content.decode("utf-8-sig")
         except UnicodeDecodeError as exc:
             raise ValueError(f"invalid mimic spec encoding: {exc}") from exc
-        return await run_job(request, _load_yaml, text)
+        return await run_job(request, _load_yaml, text, weight=len(text))
     return await run_job(request, _learn_table, content, filename, weight=len(content))
 
 

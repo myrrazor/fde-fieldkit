@@ -14,7 +14,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.formparsers import MultiPartParser
+from starlette.formparsers import FormMessage, FormParser, MultiPartException, MultiPartParser
 from starlette.requests import Request as StarletteRequest
 
 from fieldkit import __version__
@@ -29,12 +29,25 @@ from fieldkit.web.routes import (
     begin_heavy_request,
     end_heavy_request,
     job_is_waiting,
+    release_admission,
     stop_heavy_jobs,
 )
 
-# A mimic spec is one form field, not a file part. Starlette's default cuts
-# that field off at 1 MB, which is smaller than the dataset upload cap.
+# Text fields stay at Starlette's 1 MB cap. Only a generation spec needs to
+# be larger, and that one field is still inside the 50 MB body limit.
+_TEXT_FIELD_BYTES = 1024 * 1024
+_SPEC_FIELDS = {"spec_yaml"}
 _starlette_form = StarletteRequest.form
+
+
+def _part_limit(name: bytes | bytearray | str | None) -> int:
+    if name == "spec_yaml" or name == b"spec_yaml":
+        return MAX_UPLOAD_BYTES
+    return _TEXT_FIELD_BYTES
+
+
+def _part_too_big(limit: int) -> MultiPartException:
+    return MultiPartException(f"Part exceeded maximum size of {int(limit / 1024)}KB.")
 
 
 def _form_with_upload_limit(  # type: ignore[no-untyped-def]
@@ -42,7 +55,7 @@ def _form_with_upload_limit(  # type: ignore[no-untyped-def]
     *,
     max_files: int | float = 1000,
     max_fields: int | float = 1000,
-    max_part_size: int = MAX_UPLOAD_BYTES,
+    max_part_size: int = _TEXT_FIELD_BYTES,
 ):
     return _starlette_form(
         self,
@@ -52,7 +65,49 @@ def _form_with_upload_limit(  # type: ignore[no-untyped-def]
     )
 
 
+def _form_field_start(self: FormParser) -> None:
+    self._current_field_size = 0
+    self._fk_field_name = bytearray()
+    self.messages.append((FormMessage.FIELD_START, b""))
+
+
+def _form_field_name(self: FormParser, data: bytes, start: int, end: int) -> None:
+    chunk = data[start:end]
+    name = getattr(self, "_fk_field_name", None)
+    if name is None:
+        name = bytearray()
+        self._fk_field_name = name
+    name += chunk
+    self._current_field_size += end - start
+    if self._current_field_size > _part_limit(name):
+        raise _part_too_big(_part_limit(name))
+    self.messages.append((FormMessage.FIELD_NAME, chunk))
+
+
+def _form_field_data(self: FormParser, data: bytes, start: int, end: int) -> None:
+    self._current_field_size += end - start
+    name = getattr(self, "_fk_field_name", b"")
+    if self._current_field_size > _part_limit(name):
+        raise _part_too_big(_part_limit(name))
+    self.messages.append((FormMessage.FIELD_DATA, data[start:end]))
+
+
+def _multipart_part_data(self: MultiPartParser, data: bytes, start: int, end: int) -> None:
+    message_bytes = data[start:end]
+    if self._current_part.file is None:
+        limit = _part_limit(self._current_part.field_name)
+        if len(self._current_part.data) + len(message_bytes) > limit:
+            raise _part_too_big(limit)
+        self._current_part.data.extend(message_bytes)
+        return
+    self._file_parts_to_write.append((self._current_part, message_bytes))
+
+
 StarletteRequest.form = _form_with_upload_limit  # type: ignore[method-assign]
+FormParser.on_field_start = _form_field_start  # type: ignore[method-assign]
+FormParser.on_field_name = _form_field_name  # type: ignore[method-assign]
+FormParser.on_field_data = _form_field_data  # type: ignore[method-assign]
+MultiPartParser.on_part_data = _multipart_part_data  # type: ignore[method-assign]
 
 logger = logging.getLogger(__name__)
 _PLUGIN_CACHE_SECONDS = 2.0
@@ -120,7 +175,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
     app.state.mounted_plugins = frozenset()
     app.state.installed_at_start = frozenset(installed_plugins())
     MultiPartParser.spool_max_size = MAX_UPLOAD_BYTES
-    MultiPartParser.max_part_size = MAX_UPLOAD_BYTES
+    MultiPartParser.max_part_size = _TEXT_FIELD_BYTES
     tool_pages = set()
 
     @app.middleware("http")
@@ -162,6 +217,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                 return _secured(RedirectResponse(url=f"{path}/", status_code=307))
 
         raw_length = request.headers.get("content-length")
+        parsed_length = -1
         if raw_length is not None:
             try:
                 parsed_length = int(raw_length)
@@ -181,11 +237,12 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     )
                 )
 
+        # No Content-Length means a chunked body. Count it before reading so a
+        # pile of chunked uploads cannot skip the cap.
         holding_upload = False
-        if (
-            request.method not in _SAFE_METHODS
-            and raw_length is not None
-            and parsed_length >= HEAVY_REQUEST_BYTES
+        chunked = request.method not in _SAFE_METHODS and raw_length is None
+        if chunked or (
+            request.method not in _SAFE_METHODS and parsed_length >= HEAVY_REQUEST_BYTES
         ):
             if not begin_heavy_request(request):
                 # Read and drop the body first. Closing early makes the browser
@@ -195,6 +252,7 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     JSONResponse(status_code=429, content={"error": "busy, try again"})
                 )
             holding_upload = True
+            request.state.heavy_provisional = chunked
 
         received = 0
         body_limit_exceeded = False
@@ -203,7 +261,9 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
         async def receive_with_limit() -> dict[str, object]:
             nonlocal body_limit_exceeded, received
             message = await receive()
-            if message.get("type") == "http.request":
+            if message.get("type") == "http.disconnect":
+                release_admission(request)
+            elif message.get("type") == "http.request":
                 body = message.get("body", b"")
                 if isinstance(body, bytes):
                     received += len(body)

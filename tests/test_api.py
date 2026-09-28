@@ -842,14 +842,16 @@ def test_tell_html_can_include_unslop_provenance(fixture_dir: Path) -> None:
 
 
 def test_queue_endpoint_reports_server_waiting_state(client: TestClient) -> None:
-    from fieldkit.web.routes.jobs import _note_waiting
+    from fieldkit.web.routes.jobs import _claim_job_id, _note_waiting, _release_job_id
 
     assert client.get("/api/queue/abcdefgh").json() == {"waiting": False}
+    assert _claim_job_id("abcdefgh") == "abcdefgh"
     _note_waiting("abcdefgh", True)
     try:
         assert client.get("/api/queue/abcdefgh").json() == {"waiting": True}
+        assert _claim_job_id("abcdefgh") == ""
     finally:
-        _note_waiting("abcdefgh", False)
+        _release_job_id("abcdefgh")
 
 
 def test_a_full_heavy_queue_replies_busy(
@@ -894,6 +896,46 @@ def test_spec_field_larger_than_one_megabyte_is_accepted(client: TestClient) -> 
     )
     assert "Part exceeded" not in response.text
     assert response.status_code == 200, response.text
+
+
+def test_text_field_over_one_megabyte_is_rejected(client: TestClient) -> None:
+    response = client.post(
+        "/api/tell/check",
+        data={"text": "x" * (1024 * 1024 + 32), "offline": "true"},
+    )
+    assert response.status_code == 400
+    assert "1024" in response.text
+
+
+def test_deep_json_is_the_same_validation_error_at_either_size(client: TestClient) -> None:
+    small = ("[" * 10_000 + "1" + "]" * 10_000).encode()
+    large = ("[" * 10_000 + '"' + ("x" * (1024 * 1024)) + '"' + "]" * 10_000).encode()
+    for name, payload in (("deep.json", small), ("deep-big.json", large)):
+        response = client.post(
+            "/api/xray",
+            files={"file": (name, payload, "application/json")},
+        )
+        assert response.status_code == 422, response.text
+        assert response.json()["error"] == f"could not read {name}"
+
+
+def test_chunked_upload_is_counted_when_the_queue_is_full(client: TestClient) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+        response = client.post(
+            "/api/xray",
+            content=iter([b"a,b\n", b"1,2\n"]),
+            headers={"content-type": "text/csv"},
+        )
+        assert response.status_code == 429
+        assert response.json()["error"] == "busy, try again"
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
 
 
 def test_zip_without_a_workbook_is_a_validation_error(client: TestClient) -> None:

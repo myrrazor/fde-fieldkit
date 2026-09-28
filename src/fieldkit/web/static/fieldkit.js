@@ -6,34 +6,40 @@ export function esc(value) {
   return div.innerHTML;
 }
 
-const queueJobs = [];
+const inflightJobs = new Set();
 
-function currentQueueJob() {
-  return queueJobs.length ? queueJobs[queueJobs.length - 1] : "";
+function queueId() {
+  let id = "";
+  while (id.length < 16) id += Math.random().toString(36).slice(2);
+  return id.slice(0, 24);
 }
 
 export async function api(url, { method = "POST", body, headers, signal } = {}) {
-  const job = currentQueueJob();
-  const sent = { ...(headers || {}) };
-  if (job && !sent["X-Fieldkit-Job"]) sent["X-Fieldkit-Job"] = job;
+  const id = queueId();
+  inflightJobs.add(id);
+  const sent = { ...(headers || {}), "X-Fieldkit-Job": id };
   let res;
   try {
-    res = await fetch(url, { method, body, headers: sent, signal });
-  } catch (err) {
-    if (err && err.name === "AbortError") throw err;
-    throw new Error("can't reach the local server — is `fieldkit serve` still running?");
-  }
-  if (!res.ok) {
-    let msg = `request failed (${res.status})`;
     try {
-      const data = await res.json();
-      if (data.error) msg = data.error;
-      else if (data.detail) msg = formatDetail(data.detail) || msg;
-    } catch { /* body wasn't json, keep the status message */ }
-    throw new Error(msg);
+      res = await fetch(url, { method, body, headers: sent, signal });
+    } catch (err) {
+      if (err && err.name === "AbortError") throw err;
+      throw new Error("can't reach the local server — is `fieldkit serve` still running?");
+    }
+    if (!res.ok) {
+      let msg = `request failed (${res.status})`;
+      try {
+        const data = await res.json();
+        if (data.error) msg = data.error;
+        else if (data.detail) msg = formatDetail(data.detail) || msg;
+      } catch { /* body wasn't json, keep the status message */ }
+      throw new Error(msg);
+    }
+    if (res.status === 204) return null;
+    return res.json();
+  } finally {
+    inflightJobs.delete(id);
   }
-  if (res.status === 204) return null;
-  return res.json();
 }
 
 // wire a .drop element to a hidden file input + drag/drop. onFile(file) fires
@@ -160,9 +166,6 @@ export function toast(message) {
 // busy indicator inside a container while an async task runs.
 // The waiting line comes from the hub, which knows whether this request is queued.
 export async function withBusy(container, label, task) {
-  let id = "";
-  while (id.length < 16) id += Math.random().toString(36).slice(2);
-  id = id.slice(0, 24);
   const busy = document.createElement("p");
   busy.className = "busy";
   const spinner = document.createElement("span");
@@ -173,17 +176,26 @@ export async function withBusy(container, label, task) {
   busy.append(spinner, text);
   container.append(busy);
   const stopIndicator = startThinkingOrb(spinner);
-  queueJobs.push(id);
   let alive = true;
   const poll = async () => {
-    try {
-      const res = await fetch(`/api/queue/${id}`);
-      if (!alive || !res.ok) return;
-      const data = await res.json();
-      text.textContent = data.waiting ? "waiting for another job…" : label;
-    } catch {
-      /* the request itself reports a dead server */
+    const ids = [...inflightJobs];
+    if (!alive) return;
+    if (!ids.length) {
+      text.textContent = label;
+      return;
     }
+    let waiting = false;
+    for (const id of ids) {
+      try {
+        const res = await fetch(`/api/queue/${id}`);
+        if (!alive || !res.ok) continue;
+        const data = await res.json();
+        if (data.waiting) waiting = true;
+      } catch {
+        /* the request itself reports a dead server */
+      }
+    }
+    if (alive) text.textContent = waiting ? "waiting for another job…" : label;
   };
   const timer = setInterval(poll, 300);
   try {
@@ -191,10 +203,15 @@ export async function withBusy(container, label, task) {
     document.querySelector(".toast")?.remove();
     clearTimeout(toastTimer);
     return value;
+  } catch (err) {
+    // The picker ignores a second choice of the same path until value is cleared.
+    document.querySelectorAll('input[type="file"]').forEach((input) => {
+      input.value = "";
+    });
+    throw err;
   } finally {
     alive = false;
     clearInterval(timer);
-    queueJobs.pop();
     stopIndicator();
     busy.remove();
   }

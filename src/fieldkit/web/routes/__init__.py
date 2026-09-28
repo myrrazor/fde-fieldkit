@@ -13,6 +13,7 @@ from fieldkit.web.routes.jobs import (
     begin_heavy_request,
     end_heavy_request,
     job_is_waiting,
+    release_admission,
     run_job,
     stop_heavy_jobs,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "begin_heavy_request",
     "end_heavy_request",
     "job_is_waiting",
+    "release_admission",
     "read_upload",
     "run_job",
     "safe_filename",

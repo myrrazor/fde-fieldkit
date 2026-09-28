@@ -14,42 +14,67 @@ _EXPANSION_RATIO = 4
 _CIRCULAR = "Circular reference detected"
 
 
+class _AnchorLoader(yaml.SafeLoader):
+    """SafeLoader that counts alias events while it composes."""
+
+    def __init__(self, stream: str) -> None:
+        super().__init__(stream)
+        self.alias_events = 0
+
+    def compose_node(self, parent: yaml.nodes.Node | None, index: Any) -> yaml.nodes.Node:
+        if self.check_event(yaml.events.AliasEvent):
+            self.alias_events += 1
+        return super().compose_node(parent, index)
+
+
+def _compose(text: str) -> tuple[yaml.nodes.Node | None, _AnchorLoader]:
+    loader = _AnchorLoader(text)
+    try:
+        node = loader.get_single_node()
+    except RecursionError as exc:
+        loader.dispose()
+        raise ValueError("nesting too deep") from exc
+    except yaml.YAMLError as exc:
+        loader.dispose()
+        raise ValueError(f"invalid YAML: {exc}") from exc
+    except BaseException:
+        loader.dispose()
+        raise
+    return node, loader
+
+
 def load_yaml(text: str) -> Any:
     """Parse one document, rejecting bombs and runaway nesting."""
 
-    reject_yaml_aliases(text)
+    node, loader = _compose(text)
     try:
-        return yaml.safe_load(text)
-    except RecursionError as exc:
-        raise ValueError("nesting too deep") from exc
-    except yaml.YAMLError as exc:
-        raise ValueError(f"invalid YAML: {exc}") from exc
+        if node is not None and loader.alias_events:
+            _reject_alias_bomb(node)
+        if node is None:
+            return None
+        try:
+            return loader.construct_document(node)
+        except RecursionError as exc:
+            raise ValueError("nesting too deep") from exc
+        except yaml.YAMLError as exc:
+            raise ValueError(f"invalid YAML: {exc}") from exc
+    finally:
+        loader.dispose()
 
 
 def reject_yaml_aliases(text: str) -> None:
-    """Raise before ``safe_load`` can expand an alias bomb.
+    """Raise when aliases multiply a small document into a huge one.
 
-    Ordinary anchors and aliases are fine, including inside a large spec.
-    A bomb is a small document whose aliases multiply (ten references to a
-    node that itself has ten references). Documents with no anchors skip
-    the walk; composing a wide spec twice was the slow part.
+    The check uses alias events from the parse, so a ``&`` or ``*`` inside
+    a plain value does not force a second walk.
     """
 
-    if "&" not in text and "*" not in text:
-        return
+    node, loader = _compose(text)
     try:
-        loader = yaml.SafeLoader(text)
-        try:
-            node = loader.get_single_node()
-        finally:
-            loader.dispose()
-    except RecursionError as exc:
-        raise ValueError("nesting too deep") from exc
-    except yaml.YAMLError as exc:
-        raise ValueError(f"invalid YAML: {exc}") from exc
-    if node is None:
-        return
-    _reject_alias_bomb(node)
+        if node is not None and loader.alias_events:
+            _reject_alias_bomb(node)
+    finally:
+        loader.dispose()
 
 
 def _children(node: yaml.nodes.Node) -> list[yaml.nodes.Node]:

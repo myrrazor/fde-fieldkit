@@ -32,6 +32,7 @@ _POOL: list[_Worker] = []
 _idle: asyncio.Queue[_Worker] | None = None
 _tickets: list[_Ticket] = []
 _waiting: set[str] = set()
+_claimed: set[str] = set()
 _admitted = 0
 _seq = 0
 _shutting_down = False
@@ -103,15 +104,26 @@ def begin_heavy_request(request: Request) -> bool:
     return True
 
 
-async def end_heavy_request(request: Request) -> None:
-    """Drop a large upload's buffers once the request is over."""
+def release_admission(request: Request) -> None:
+    """Free the cap as soon as the client leaves, without waiting for the handler."""
 
     global _admitted
     if not getattr(request.state, "heavy_admitted", False):
         return
-    request.state.heavy_admitted = False
+    if getattr(request.state, "admission_released", False):
+        return
+    request.state.admission_released = True
     if _admitted:
         _admitted -= 1
+
+
+async def end_heavy_request(request: Request) -> None:
+    """Drop a large upload's buffers once the request is over."""
+
+    if not getattr(request.state, "heavy_admitted", False):
+        return
+    release_admission(request)
+    request.state.heavy_admitted = False
     ticket = getattr(request.state, "heavy_ticket", None)
     if ticket is not None and not ticket.done:
         _finish_ticket(ticket)
@@ -138,6 +150,7 @@ def _reset_pool() -> None:
         ticket.granted.set()
     _tickets.clear()
     _waiting.clear()
+    _claimed.clear()
     _admitted = 0
     _seq = 0
     _idle = None
@@ -160,6 +173,10 @@ async def run_job(
 
     if isolate or weight >= HEAVY_REQUEST_BYTES:
         return await _run_isolated(request, fn, args)
+    # A chunked body we counted early turned out small. Give the place back.
+    if getattr(request.state, "heavy_provisional", False):
+        release_admission(request)
+        request.state.heavy_provisional = False
     _skip_heavy_ticket(request)
     from starlette.concurrency import run_in_threadpool
 
@@ -173,7 +190,7 @@ async def _run_isolated(request: Request, fn: Callable[..., Any], args: tuple[An
     gone = asyncio.Event()
     watcher = asyncio.create_task(_watch_disconnect(request, gone))
     ticket = _claim_ticket(request)
-    job_id = _job_id(request)
+    job_id = _claim_job_id(_job_id(request))
     worker: _Worker | None = None
     reuse = False
     try:
@@ -190,7 +207,7 @@ async def _run_isolated(request: Request, fn: Callable[..., Any], args: tuple[An
         reuse = not _heavy_payload(args)
         return result
     finally:
-        _note_waiting(job_id, False)
+        _release_job_id(job_id)
         watcher.cancel()
         try:
             await watcher
@@ -238,12 +255,28 @@ def _job_id(request: Request) -> str:
 
 
 def _note_waiting(job_id: str, waiting: bool) -> None:
-    if not job_id:
+    if not job_id or job_id not in _claimed:
         return
     if waiting:
         _waiting.add(job_id)
     else:
         _waiting.discard(job_id)
+
+
+def _claim_job_id(raw: str) -> str:
+    """One id belongs to one request. A reused id does not attach to this one."""
+
+    if not raw or raw in _claimed:
+        return ""
+    _claimed.add(raw)
+    return raw
+
+
+def _release_job_id(job_id: str) -> None:
+    if not job_id:
+        return
+    _claimed.discard(job_id)
+    _waiting.discard(job_id)
 
 
 def _claim_ticket(request: Request) -> _Ticket:
@@ -282,10 +315,10 @@ def _finish_ticket(ticket: _Ticket) -> None:
 
 
 def _pump() -> None:
-    """Hand free slots to the earliest requests whose bodies are already here.
+    """Hand free slots to ready requests, earliest first.
 
-    A request that is still uploading keeps its place, so a later body that
-    happens to finish first cannot start ahead of it.
+    A body that has not finished arriving does not hold the line. Ready
+    work starts while that upload is still on the socket.
     """
 
     while _tickets and _tickets[0].done:
@@ -295,7 +328,7 @@ def _pump() -> None:
         if ticket.done or ticket.running:
             continue
         if not ticket.ready:
-            break
+            continue
         if running >= _HEAVY_SLOTS:
             break
         ticket.running = True

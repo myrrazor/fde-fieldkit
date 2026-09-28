@@ -118,7 +118,7 @@ def create_egress_intent(
 
 
 @router.post("/check")
-def check_text(
+async def check_text(
     request: Request,
     text: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File()] = None,
@@ -130,7 +130,7 @@ def check_text(
 ) -> dict[str, object]:
     """Check pasted or uploaded text and return every local and remote row."""
 
-    source, _filename = _resolve_text(text, file)
+    source, _filename = await _resolve_text_async(text, file)
     active = active_remote_adapters(source, offline=offline)
     if active:
         session = request.cookies.get(_SESSION_COOKIE, "")
@@ -147,6 +147,27 @@ def check_text(
                 detail="remote checker confirmation required for this text and vendor set",
             )
 
+    # Large checks run in a child so a disconnected client stops the work
+    # and frees its queue place. Small checks stay on the thread pool.
+    return await run_job(
+        request,
+        _check_payload,
+        source,
+        offline,
+        ml,
+        timeout,
+        output,
+        weight=len(source),
+    )
+
+
+def _check_payload(
+    source: str,
+    offline: bool,
+    ml: bool,
+    timeout: float,
+    output: str,
+) -> dict[str, object]:
     report = analyze(source)
     detectors = run_detectors(
         source,

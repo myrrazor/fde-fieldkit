@@ -9,8 +9,10 @@ from fieldkit.web.routes.jobs import (
     HEAVY_REQUEST_BYTES,
     JobCrashed,
     _MAX_ADMITTED,
+    _claim_job_id,
     _note_waiting,
     _pump,
+    _release_job_id,
     _unwrap,
     arm_heavy_jobs,
     begin_heavy_request,
@@ -34,7 +36,7 @@ def test_heavy_queue_stops_admitting_when_it_is_full() -> None:
         stop_heavy_jobs()
 
 
-def test_a_later_upload_cannot_start_ahead_of_an_earlier_one() -> None:
+def test_a_ready_job_is_not_blocked_by_an_upload_still_in_flight() -> None:
     arm_heavy_jobs()
     try:
         first, second = _request(), _request()
@@ -42,29 +44,27 @@ def test_a_later_upload_cannot_start_ahead_of_an_earlier_one() -> None:
         assert begin_heavy_request(second)
         second.state.heavy_ticket.ready = True
         _pump()
-        assert second.state.heavy_ticket.granted.is_set() is False
-
-        first.state.heavy_ticket.ready = True
-        _pump()
-        assert first.state.heavy_ticket.granted.is_set() is True
-        assert first.state.heavy_ticket.running is True
+        assert first.state.heavy_ticket.granted.is_set() is False
         assert second.state.heavy_ticket.granted.is_set() is True
     finally:
         stop_heavy_jobs()
 
 
-def test_dropping_an_earlier_upload_lets_the_next_job_through() -> None:
+def test_ready_jobs_keep_arrival_order() -> None:
     arm_heavy_jobs()
     try:
-        first, second = _request(), _request()
+        held, first, second = _request(), _request(), _request()
+        assert begin_heavy_request(held)
         assert begin_heavy_request(first)
         assert begin_heavy_request(second)
+        held.state.heavy_ticket.ready = True
+        held.state.heavy_ticket.running = True
+        held.state.heavy_ticket.granted.set()
+        first.state.heavy_ticket.ready = True
         second.state.heavy_ticket.ready = True
         _pump()
+        assert first.state.heavy_ticket.granted.is_set() is True
         assert second.state.heavy_ticket.granted.is_set() is False
-        first.state.heavy_ticket.done = True
-        _pump()
-        assert second.state.heavy_ticket.granted.is_set() is True
     finally:
         stop_heavy_jobs()
 
@@ -81,9 +81,11 @@ def test_queue_flag_follows_the_job_id() -> None:
     arm_heavy_jobs()
     try:
         assert job_is_waiting("abcdefgh") is False
+        assert _claim_job_id("abcdefgh") == "abcdefgh"
         _note_waiting("abcdefgh", True)
         assert job_is_waiting("abcdefgh") is True
-        _note_waiting("abcdefgh", False)
+        assert _claim_job_id("abcdefgh") == ""
+        _release_job_id("abcdefgh")
         assert job_is_waiting("abcdefgh") is False
     finally:
         stop_heavy_jobs()
