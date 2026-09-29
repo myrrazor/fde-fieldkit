@@ -96,6 +96,11 @@ ignore proxies; awcp never calls a model. Analysis stays local except explicit
 `tell check --remote`, Netwatch's supervised relay, package installs, and optional
 `--ml` model download.
 
+YAML anchors are allowed. Aliases are rejected when expansion produces more
+than 20,000 nodes and that expanded count is also more than four times the
+number of unique nodes. A spec that does not use aliases is not subject to
+that cap.
+
 | tool | what it does |
 |---|---|
 | **xray** | Profile a file: schema, types, nulls, PII flags |
@@ -534,6 +539,11 @@ config and prompt files, and lists declared tools with approval and risk.
 against the spec's gates; it compares stored actual/expected values or explicit
 scores. It does not call a model, run promptfoo, or talk to a control plane.
 `--json PATH` and `--html PATH` write the same result for tickets and scripts.
+`eval` also writes `result.json` under `~/.fieldkit/awcp-artifacts` (override
+with `--artifact-dir`). Older builds wrote `./.awcp-artifacts` in the working
+directory and left those files where they were. Copy them into
+`~/.fieldkit/awcp-artifacts`, or pass that old directory as `--artifact-dir`,
+if you still need them.
 
 ## The plugin manager
 

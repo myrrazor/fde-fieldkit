@@ -239,8 +239,8 @@ uv run fieldkit awcp check examples/awcp/support-ticket-triage.yaml</code></pre>
             </tr>
             <tr>
               <td><code>--artifact-dir DIR</code></td>
-              <td><code>.awcp-artifacts</code></td>
-              <td>Where the local <code>result.json</code> is written.</td>
+              <td><code>~/.fieldkit/awcp-artifacts</code></td>
+              <td>Where the local <code>result.json</code> is written. Older builds used <code>./.awcp-artifacts</code> and do not move those files; pass <code>--artifact-dir</code> to keep reading them.</td>
             </tr>
             <tr>
               <td><code>--json PATH</code></td>
