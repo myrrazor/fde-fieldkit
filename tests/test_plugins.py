@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -102,6 +103,27 @@ def test_cli_hints_at_plugin_add_for_missing_tools(capsys):
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert "fieldkit plugin add xray" in err
+
+
+@pytest.mark.parametrize(
+    ("typo", "suggestion"),
+    [("xra", "xray"), ("serv", "serve"), ("plugn", "plugin")],
+)
+def test_real_cli_suggests_a_close_command(typo: str, suggestion: str) -> None:
+    # Subprocess the installed script. An in-process click context hides this bug.
+    executable = Path(sys.executable).with_name("fieldkit")
+    result = subprocess.run(
+        [str(executable), typo],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert executable.is_file()
+    assert result.returncode != 0
+    combined = result.stdout + result.stderr
+    assert f"No such command '{typo}'" in combined
+    assert f"Did you mean '{suggestion}'?" in combined
 
 
 def test_cli_version_flags():

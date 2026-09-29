@@ -5,6 +5,13 @@ from difflib import get_close_matches
 import click
 import typer
 
+# typer>=0.12 includes releases that have not vendored click. Importing this
+# private module unconditionally would crash every command on those releases.
+try:
+    from typer._click.exceptions import UsageError as TyperUsageError
+except ImportError:
+    TyperUsageError = click.UsageError
+
 from fieldkit import __version__
 from fieldkit.plugin_cli import app as plugin_app
 from fieldkit.plugins import REGISTRY, installed_plugins
@@ -54,7 +61,7 @@ class FieldkitGroup(typer.core.TyperGroup):
     ) -> tuple[str | None, click.Command | None, list[str]]:
         try:
             return self._click_resolve_command(ctx, args)
-        except click.UsageError as exc:
+        except (click.UsageError, TyperUsageError) as exc:
             if self.suggest_commands and args:
                 matches = get_close_matches(args[0], self.list_commands(ctx))
                 if matches:
