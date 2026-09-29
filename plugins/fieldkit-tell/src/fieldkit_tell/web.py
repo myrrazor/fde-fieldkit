@@ -12,7 +12,7 @@ from anyio import from_thread
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import JSONResponse
 
-from fieldkit.web.routes import read_upload, run_job, safe_filename
+from fieldkit.web.routes import HEAVY_REQUEST_BYTES, read_upload, run_job, safe_filename
 from fieldkit_tell.adapters import (
     ADAPTERS,
     active_remote_adapters,
@@ -147,8 +147,12 @@ async def check_text(
                 detail="remote checker confirmation required for this text and vendor set",
             )
 
-    # Large checks run in a child so a disconnected client stops the work
-    # and frees its queue place. Small checks stay on the thread pool.
+    # Bytes, not characters: a 1 MB accented file can be under a million chars.
+    # A request that already holds an admission place is heavy even when the
+    # text itself was padded out by another field.
+    weight = len(source.encode("utf-8"))
+    if getattr(request.state, "heavy_admitted", False):
+        weight = max(weight, HEAVY_REQUEST_BYTES)
     return await run_job(
         request,
         _check_payload,
@@ -157,7 +161,7 @@ async def check_text(
         ml,
         timeout,
         output,
-        weight=len(source),
+        weight=weight,
     )
 
 

@@ -237,12 +237,15 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     )
                 )
 
-        # No Content-Length means a chunked body. Count it before reading so a
-        # pile of chunked uploads cannot skip the cap.
+        # A known-large body takes a place before it is stored. A chunked body
+        # takes one only after it has actually passed the heavy threshold, so a
+        # DELETE with no body, or a few stalled bytes, does not fill the cap.
         holding_upload = False
-        chunked = request.method not in _SAFE_METHODS and raw_length is None
-        if chunked or (
-            request.method not in _SAFE_METHODS and parsed_length >= HEAVY_REQUEST_BYTES
+        chunked = _is_chunked(request)
+        if (
+            request.method not in _SAFE_METHODS
+            and raw_length is not None
+            and parsed_length >= HEAVY_REQUEST_BYTES
         ):
             if not begin_heavy_request(request):
                 # Read and drop the body first. Closing early makes the browser
@@ -252,14 +255,14 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     JSONResponse(status_code=429, content={"error": "busy, try again"})
                 )
             holding_upload = True
-            request.state.heavy_provisional = chunked
 
         received = 0
         body_limit_exceeded = False
+        admission_full = False
         receive = request.receive
 
         async def receive_with_limit() -> dict[str, object]:
-            nonlocal body_limit_exceeded, received
+            nonlocal body_limit_exceeded, received, holding_upload, admission_full
             message = await receive()
             if message.get("type") == "http.disconnect":
                 release_admission(request)
@@ -270,6 +273,15 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     if received > MAX_UPLOAD_BYTES:
                         body_limit_exceeded = True
                         raise UploadTooLarge
+                    if (
+                        chunked
+                        and not holding_upload
+                        and received >= HEAVY_REQUEST_BYTES
+                    ):
+                        if not begin_heavy_request(request):
+                            admission_full = True
+                            raise _AdmissionFull()
+                        holding_upload = True
             return message
 
         # Starlette does not offer a public receive wrapper. Replacing this
@@ -297,11 +309,19 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
                     status_code=413,
                     content={"error": "request too large (50 MB total max)"},
                 )
+            except _AdmissionFull:
+                response = JSONResponse(
+                    status_code=429, content={"error": "busy, try again"}
+                )
             except Exception:
                 logger.exception("unhandled API error")
                 response = JSONResponse(status_code=500, content={"error": "internal error"})
             # FastAPI normalizes receive errors raised while parsing form data to a
             # generic 400. The wrapper still records the authoritative cause.
+            if admission_full:
+                response = JSONResponse(
+                    status_code=429, content={"error": "busy, try again"}
+                )
             if body_limit_exceeded:
                 response = JSONResponse(
                     status_code=413,
@@ -464,6 +484,16 @@ async def _discard_unread_body(request: Request) -> None:
             return
         if not message.get("more_body", False):
             return
+
+
+class _AdmissionFull(Exception):
+    """A chunked body crossed the heavy threshold after the queue was full."""
+
+
+def _is_chunked(request: Request) -> bool:
+    """True only when the client actually declared a chunked body."""
+
+    return "chunked" in request.headers.get("transfer-encoding", "").lower()
 
 
 def _crash_message(reason: str) -> str:

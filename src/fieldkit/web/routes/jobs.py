@@ -173,10 +173,6 @@ async def run_job(
 
     if isolate or weight >= HEAVY_REQUEST_BYTES:
         return await _run_isolated(request, fn, args)
-    # A chunked body we counted early turned out small. Give the place back.
-    if getattr(request.state, "heavy_provisional", False):
-        release_admission(request)
-        request.state.heavy_provisional = False
     _skip_heavy_ticket(request)
     from starlette.concurrency import run_in_threadpool
 
@@ -494,8 +490,31 @@ def _dispose(worker: _Worker) -> None:
     if worker in _POOL:
         _POOL.remove(worker)
     for queue in (worker.inbox, worker.outbox):
+        _release_queue(queue)
+
+
+def _release_queue(queue: mp.Queue[Any]) -> None:
+    """Unblock a feeder stuck sending the upload to a child that is gone.
+
+    The parent still holds the pipe's read end, so the feeder blocks in
+    ``send_bytes`` instead of seeing a closed child. Closing that end lets
+    the send fail and the thread drop the pickled payload.
+    """
+
+    reader = getattr(queue, "_reader", None)
+    if reader is not None:
+        try:
+            reader.close()
+        except (OSError, ValueError):
+            pass
+    try:
         queue.close()
+    except (OSError, ValueError):
+        pass
+    try:
         queue.cancel_join_thread()
+    except (OSError, ValueError):
+        pass
 
 
 def _kill(proc: mp.Process) -> None:

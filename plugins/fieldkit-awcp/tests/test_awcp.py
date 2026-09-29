@@ -51,6 +51,9 @@ def test_yaml_aliases_allow_ordinary_anchors_and_reject_bombs() -> None:
     deep = "a: " + ("[" * 600) + "1" + ("]" * 600)
     with pytest.raises(WorkloadSpecError, match="nesting too deep"):
         load_mapping(deep, source="deep.yaml")
+    # Alias counting must not shrink the depth a plain safe_load accepts.
+    nested = "a: " + "{b: " * 400 + "1" + "}" * 400
+    assert isinstance(load_mapping(nested, source="deep400.yaml"), dict)
 
 
 def test_sample_workload_validates(example_dir: Path) -> None:

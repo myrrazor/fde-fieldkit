@@ -15,16 +15,21 @@ _CIRCULAR = "Circular reference detected"
 
 
 class _AnchorLoader(yaml.SafeLoader):
-    """SafeLoader that counts alias events while it composes."""
+    """SafeLoader that counts alias events while it composes.
+
+    ``get_event`` returns before the composer recurses, so the extra call
+    does not shrink the nesting depth the way overriding ``compose_node`` did.
+    """
 
     def __init__(self, stream: str) -> None:
         super().__init__(stream)
         self.alias_events = 0
 
-    def compose_node(self, parent: yaml.nodes.Node | None, index: Any) -> yaml.nodes.Node:
-        if self.check_event(yaml.events.AliasEvent):
+    def get_event(self) -> Any:
+        event = super().get_event()
+        if isinstance(event, yaml.events.AliasEvent):
             self.alias_events += 1
-        return super().compose_node(parent, index)
+        return event
 
 
 def _compose(text: str) -> tuple[yaml.nodes.Node | None, _AnchorLoader]:

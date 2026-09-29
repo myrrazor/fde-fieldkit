@@ -919,20 +919,21 @@ def test_deep_json_is_the_same_validation_error_at_either_size(client: TestClien
         assert response.json()["error"] == f"could not read {name}"
 
 
-def test_chunked_upload_is_counted_when_the_queue_is_full(client: TestClient) -> None:
+def test_bodiless_and_tiny_requests_do_not_take_a_heavy_place(client: TestClient) -> None:
     from fieldkit.web.routes import jobs as jobs_mod
 
     try:
         for _ in range(jobs_mod._MAX_ADMITTED):
             request = jobs_mod.Request({"type": "http", "headers": []})
             assert jobs_mod.begin_heavy_request(request)
-        response = client.post(
+        small = client.post(
             "/api/xray",
             content=iter([b"a,b\n", b"1,2\n"]),
             headers={"content-type": "text/csv"},
         )
-        assert response.status_code == 429
-        assert response.json()["error"] == "busy, try again"
+        assert small.status_code != 429
+        deleted = client.delete("/api/debrief/entries/1")
+        assert deleted.status_code == 404
     finally:
         jobs_mod.stop_heavy_jobs()
         jobs_mod.arm_heavy_jobs()

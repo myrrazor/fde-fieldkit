@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 from starlette.requests import Request
 
@@ -16,7 +18,9 @@ from fieldkit.web.routes.jobs import (
     _unwrap,
     arm_heavy_jobs,
     begin_heavy_request,
+    end_heavy_request,
     job_is_waiting,
+    release_admission,
     stop_heavy_jobs,
 )
 
@@ -75,6 +79,26 @@ def test_worker_input_errors_stay_validation_and_crashes_hide_the_message() -> N
     with pytest.raises(JobCrashed, match="^MemoryError$") as raised:
         _unwrap("err", MemoryError("arena details"))
     assert "arena" not in str(raised.value)
+
+
+def test_client_disconnect_releases_the_admission_place() -> None:
+    arm_heavy_jobs()
+    try:
+        held = []
+        for _ in range(_MAX_ADMITTED):
+            request = _request()
+            assert begin_heavy_request(request)
+            held.append(request)
+        assert begin_heavy_request(_request()) is False
+
+        release_admission(held[0])
+        replacement = _request()
+        assert begin_heavy_request(replacement) is True
+        # The disconnected request's cleanup must not free a second place.
+        asyncio.run(end_heavy_request(held[0]))
+        assert begin_heavy_request(_request()) is False
+    finally:
+        stop_heavy_jobs()
 
 
 def test_queue_flag_follows_the_job_id() -> None:
