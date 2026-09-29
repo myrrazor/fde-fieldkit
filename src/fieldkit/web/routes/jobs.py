@@ -391,6 +391,10 @@ async def _start_worker() -> _Worker:
     ctx = mp.get_context("spawn")
     inbox: mp.Queue[Any] = ctx.Queue()
     outbox: mp.Queue[Any] = ctx.Queue()
+    # The feeder prints a traceback when the upload pipe closes under it.
+    # Ignore that EPIPE; the thread still exits and drops the payload.
+    inbox._ignore_epipe = True  # type: ignore[attr-defined]
+    outbox._ignore_epipe = True  # type: ignore[attr-defined]
     proc = ctx.Process(target=_warm_worker, args=(inbox, outbox), daemon=False)
     await asyncio.to_thread(proc.start)
     worker = _Worker(proc, inbox, outbox)
@@ -419,6 +423,11 @@ async def _invoke(
                     raise _gone_now()
                 raise JobCrashed("stopped before returning a result")
             continue
+        except (OSError, EOFError, ValueError):
+            # Shutdown closes queues while this get is in flight.
+            if _shutting_down or gone.is_set() or not worker.proc.is_alive():
+                raise _gone_now()
+            raise
         return _unwrap(kind, payload)
 
 
@@ -489,8 +498,17 @@ def _dispose(worker: _Worker) -> None:
     _LIVE.discard(worker.proc)
     if worker in _POOL:
         _POOL.remove(worker)
-    for queue in (worker.inbox, worker.outbox):
-        _release_queue(queue)
+    # Only the upload pipe. Closing the result pipe while the parent is
+    # still reading it turns a shutdown into a 500.
+    _release_queue(worker.inbox)
+    try:
+        worker.outbox.close()
+    except (OSError, ValueError):
+        pass
+    try:
+        worker.outbox.cancel_join_thread()
+    except (OSError, ValueError):
+        pass
 
 
 def _release_queue(queue: mp.Queue[Any]) -> None:

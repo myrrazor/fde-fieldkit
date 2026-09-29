@@ -3,6 +3,8 @@ from __future__ import annotations
 import base64
 import csv
 import importlib
+import threading
+import time
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -917,6 +919,66 @@ def test_deep_json_is_the_same_validation_error_at_either_size(client: TestClien
         )
         assert response.status_code == 422, response.text
         assert response.json()["error"] == f"could not read {name}"
+
+
+def test_shutdown_mid_job_returns_499(client: TestClient) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    payload = b"a,b\n" + b"1,2345\n" * 200_000
+    assert len(payload) >= 1_000_000
+    box: dict[str, object] = {}
+
+    def post() -> None:
+        response = client.post(
+            "/api/xray",
+            files={"file": ("wide.csv", payload, "text/csv")},
+        )
+        box["status"] = response.status_code
+        box["body"] = response.content
+
+    worker = threading.Thread(target=post)
+    worker.start()
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and not jobs_mod._LIVE:
+        time.sleep(0.02)
+    jobs_mod.stop_heavy_jobs()
+    worker.join(timeout=10)
+    jobs_mod.arm_heavy_jobs()
+
+    assert box.get("status") == 499
+    assert box.get("body") == b'{"error":"server stopped before the job finished"}'
+
+
+def test_chunked_upload_over_one_megabyte_is_busy_when_the_cap_is_full(
+    client: TestClient,
+) -> None:
+    from fieldkit.web.routes import HEAVY_REQUEST_BYTES
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    boundary = "bound"
+    file_bytes = b"a,b\n" + b"x" * HEAVY_REQUEST_BYTES
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="c.csv"\r\n'
+        f"Content-Type: text/csv\r\n\r\n"
+    ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+        response = client.post(
+            "/api/xray",
+            content=iter([body]),
+            headers={
+                "content-type": f"multipart/form-data; boundary={boundary}",
+                "transfer-encoding": "chunked",
+            },
+        )
+        assert response.status_code == 429, response.text
+        assert response.json() == {"error": "busy, try again"}
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
 
 
 def test_bodiless_and_tiny_requests_do_not_take_a_heavy_place(client: TestClient) -> None:
