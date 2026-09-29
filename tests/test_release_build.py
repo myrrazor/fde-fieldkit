@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import tarfile
 from pathlib import Path
@@ -210,6 +211,10 @@ def test_placeholder_script_fails_on_missing_and_tokens(tmp_path: Path) -> None:
     )
     assert ok.returncode == 0
 
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root bypasses directory mode bits")
+def test_placeholder_script_fails_on_unreadable_directory(tmp_path: Path) -> None:
+    script = ROOT / "scripts" / "check-placeholders.sh"
     locked = tmp_path / "locked"
     locked.mkdir()
     secret = locked / "hidden.md"
