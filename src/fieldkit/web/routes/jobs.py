@@ -131,10 +131,14 @@ async def end_heavy_request(request: Request) -> None:
     _release_memory()
 
 
+def valid_job_id(job_id: str) -> bool:
+    return _JOB_ID.fullmatch(job_id) is not None
+
+
 def job_is_waiting(job_id: str) -> bool:
     """True when this browser request is queued behind another heavy job."""
 
-    return bool(job_id) and job_id in _waiting
+    return valid_job_id(job_id) and job_id in _waiting
 
 
 def _reset_pool() -> None:

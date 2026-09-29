@@ -60,6 +60,46 @@ def test_loads_every_table_fixture(fixture_dir: Path, filename: str, fmt: str, r
     assert all(dtype.name == "string" for dtype in loaded.df.dtypes)
 
 
+def test_ragged_delimited_text_has_a_clean_parse_error(tmp_path: Path) -> None:
+    csv_path = tmp_path / "x.csv"
+    csv_path.write_text("a\n1\n2,3\n", encoding="utf-8")
+    with pytest.raises(
+        ValueError,
+        match="can't parse 'x.csv' as CSV — check the delimiter/quoting",
+    ) as caught:
+        load_table(csv_path)
+    assert "tokenizing" not in str(caught.value)
+    assert "C error" not in str(caught.value)
+
+    tsv_path = tmp_path / "x.tsv"
+    tsv_path.write_bytes(b"a\n1\n2\t3\n")
+    with pytest.raises(
+        ValueError,
+        match="can't parse 'x.tsv' as TSV — check the delimiter/quoting",
+    ):
+        load_table(tsv_path)
+
+    empty = tmp_path / "empty.csv"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="can't parse 'empty.csv' as CSV — the file has no rows"):
+        load_table(empty)
+
+
+def test_sheet_applies_only_to_excel(tmp_path: Path, fixture_dir: Path) -> None:
+    path = tmp_path / "rows.csv"
+    path.write_text("a,b\n1,2\n", encoding="utf-8")
+    with pytest.raises(
+        ValueError,
+        match="sheet 'Inventory' applies to Excel workbooks — 'rows.csv' is csv",
+    ):
+        load_table(path, sheet="Inventory")
+    assert list(load_table(path).df.columns) == ["a", "b"]
+
+    loaded = load_table(fixture_dir / "inventory.xlsx", sheet="inventory")
+    assert loaded.fmt == "xlsx"
+    assert len(loaded.df) == 60
+
+
 def test_messy_literals_become_missing(fixture_dir: Path) -> None:
     df = load_table(fixture_dir / "messy.tsv").df
 

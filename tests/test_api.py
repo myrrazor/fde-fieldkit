@@ -843,6 +843,38 @@ def test_tell_html_can_include_unslop_provenance(fixture_dir: Path) -> None:
     assert rewrite.final.splitlines()[0] in html
 
 
+def test_ragged_csv_upload_hides_parser_internals(client: TestClient) -> None:
+    response = client.post(
+        "/api/xray",
+        files={"file": ("x.csv", b"a\n1\n2,3\n", "text/csv")},
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": "can't parse 'x.csv' as CSV — check the delimiter/quoting"
+    }
+
+
+@pytest.mark.parametrize(
+    "job_id",
+    ["short", "bad-id", "abcd_efgh", "a" * 7, "a" * 65, "not valid"],
+)
+def test_queue_rejects_malformed_job_ids(client: TestClient, job_id: str) -> None:
+    response = client.get(f"/api/queue/{job_id}")
+
+    assert response.status_code == 400
+    assert response.json() == {"error": "invalid job id"}
+
+
+@pytest.mark.parametrize("job_id", ["abcdefgh", "abc123def456ghi789jkl0", "A" * 64])
+def test_queue_accepts_browser_style_job_ids(client: TestClient, job_id: str) -> None:
+    # fieldkit.js queueId() is 24 base36 characters, inside ^[A-Za-z0-9]{8,64}$.
+    response = client.get(f"/api/queue/{job_id}")
+
+    assert response.status_code == 200
+    assert response.json() == {"waiting": False}
+
+
 def test_queue_endpoint_reports_server_waiting_state(client: TestClient) -> None:
     from fieldkit.web.routes.jobs import _claim_job_id, _note_waiting, _release_job_id
 

@@ -31,6 +31,7 @@ from fieldkit.web.routes import (
     job_is_waiting,
     release_admission,
     stop_heavy_jobs,
+    valid_job_id,
 )
 
 # Text fields stay at Starlette's 1 MB cap. Only a generation spec needs to
@@ -361,10 +362,12 @@ def create_app(*, debrief_db: Path | None = None) -> FastAPI:
 
         return {"status": "ok", "version": __version__}
 
-    @app.get("/api/queue/{job_id}")
-    async def queue_state(job_id: str) -> dict[str, bool]:
+    @app.get("/api/queue/{job_id}", response_model=None)
+    async def queue_state(job_id: str) -> dict[str, bool] | JSONResponse:
         """Whether the heavy job tagged with this id is waiting for a slot."""
 
+        if not valid_job_id(job_id):
+            return JSONResponse(status_code=400, content={"error": "invalid job id"})
         return {"waiting": job_is_waiting(job_id)}
 
     @app.get("/api/plugins")

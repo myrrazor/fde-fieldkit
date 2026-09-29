@@ -109,6 +109,10 @@ def load_table(
 
     raw, source = _read_source(src, filename)
     table_fmt = _clean_format(fmt) if fmt else detect_format(filename or source, raw)
+    if sheet is not None and table_fmt != "xlsx":
+        raise ValueError(
+            f"sheet {sheet!r} applies to Excel workbooks — {source!r} is {table_fmt}"
+        )
     warnings: list[str] = []
 
     try:
@@ -210,14 +214,22 @@ def _read_delimited(raw: bytes, table_fmt: str, source: str) -> pd.DataFrame:
             raise ValueError(
                 f"{source} looks like JSON, not {table_fmt} — omit --fmt or pass --fmt json"
             )
-    return pd.read_csv(
-        BytesIO(raw),
-        sep="\t" if table_fmt == "tsv" else ",",
-        dtype=str,
-        keep_default_na=False,
-        na_filter=False,
-        encoding="utf-8-sig",
-    )
+    label = "TSV" if table_fmt == "tsv" else "CSV"
+    try:
+        return pd.read_csv(
+            BytesIO(raw),
+            sep="\t" if table_fmt == "tsv" else ",",
+            dtype=str,
+            keep_default_na=False,
+            na_filter=False,
+            encoding="utf-8-sig",
+        )
+    except pd.errors.EmptyDataError as exc:
+        raise ValueError(f"can't parse {source!r} as {label} — the file has no rows") from exc
+    except pd.errors.ParserError as exc:
+        raise ValueError(
+            f"can't parse {source!r} as {label} — check the delimiter/quoting"
+        ) from exc
 
 
 def _read_xlsx(raw: bytes, sheet: str | None) -> tuple[pd.DataFrame, list[str]]:

@@ -16,6 +16,7 @@ from fieldkit.web.routes.jobs import (
     release_admission,
     run_job,
     stop_heavy_jobs,
+    valid_job_id,
 )
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "run_job",
     "safe_filename",
     "stop_heavy_jobs",
+    "valid_job_id",
 ]
 
 MAX_UPLOAD_BYTES = MAX_DATASET_BYTES
