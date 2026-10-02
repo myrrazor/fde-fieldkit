@@ -11,6 +11,7 @@ import importlib
 import shutil
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
@@ -145,9 +146,35 @@ def run_installer(requirements: list[str], *, upgrade: bool = False, find_links:
     if find_links:
         # a wheelhouse dir wins for our packages; everything else still resolves normally
         argv = [*argv, "--find-links", find_links]
-    completed = subprocess.run([*argv, *requirements], check=False)
+    constraint = _core_constraint(requirements)
+    if constraint is not None:
+        # git installs see [tool.uv.sources] fieldkit = { workspace = true } and
+        # would replace the already-installed core with that checkout. Pin it.
+        if Path(argv[0]).name == "uv":
+            argv = [*argv, "--no-sources"]
+        argv = [*argv, "--constraint", str(constraint)]
+    try:
+        completed = subprocess.run([*argv, *requirements], check=False)
+    finally:
+        if constraint is not None:
+            constraint.unlink(missing_ok=True)
     _refresh_metadata()
     return completed.returncode
+
+
+def _core_constraint(requirements: list[str]) -> Path | None:
+    if not any("git+" in requirement for requirement in requirements):
+        return None
+    try:
+        pinned = metadata.version("fieldkit")
+    except metadata.PackageNotFoundError:
+        return None
+    handle = tempfile.NamedTemporaryFile(
+        "w", prefix="fk-pin-", suffix=".txt", delete=False, encoding="utf-8"
+    )
+    with handle:
+        handle.write(f"fieldkit=={pinned}\n")
+    return Path(handle.name)
 
 
 def run_uninstaller(packages: list[str]) -> int:

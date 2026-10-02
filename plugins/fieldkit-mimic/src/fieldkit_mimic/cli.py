@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from fieldkit.core.io import SUPPORTED_FORMATS, load_table, write_table
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, require_regular_file, write_table
 from fieldkit_mimic.generate import generate
 from fieldkit_mimic.learn import dump_spec, learn_spec, load_spec
 
@@ -32,9 +32,11 @@ def learn_command(
 ) -> None:
     """Learn a hand-editable YAML spec from SAMPLE."""
 
-    if not sample.is_file():
-        typer.echo(f"error: file not found: {sample}", err=True)
-        raise typer.Exit(1)
+    try:
+        require_regular_file(sample)
+    except ValueError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from exc
 
     try:
         spec = learn_spec(load_table(sample, fmt=fmt), name=sample.stem)
@@ -59,9 +61,11 @@ def generate_command(
 ) -> None:
     """Generate synthetic rows from a spec or directly from a sample."""
 
-    if not source.is_file():
-        typer.echo(f"error: file not found: {source}", err=True)
-        raise typer.Exit(1)
+    try:
+        require_regular_file(source)
+    except ValueError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from exc
 
     try:
         output_format = _OUTPUT_FORMATS.get(out.suffix.lower())

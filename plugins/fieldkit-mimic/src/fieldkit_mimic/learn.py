@@ -125,9 +125,12 @@ def learn_spec(table: LoadedTable, *, name: str = "") -> MimicSpec:
 def load_spec(path: Path) -> MimicSpec:
     """Load and validate a mimic YAML spec."""
 
+    text = path.read_text(encoding="utf-8")
     try:
-        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
+        from fieldkit.core.yaml_safe import load_yaml
+
+        payload = load_yaml(text)
+    except ValueError as exc:
         raise ValueError(f"invalid mimic spec: {exc}") from exc
     if not isinstance(payload, dict):
         raise ValueError("mimic spec must be a YAML mapping")
@@ -169,11 +172,13 @@ def dump_spec(spec: MimicSpec) -> str:
 
 
 def _pii_kind(series: pd.Series, column_name: str) -> PIIKind | None:
-    detected = {
-        match.kind
-        for value in series.dropna()
-        for match in scan_text(str(value), column_name=column_name)
-    }
+    # Kind is an existence question, so duplicate cells cannot change the answer.
+    detected: set[PIIKind] = set()
+    for value in series.dropna().unique():
+        for match in scan_text(str(value), column_name=column_name):
+            detected.add(match.kind)
+        if PIIKind.SECRET in detected:
+            break
     for kind in _SENSITIVE_KIND_ORDER:
         if kind in detected:
             return kind

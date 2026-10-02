@@ -10,7 +10,7 @@ In-repo `site/` is the fallback copy if the hosted site is unreachable.
 Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
 
 Toolkit model: install the GitHub Release wheels by explicit local path, or
-`uv sync` from a pinned v0.2.0 checkout. Each of the eight shipped tools is a
+`uv sync` from a pinned v0.2.1 checkout. Each of the eight shipped tools is a
 plugin package. Not on PyPI yet (the PyPI name `fieldkit` is an unrelated
 project). After a wheel core install, `fieldkit plugin add <tool> --wheelhouse DIR`
 resolves Field Kit packages from that directory — not from PyPI.

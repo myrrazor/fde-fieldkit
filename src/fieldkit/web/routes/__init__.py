@@ -5,6 +5,37 @@ from pathlib import PurePosixPath
 from fastapi import UploadFile
 
 from fieldkit.core.io import MAX_DATASET_BYTES
+from fieldkit.web.routes.jobs import (
+    HEAVY_REQUEST_BYTES,
+    ClientGone,
+    JobCrashed,
+    arm_heavy_jobs,
+    begin_heavy_request,
+    end_heavy_request,
+    job_is_waiting,
+    release_admission,
+    run_job,
+    stop_heavy_jobs,
+    valid_job_id,
+)
+
+__all__ = [
+    "HEAVY_REQUEST_BYTES",
+    "MAX_UPLOAD_BYTES",
+    "ClientGone",
+    "JobCrashed",
+    "UploadTooLarge",
+    "arm_heavy_jobs",
+    "begin_heavy_request",
+    "end_heavy_request",
+    "job_is_waiting",
+    "release_admission",
+    "read_upload",
+    "run_job",
+    "safe_filename",
+    "stop_heavy_jobs",
+    "valid_job_id",
+]
 
 MAX_UPLOAD_BYTES = MAX_DATASET_BYTES
 
@@ -27,5 +58,7 @@ async def read_upload(upload: UploadFile) -> bytes:
 def safe_filename(filename: str | None, *, fallback: str = "upload") -> str:
     """Return a basename safe to echo in a generated filename."""
 
-    name = PurePosixPath((filename or "").replace("\\", "/")).name
+    raw = (filename or "").splitlines()[0] if filename else ""
+    cleaned = "".join(char for char in raw if char.isprintable() and char not in {'"', "'", "`"})
+    name = PurePosixPath(cleaned.replace("\\", "/")).name
     return fallback if name in {"", ".", ".."} else name

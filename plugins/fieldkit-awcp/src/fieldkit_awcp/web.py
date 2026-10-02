@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, File, Query, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from fieldkit.web.routes import read_upload, safe_filename
 from fieldkit_awcp.check import check_spec
@@ -34,10 +35,8 @@ async def check_upload(
     """Validate an uploaded WorkloadSpec."""
 
     filename = safe_filename(file.filename, fallback="workload.yaml")
-    result = check_spec(_load_upload(await read_upload(file), filename), source=filename)
-    if output == "html":
-        return {"html": render_check_html(result)}
-    return json.loads(check_to_json(result))
+    content = await read_upload(file)
+    return await run_in_threadpool(_check, content, filename, output)
 
 
 @router.post("/diff")
@@ -50,12 +49,9 @@ async def diff_uploads(
 
     name_a = safe_filename(file_a.filename, fallback="before.yaml")
     name_b = safe_filename(file_b.filename, fallback="after.yaml")
-    before = _load_upload(await read_upload(file_a), name_a)
-    after = _load_upload(await read_upload(file_b), name_b)
-    changes = diff_workload_specs(before, after)
-    if output == "html":
-        return {"html": render_diff_html(changes, before=name_a, after=name_b)}
-    return json.loads(diff_to_json(changes, before=name_a, after=name_b))
+    content_a = await read_upload(file_a)
+    content_b = await read_upload(file_b)
+    return await run_in_threadpool(_diff, content_a, name_a, content_b, name_b, output)
 
 
 @router.post("/eval")
@@ -68,8 +64,42 @@ async def eval_uploads(
 
     spec_name = safe_filename(file.filename, fallback="workload.yaml")
     suite_name = safe_filename(suite.filename, fallback="suite.yaml")
-    workload = _load_upload(await read_upload(file), spec_name)
-    suite_payload = _load_upload(await read_upload(suite), suite_name)
+    spec_bytes = await read_upload(file)
+    suite_bytes = await read_upload(suite)
+    return await run_in_threadpool(_eval, spec_bytes, spec_name, suite_bytes, suite_name, output)
+
+
+def _check(content: bytes, filename: str, output: str) -> dict[str, object]:
+    result = check_spec(_load_upload(content, filename), source=filename)
+    if output == "html":
+        return {"html": render_check_html(result)}
+    return json.loads(check_to_json(result))
+
+
+def _diff(
+    content_a: bytes,
+    name_a: str,
+    content_b: bytes,
+    name_b: str,
+    output: str,
+) -> dict[str, object]:
+    before = _load_upload(content_a, name_a)
+    after = _load_upload(content_b, name_b)
+    changes = diff_workload_specs(before, after)
+    if output == "html":
+        return {"html": render_diff_html(changes, before=name_a, after=name_b)}
+    return json.loads(diff_to_json(changes, before=name_a, after=name_b))
+
+
+def _eval(
+    spec_bytes: bytes,
+    spec_name: str,
+    suite_bytes: bytes,
+    suite_name: str,
+    output: str,
+) -> dict[str, object]:
+    workload = _load_upload(spec_bytes, spec_name)
+    suite_payload = _load_upload(suite_bytes, suite_name)
     try:
         with tempfile.TemporaryDirectory() as tmp:
             run = run_eval(

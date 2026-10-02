@@ -100,7 +100,7 @@ def analyze(text: str) -> SignalReport:
 
 
 def burstiness(doc: Doc) -> SignalResult:
-    lengths = [_word_count(doc, span) for span in doc.sentences]
+    lengths = _span_word_counts(doc, doc.sentences)
     cv = _coefficient_of_variation(lengths)
     run_start, run_end = _longest_uniform_run(lengths)
     run_length = run_end - run_start
@@ -283,7 +283,7 @@ def weasel(doc: Doc) -> SignalResult:
 
 
 def uniform_structure(doc: Doc) -> SignalResult:
-    paragraph_lengths = [_word_count(doc, span) for span in doc.paragraphs]
+    paragraph_lengths = _span_word_counts(doc, doc.paragraphs)
     paragraph_cv = _coefficient_of_variation(paragraph_lengths)
     triads = _triadic_spans(doc)
     triad_rate = len(triads) / max(1, len(doc.sentences))
@@ -431,7 +431,7 @@ SIGNALS: tuple[Signal, ...] = (
 
 
 def _text_stats(doc: Doc) -> TextStats:
-    lengths = [_word_count(doc, span) for span in doc.sentences]
+    lengths = _span_word_counts(doc, doc.sentences)
     return TextStats(
         chars=len(doc.text),
         words=len(doc.words),
@@ -443,7 +443,28 @@ def _text_stats(doc: Doc) -> TextStats:
 
 
 def _word_count(doc: Doc, container: Span) -> int:
-    return sum(container.start <= word.start and word.end <= container.end for word in doc.words)
+    return _span_word_counts(doc, (container,))[0]
+
+
+def _span_word_counts(doc: Doc, containers: tuple[Span, ...] | list[Span]) -> list[int]:
+    """Count words inside each container. Words and containers are sorted by start."""
+
+    counts: list[int] = []
+    words = doc.words
+    word_i = 0
+    total = len(words)
+    for container in containers:
+        while word_i < total and words[word_i].end <= container.start:
+            word_i += 1
+        count = 0
+        probe = word_i
+        while probe < total and words[probe].start < container.end:
+            word = words[probe]
+            if container.start <= word.start and word.end <= container.end:
+                count += 1
+            probe += 1
+        counts.append(count)
+    return counts
 
 
 def _coefficient_of_variation(values: list[int]) -> float:
@@ -456,14 +477,36 @@ def _coefficient_of_variation(values: list[int]) -> float:
 
 
 def _longest_uniform_run(lengths: list[int]) -> tuple[int, int]:
-    best = (0, min(1, len(lengths)))
-    for start in range(len(lengths)):
-        for end in range(start + 3, len(lengths) + 1):
-            window = lengths[start:end]
-            tolerance = max(3.0, statistics.fmean(window) * 0.25)
-            if max(window) - min(window) <= tolerance and end - start > best[1] - best[0]:
-                best = (start, end)
-    return best
+    """Leftmost longest window whose range stays within 25% of its mean (at least 3).
+
+    Extending a window is not monotone — a short window can fail while a longer
+    one passes — so every window is considered. Running min/max/sum keeps that
+    exact and quadratic instead of cubic.
+    """
+
+    size = len(lengths)
+    best_start = 0
+    best_len = min(1, size)
+    for start in range(size):
+        if size - start <= best_len:
+            break
+        window_min = window_max = lengths[start]
+        total = lengths[start]
+        for end in range(start + 1, size):
+            value = lengths[end]
+            total += value
+            if value < window_min:
+                window_min = value
+            elif value > window_max:
+                window_max = value
+            span = end - start + 1
+            if span <= best_len or span < 3:
+                continue
+            tolerance = max(3.0, (total / span) * 0.25)
+            if window_max - window_min <= tolerance:
+                best_start = start
+                best_len = span
+    return best_start, best_start + best_len
 
 
 def _triadic_spans(doc: Doc) -> list[Span]:

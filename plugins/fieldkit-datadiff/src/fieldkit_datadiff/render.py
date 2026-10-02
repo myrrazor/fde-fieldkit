@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jinja2
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 from rich.text import Text
 
@@ -24,7 +25,7 @@ def render_terminal(result: DiffResult, console: Console) -> None:
     _render_rows(result, console)
     _render_drift(result, console)
     for warning in result.warnings:
-        console.print(f"warning: {warning}", style="yellow")
+        console.print(f"warning: {escape(warning)}", style="yellow")
 
 
 def render_html(result: DiffResult) -> str:
@@ -44,13 +45,13 @@ def _render_schema(result: DiffResult, console: Console) -> None:
     table.add_column("old")
     table.add_column("new")
     for column in result.schema.added_columns:
-        table.add_row(Text("added", style="green"), column, "—", "present")
+        table.add_row(Text("added", style="green"), Text(column), "—", "present")
     for column in result.schema.removed_columns:
-        table.add_row(Text("removed", style="red"), column, "present", "—")
+        table.add_row(Text("removed", style="red"), Text(column), "present", "—")
     for column, old, new in result.schema.type_changes:
-        table.add_row("type", column, old, new)
+        table.add_row("type", Text(column), old, new)
     for column, old, new in result.schema.nullability_changes:
-        table.add_row("nulls", column, f"{old:.1f}%", f"{new:.1f}%")
+        table.add_row("nulls", Text(column), f"{old:.1f}%", f"{new:.1f}%")
     if table.row_count == 0:
         table.add_row("none", "—", "—", "—")
     console.print(table)
@@ -62,7 +63,8 @@ def _render_rows(result: DiffResult, console: Console) -> None:
         return
 
     rows = result.rows
-    counts = Table(title=f"Rows · key: {', '.join(rows.key_columns)}")
+    key_label = ", ".join(escape(column) for column in rows.key_columns)
+    counts = Table(title=f"Rows · key: {key_label}")
     counts.add_column("added", style="green", justify="right")
     counts.add_column("removed", style="red", justify="right")
     counts.add_column("changed", justify="right")
@@ -79,7 +81,7 @@ def _render_rows(result: DiffResult, console: Console) -> None:
     changed.add_column("column", style="bold")
     changed.add_column("cells", justify="right")
     for column, count in rows.changed_by_column.items():
-        changed.add_row(column, f"{count:,}")
+        changed.add_row(Text(column), f"{count:,}")
     if changed.row_count == 0:
         changed.add_row("—", "0")
     console.print(changed)
@@ -93,10 +95,10 @@ def _render_drift(result: DiffResult, console: Console) -> None:
     for column, drift in result.drift.categorical.items():
         new = ", ".join(drift.new) or f"{drift.new_count} value(s)"
         vanished = ", ".join(drift.vanished) or f"{drift.vanished_count} value(s)"
-        table.add_row(column, "categorical", f"new: {new}; vanished: {vanished}")
+        table.add_row(Text(column), "categorical", Text(f"new: {new}; vanished: {vanished}"))
     for column, drift in result.drift.numeric.items():
         table.add_row(
-            column,
+            Text(column),
             "numeric",
             (
                 f"mean Δ {drift['mean_delta']:+.4g}; "

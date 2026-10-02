@@ -1,4 +1,4 @@
-import { api, dropzone, esc, renderTable, toast, withBusy } from "/fieldkit.js";
+import { api, dropzone, esc, renderTable, toast, withBusy, latestRequest } from "/fieldkit.js";
 
 const dropA = document.getElementById("drop-a");
 const dropB = document.getElementById("drop-b");
@@ -6,9 +6,16 @@ const keys = document.getElementById("keys");
 const go = document.getElementById("go");
 const result = document.getElementById("result");
 
+const jobs = latestRequest();
+
 for (const el of [dropA, dropB]) {
-  dropzone(el, () => { go.disabled = !(dropA.file && dropB.file); });
+  dropzone(el, () => {
+    jobs.invalidate();
+    go.disabled = !(dropA.file && dropB.file);
+    result.innerHTML = "";
+  });
   el.parentElement.querySelector(".file-chip button").addEventListener("click", (e) => {
+    jobs.invalidate();
     e.target.closest(".file-chip").hidden = true;
     el.file = null;
     go.disabled = true;
@@ -18,17 +25,22 @@ for (const el of [dropA, dropB]) {
 go.addEventListener("click", diff);
 
 async function diff() {
+  const job = jobs.start();
+  const fileA = dropA.file;
+  const fileB = dropB.file;
   result.innerHTML = "";
   try {
     await withBusy(result, "comparing…", async () => {
       const fd = new FormData();
-      fd.append("file_a", dropA.file);
-      fd.append("file_b", dropB.file);
+      fd.append("file_a", fileA);
+      fd.append("file_b", fileB);
       if (keys.value.trim()) fd.append("keys", keys.value.trim());
-      const r = await api("/api/datadiff", { body: fd });
+      const r = await api("/api/datadiff", { body: fd, signal: job.signal });
+      if (!job.current()) return;
       render(r);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }

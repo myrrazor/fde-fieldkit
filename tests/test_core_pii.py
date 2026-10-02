@@ -48,6 +48,9 @@ def test_luhn_invalid_numbers_are_not_credit_cards() -> None:
     )
 
     assert PIIKind.CREDIT_CARD not in report.kinds
+    assert not any(
+        match.kind is PIIKind.CREDIT_CARD for match in scan_text("0.4111111111111111")
+    )
 
 
 def test_order_ids_are_not_secrets(fixture_dir: Path) -> None:
@@ -92,6 +95,8 @@ def test_real_phones_still_match() -> None:
         "+1 (415) 555-0199",
         "415-555-0199",
         "+441234567890",
+        "212.5551234",
+        "1234.5678901234",
     ]
     for phone in phones:
         assert any(match.kind is PIIKind.PHONE for match in scan_text(phone)), phone
@@ -134,3 +139,45 @@ def test_entropy_secret_accepts_punctuation() -> None:
     token = "aB3$dE5!fG7#hJ9%kL2&mN4*"
 
     assert PIIKind.SECRET in {match.kind for match in scan_text(token)}
+
+
+def test_entropy_secret_skips_markup_and_javascript_urls() -> None:
+    text = "<a href='javascript:alert(1)'>click</a>"
+
+    assert PIIKind.SECRET not in {match.kind for match in scan_text(text)}
+
+
+def test_quoted_json_tag_and_backtick_secrets_are_masked() -> None:
+    from fieldkit_scrub import Scrubber
+
+    lines = [
+        'api_key="9f86d081884c7d659a2feaa0c55ad015a3bf4f1b"',
+        '{"token":"a8f5f167f44f4964e6c998dee827110c7Qx"}',
+        "password='Xk9mQ2vL8nR4pT6wZ1yB3cD5'",
+        "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0",
+        # Same shape as a pay key. The live-key prefix is rejected by push protection.
+        "STRIPE_KEY=fkpay_51H8xYzAbCdEfGhIjKlMnOpQr",
+        "fkpay_51H8xYzAbCdEfGhIjKlMnOpQrStUv",
+        'export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"',
+        "<secret>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</secret>",
+        "`ghs_16C7e42F292c6912E7710c838347Ae178B4a`",
+        "token=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    ]
+    secrets = [
+        "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b",
+        "a8f5f167f44f4964e6c998dee827110c7Qx",
+        "Xk9mQ2vL8nR4pT6wZ1yB3cD5",
+        "eyJhbGciOiJIUzI1NiJ9",
+        "fkpay_51H8xYzAbCdEfGhIjKlMnOpQr",
+        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+    ]
+    scrubber = Scrubber(b"round2-salt")
+    scrubbed, _summary = scrubber.scrub_text("\n".join(lines) + "\n")
+
+    for line in lines:
+        assert any(match.kind == PIIKind.SECRET for match in scan_text(line))
+    for secret in secrets:
+        assert secret not in scrubbed
+    assert all(kind != PIIKind.SECRET for kind in {match.kind for match in scan_text("[note]")})
+    assert all(kind != PIIKind.SECRET for kind in {match.kind for match in scan_text("<b>")})

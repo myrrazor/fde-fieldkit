@@ -70,6 +70,8 @@ class Store:
         cleaned = text.strip()
         if not cleaned:
             raise ValueError("debrief notes can't be empty or whitespace-only")
+        if len(cleaned) > 500:
+            raise ValueError("debrief notes are limited to 500 characters")
         stamp = datetime.now() if ts is None else ts
         timestamp = stamp.isoformat()
         with closing(self._connect()) as connection, connection:

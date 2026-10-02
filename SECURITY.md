@@ -18,10 +18,10 @@ where practical. There is no paid response SLA or bug-bounty program.
 ## Supported code
 
 Field Kit is in early development. Security fixes target the current `main`
-branch and the latest GitHub release (0.2.0). There is no separate
+branch and the latest GitHub release (0.2.1). There is no separate
 long-term-support branch and no LTS promise.
 
-Package version 0.2.0 is the tagged GitHub source. It is not a PyPI
+Package version 0.2.1 is the current tagged GitHub source. It is not a PyPI
 publication. The PyPI project named `fieldkit` is unrelated.
 
 ## Boundaries

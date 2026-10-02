@@ -23,8 +23,15 @@ class EntryCreate(BaseModel):
     tag: Tag
 
 
+@router.get("/meta")
+def meta(request: Request) -> dict[str, str]:
+    """Report the database path this hub is actually using."""
+
+    return {"db_path": str(_store(request).db_path)}
+
+
 @router.get("/entries")
-async def list_entries(
+def list_entries(
     request: Request,
     week: Annotated[str | None, Query()] = None,
     tag: Annotated[Tag | None, Query()] = None,
@@ -35,14 +42,14 @@ async def list_entries(
 
 
 @router.post("/entries", status_code=status.HTTP_201_CREATED)
-async def add_entry(request: Request, payload: EntryCreate) -> dict[str, object]:
+def add_entry(request: Request, payload: EntryCreate) -> dict[str, object]:
     """Persist one debrief entry."""
 
     return asdict(_store(request).add(payload.text, payload.tag))
 
 
 @router.delete("/entries/{entry_id}")
-async def delete_entry(request: Request, entry_id: int) -> Response:
+def delete_entry(request: Request, entry_id: int) -> Response:
     """Delete one debrief entry by id."""
 
     if not _store(request).delete(entry_id):
@@ -51,7 +58,7 @@ async def delete_entry(request: Request, entry_id: int) -> Response:
 
 
 @router.get("/report")
-async def weekly_report(
+def weekly_report(
     request: Request,
     week: Annotated[str | None, Query()] = None,
     fmt: Annotated[Literal["md", "html", "json"], Query()] = "md",

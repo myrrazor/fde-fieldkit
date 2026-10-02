@@ -5,8 +5,8 @@ See and control the network destinations an AI coding agent reaches.
 This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
-`fieldkit plugin add netwatch --wheelhouse <wheels-dir>`. A pinned `v0.2.0`
-checkout (`uv sync --locked --all-packages`) also works.
+`fieldkit plugin add netwatch --wheelhouse <wheels-dir>`. A checkout of this
+repo or the v0.2.1 tag installs 0.2.1 (`uv sync --locked --all-packages`). GitHub release wheels are also 0.2.1.
 
 Netwatch starts loopback HTTP and SOCKS5 proxies, launches a command through them, and
 stores metadata-only evidence in SQLite. It strengthens coverage for supported Codex and

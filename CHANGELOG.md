@@ -5,6 +5,24 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+## 0.2.1 — 2026-10-02
+
+- Unknown commands suggest a close match again (`fieldkit xra` names `xray`).
+- A CSV or TSV that cannot be parsed says so in one line, instead of quoting
+  the pandas parser. `xray --sheet` on a non-Excel file is an error.
+  `datadiff --sheet` applies to each Excel input, and is an error when neither
+  file is Excel. `/api/queue/{id}` returns 400 when the id is not 8–64 letters
+  or digits.
+- `fieldkit awcp eval` stores `result.json` in `~/.fieldkit/awcp-artifacts`
+  instead of `./.awcp-artifacts`. Files already in the old directory are not
+  moved; copy them, or pass that directory as `--artifact-dir`.
+- YAML aliases are rejected when expansion produces more than 20,000 nodes and
+  that count is also more than four times the unique nodes. Specs with no
+  aliases are not subject to that cap.
+- All nine packages ship as 0.2.1 GitHub release wheels and source archives.
+- Heavy profiling, scrubbing, diffs, generation, and workload checks run off
+  the hub's event loop. Column typing and tell scoring stay the same and
+  finish faster on large inputs.
 - XLSX loading inflates ZIP members itself and rejects archives whose declared
   uncompressed size does not match the inflated byte count. The 50 MB dataset
   cap still applies to those inflated bytes, not to ZIP metadata.

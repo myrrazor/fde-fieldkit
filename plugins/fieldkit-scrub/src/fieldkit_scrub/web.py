@@ -6,11 +6,11 @@ from io import BytesIO
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, Request, UploadFile
 
 from fieldkit.core.io import load_table, write_table
 from fieldkit.core.pii import PIIKind
-from fieldkit.web.routes import read_upload, safe_filename
+from fieldkit.web.routes import read_upload, run_job, safe_filename
 from fieldkit_scrub import Scrubber, load_or_create_salt
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -22,6 +22,7 @@ _TEXT_SUFFIXES = {".log", ".txt"}
 
 @router.post("")
 async def scrub_upload(
+    request: Request,
     file: Annotated[UploadFile, File()],
     kinds: Annotated[str | None, Form()] = None,
     include_mapping: Annotated[bool, Form()] = False,
@@ -30,7 +31,19 @@ async def scrub_upload(
 
     filename = safe_filename(file.filename)
     content = await read_upload(file)
-    scrubber = Scrubber(load_or_create_salt(), kinds=_parse_kinds(kinds))
+    selected = _parse_kinds(kinds)
+    return await run_job(
+        request, _scrub, content, filename, selected, include_mapping, weight=len(content)
+    )
+
+
+def _scrub(
+    content: bytes,
+    filename: str,
+    kinds: set[PIIKind] | None,
+    include_mapping: bool,
+) -> dict[str, object]:
+    scrubber = Scrubber(load_or_create_salt(), kinds=kinds)
     if Path(filename).suffix.lower() in _TEXT_SUFFIXES:
         try:
             source = content.decode("utf-8-sig")
@@ -58,7 +71,10 @@ def _parse_kinds(value: str | None) -> set[PIIKind] | None:
     if value is None:
         return None
     try:
-        return {PIIKind(item.strip()) for item in value.split(",") if item.strip()}
+        selected = {PIIKind(item.strip()) for item in value.split(",") if item.strip()}
     except ValueError as exc:
         choices = ", ".join(kind.value for kind in PIIKind)
         raise ValueError(f"unknown PII kind; choose from: {choices}") from exc
+    if not selected:
+        raise ValueError("no kinds selected")
+    return selected

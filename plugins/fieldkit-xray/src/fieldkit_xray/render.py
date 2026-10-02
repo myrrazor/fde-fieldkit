@@ -27,11 +27,11 @@ def render_terminal(result: ProfileResult, console: Console) -> None:
     table.add_column("PII flags")
     for column in result.columns:
         table.add_row(
-            column.name,
+            Text(column.name),
             column.inferred_type,
             f"{column.null_pct:.1f}%",
             f"{column.distinct_count:,} ({column.distinct_pct:.1f}%)",
-            _top_value(column),
+            Text(_top_value(column)),
             _pii_flags(column),
         )
     console.print(table)

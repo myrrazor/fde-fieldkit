@@ -33,7 +33,15 @@ const scrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").mat
 
 dropzone(drop, async (file) => {
   if (!/\.(txt|md)$/i.test(file.name)) {
-    clearFile();
+    drop.querySelector("input").value = "";
+    drop.file = selectedFile;
+    const chip = drop.parentElement.querySelector(".file-chip");
+    if (!selectedFile) {
+      chip.hidden = true;
+    } else {
+      chip.hidden = false;
+      chip.querySelector("span").textContent = `${selectedFile.name} · ${selectedFile.size} B`;
+    }
     toast("tell accepts .txt and .md files");
     return;
   }

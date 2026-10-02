@@ -6,24 +6,40 @@ export function esc(value) {
   return div.innerHTML;
 }
 
-export async function api(url, { method = "POST", body, headers } = {}) {
+const inflightJobs = new Set();
+
+function queueId() {
+  let id = "";
+  while (id.length < 16) id += Math.random().toString(36).slice(2);
+  return id.slice(0, 24);
+}
+
+export async function api(url, { method = "POST", body, headers, signal } = {}) {
+  const id = queueId();
+  inflightJobs.add(id);
+  const sent = { ...(headers || {}), "X-Fieldkit-Job": id };
   let res;
   try {
-    res = await fetch(url, { method, body, headers });
-  } catch {
-    throw new Error("can't reach the local server — is `fieldkit serve` still running?");
-  }
-  if (!res.ok) {
-    let msg = `request failed (${res.status})`;
     try {
-      const data = await res.json();
-      if (data.error) msg = data.error;
-      else if (data.detail) msg = typeof data.detail === "string" ? data.detail : msg;
-    } catch { /* body wasn't json, keep the status message */ }
-    throw new Error(msg);
+      res = await fetch(url, { method, body, headers: sent, signal });
+    } catch (err) {
+      if (err && err.name === "AbortError") throw err;
+      throw new Error("can't reach the local server — is `fieldkit serve` still running?");
+    }
+    if (!res.ok) {
+      let msg = `request failed (${res.status})`;
+      try {
+        const data = await res.json();
+        if (data.error) msg = data.error;
+        else if (data.detail) msg = formatDetail(data.detail) || msg;
+      } catch { /* body wasn't json, keep the status message */ }
+      throw new Error(msg);
+    }
+    if (res.status === 204) return null;
+    return res.json();
+  } finally {
+    inflightJobs.delete(id);
   }
-  if (res.status === 204) return null;
-  return res.json();
 }
 
 // wire a .drop element to a hidden file input + drag/drop. onFile(file) fires
@@ -52,6 +68,42 @@ export function dropzone(el, onFile) {
     el.classList.remove("dragover");
     pick(e.dataTransfer.files[0]);
   });
+}
+
+function formatDetail(detail) {
+  if (typeof detail === "string") return detail;
+  if (!Array.isArray(detail)) return "";
+  return detail
+    .map((item) => {
+      if (typeof item === "string") return item;
+      const loc = Array.isArray(item.loc)
+        ? item.loc.filter((part) => part !== "body" && part !== "query").join(".")
+        : "";
+      const text = item.msg || item.message || "invalid";
+      return loc ? `${loc}: ${text}` : text;
+    })
+    .filter(Boolean)
+    .join("; ");
+}
+
+// Drop the previous in-flight request when the user picks another file.
+export function latestRequest() {
+  let controller = null;
+  let generation = 0;
+  return {
+    start() {
+      if (controller) controller.abort();
+      controller = new AbortController();
+      const token = ++generation;
+      const signal = controller.signal;
+      return { signal, current: () => token === generation && !signal.aborted };
+    },
+    invalidate() {
+      if (controller) controller.abort();
+      controller = null;
+      generation += 1;
+    },
+  };
 }
 
 export function fmtBytes(n) {
@@ -111,16 +163,55 @@ export function toast(message) {
   toastTimer = setTimeout(() => el.remove(), 6000);
 }
 
-// busy indicator inside a container while an async task runs
+// busy indicator inside a container while an async task runs.
+// The waiting line comes from the hub, which knows whether this request is queued.
 export async function withBusy(container, label, task) {
   const busy = document.createElement("p");
   busy.className = "busy";
-  busy.innerHTML = `<span class="spinner" aria-hidden="true"></span>${esc(label)}`;
+  const spinner = document.createElement("span");
+  spinner.className = "spinner";
+  spinner.setAttribute("aria-hidden", "true");
+  const text = document.createElement("span");
+  text.textContent = label;
+  busy.append(spinner, text);
   container.append(busy);
-  const stopIndicator = startThinkingOrb(busy.querySelector(".spinner"));
+  const stopIndicator = startThinkingOrb(spinner);
+  let alive = true;
+  const poll = async () => {
+    const ids = [...inflightJobs];
+    if (!alive) return;
+    if (!ids.length) {
+      text.textContent = label;
+      return;
+    }
+    let waiting = false;
+    for (const id of ids) {
+      try {
+        const res = await fetch(`/api/queue/${id}`);
+        if (!alive || !res.ok) continue;
+        const data = await res.json();
+        if (data.waiting) waiting = true;
+      } catch {
+        /* the request itself reports a dead server */
+      }
+    }
+    if (alive) text.textContent = waiting ? "waiting for another job…" : label;
+  };
+  const timer = setInterval(poll, 300);
   try {
-    return await task();
+    const value = await task();
+    document.querySelector(".toast")?.remove();
+    clearTimeout(toastTimer);
+    return value;
+  } catch (err) {
+    // The picker ignores a second choice of the same path until value is cleared.
+    document.querySelectorAll('input[type="file"]').forEach((input) => {
+      input.value = "";
+    });
+    throw err;
   } finally {
+    alive = false;
+    clearInterval(timer);
     stopIndicator();
     busy.remove();
   }

@@ -3,6 +3,8 @@ from __future__ import annotations
 import base64
 import csv
 import importlib
+import threading
+import time
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -839,6 +841,211 @@ def test_tell_html_can_include_unslop_provenance(fixture_dir: Path) -> None:
     assert "Word diff" in html
     assert "Suggestions requiring judgment" in html
     assert rewrite.final.splitlines()[0] in html
+
+
+def test_ragged_csv_upload_hides_parser_internals(client: TestClient) -> None:
+    response = client.post(
+        "/api/xray",
+        files={"file": ("x.csv", b"a\n1\n2,3\n", "text/csv")},
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": "can't parse 'x.csv' as CSV — check the delimiter/quoting"
+    }
+
+
+@pytest.mark.parametrize(
+    "job_id",
+    ["short", "bad-id", "abcd_efgh", "a" * 7, "a" * 65, "not valid"],
+)
+def test_queue_rejects_malformed_job_ids(client: TestClient, job_id: str) -> None:
+    response = client.get(f"/api/queue/{job_id}")
+
+    assert response.status_code == 400
+    assert response.json() == {"error": "invalid job id"}
+
+
+@pytest.mark.parametrize("job_id", ["abcdefgh", "abc123def456ghi789jkl0", "A" * 64])
+def test_queue_accepts_browser_style_job_ids(client: TestClient, job_id: str) -> None:
+    # fieldkit.js queueId() is 24 base36 characters, inside ^[A-Za-z0-9]{8,64}$.
+    response = client.get(f"/api/queue/{job_id}")
+
+    assert response.status_code == 200
+    assert response.json() == {"waiting": False}
+
+
+def test_queue_endpoint_reports_server_waiting_state(client: TestClient) -> None:
+    from fieldkit.web.routes.jobs import _claim_job_id, _note_waiting, _release_job_id
+
+    assert client.get("/api/queue/abcdefgh").json() == {"waiting": False}
+    assert _claim_job_id("abcdefgh") == "abcdefgh"
+    _note_waiting("abcdefgh", True)
+    try:
+        assert client.get("/api/queue/abcdefgh").json() == {"waiting": True}
+        assert _claim_job_id("abcdefgh") == ""
+    finally:
+        _release_job_id("abcdefgh")
+
+
+def test_a_full_heavy_queue_replies_busy(
+    client: TestClient, fixture_dir: Path
+) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    held = []
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+            held.append(request)
+        small = client.post(
+            "/api/xray",
+            files={"file": _file(fixture_dir / "customers.csv")},
+        )
+        assert small.status_code == 200
+        body = b"x" * (jobs_mod.HEAVY_REQUEST_BYTES + 32)
+        rejected = client.post(
+            "/api/xray",
+            content=body,
+            headers={"content-type": "application/octet-stream"},
+        )
+        assert rejected.status_code == 429
+        assert rejected.json() == {"error": "busy, try again"}
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
+
+
+def test_spec_field_larger_than_one_megabyte_is_accepted(client: TestClient) -> None:
+    spec = (
+        "name: big\nrows_sampled: 1\ncolumns:\n"
+        "- name: c\n  kind: text\n  params: {avg_words: 3}\n"
+        "  unique: false\n  null_rate: 0\n"
+        "# " + ("x" * (1024 * 1024 + 128)) + "\n"
+    )
+    response = client.post(
+        "/api/mimic/generate",
+        data={"n": "1", "spec_yaml": spec, "seed": "0", "fmt": "csv"},
+    )
+    assert "Part exceeded" not in response.text
+    assert response.status_code == 200, response.text
+
+
+def test_text_field_over_one_megabyte_is_rejected(client: TestClient) -> None:
+    response = client.post(
+        "/api/tell/check",
+        data={"text": "x" * (1024 * 1024 + 32), "offline": "true"},
+    )
+    assert response.status_code == 400
+    assert "1024" in response.text
+
+
+def test_deep_json_is_the_same_validation_error_at_either_size(client: TestClient) -> None:
+    small = ("[" * 10_000 + "1" + "]" * 10_000).encode()
+    large = ("[" * 10_000 + '"' + ("x" * (1024 * 1024)) + '"' + "]" * 10_000).encode()
+    for name, payload in (("deep.json", small), ("deep-big.json", large)):
+        response = client.post(
+            "/api/xray",
+            files={"file": (name, payload, "application/json")},
+        )
+        assert response.status_code == 422, response.text
+        assert response.json()["error"] == f"could not read {name}"
+
+
+def test_shutdown_mid_job_returns_499(client: TestClient) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    payload = b"a,b\n" + b"1,2345\n" * 200_000
+    assert len(payload) >= 1_000_000
+    box: dict[str, object] = {}
+
+    def post() -> None:
+        response = client.post(
+            "/api/xray",
+            files={"file": ("wide.csv", payload, "text/csv")},
+        )
+        box["status"] = response.status_code
+        box["body"] = response.content
+
+    worker = threading.Thread(target=post)
+    worker.start()
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and not jobs_mod._LIVE:
+        time.sleep(0.02)
+    jobs_mod.stop_heavy_jobs()
+    worker.join(timeout=10)
+    jobs_mod.arm_heavy_jobs()
+
+    assert box.get("status") == 499
+    assert box.get("body") == b'{"error":"server stopped before the job finished"}'
+
+
+def test_chunked_upload_over_one_megabyte_is_busy_when_the_cap_is_full(
+    client: TestClient,
+) -> None:
+    from fieldkit.web.routes import HEAVY_REQUEST_BYTES
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    boundary = "bound"
+    file_bytes = b"a,b\n" + b"x" * HEAVY_REQUEST_BYTES
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="c.csv"\r\n'
+        f"Content-Type: text/csv\r\n\r\n"
+    ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+        response = client.post(
+            "/api/xray",
+            content=iter([body]),
+            headers={
+                "content-type": f"multipart/form-data; boundary={boundary}",
+                "transfer-encoding": "chunked",
+            },
+        )
+        assert response.status_code == 429, response.text
+        assert response.json() == {"error": "busy, try again"}
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
+
+
+def test_bodiless_and_tiny_requests_do_not_take_a_heavy_place(client: TestClient) -> None:
+    from fieldkit.web.routes import jobs as jobs_mod
+
+    try:
+        for _ in range(jobs_mod._MAX_ADMITTED):
+            request = jobs_mod.Request({"type": "http", "headers": []})
+            assert jobs_mod.begin_heavy_request(request)
+        small = client.post(
+            "/api/xray",
+            content=iter([b"a,b\n", b"1,2\n"]),
+            headers={"content-type": "text/csv"},
+        )
+        assert small.status_code != 429
+        deleted = client.delete("/api/debrief/entries/1")
+        assert deleted.status_code == 404
+    finally:
+        jobs_mod.stop_heavy_jobs()
+        jobs_mod.arm_heavy_jobs()
+
+
+def test_zip_without_a_workbook_is_a_validation_error(client: TestClient) -> None:
+    import zipfile
+    from io import BytesIO
+
+    raw = BytesIO()
+    with zipfile.ZipFile(raw, "w") as archive:
+        archive.writestr("hello.txt", "not a workbook")
+    response = client.post(
+        "/api/xray",
+        files={"file": ("plain.xlsx", raw.getvalue(), "application/octet-stream")},
+    )
+    assert response.status_code == 422
+    assert response.json() == {"error": "invalid XLSX archive"}
 
 
 def _clear_tell_keys(monkeypatch: pytest.MonkeyPatch) -> None:

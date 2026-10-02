@@ -99,7 +99,22 @@ def scan_dataframe(df: pd.DataFrame) -> dict[str, PIIColumnReport]:
     return {str(column): scan_column(df[column], column_name=str(column)) for column in df.columns}
 
 
+# Plain numbers shorter than an SSN cannot be any scanned kind. Wide numeric
+# profiles otherwise pay a full regex pass per cell. 10–15 digits can still
+# be a phone (212.5551234); longer pure floats are not, and used to look like cards.
+_SHORT_SCALAR_RE = re.compile(r"^[+-]?\d{1,8}(?:\.\d+)?$")
+
+
+def _skip_plain_number(text: str) -> bool:
+    if _SHORT_SCALAR_RE.fullmatch(text) is None:
+        return False
+    digits = sum(char.isdigit() for char in text)
+    return digits < 10 or digits > 15
+
+
 def _scan(text: str, column_name: str) -> list[PIIMatch]:
+    if _skip_plain_number(text):
+        return []
     matches: list[PIIMatch] = []
     matches.extend(_validated_matches(text, _EMAIL_RE, PIIKind.EMAIL, _valid_email))
     matches.extend(_validated_matches(text, _PHONE_RE, PIIKind.PHONE, _valid_phone))
@@ -211,6 +226,11 @@ def _entropy(value: str) -> float:
 
 def _valid_entropy_secret(value: str) -> bool:
     if _EMAIL_RE.search(value):
+        return False
+    # javascript: URLs are one long token and used to look like secrets.
+    # Quotes, tags, and backticks often wrap a real token (`api_key="…"`,
+    # JSON, `<secret>…</secret>`), so those characters stay eligible.
+    if "javascript:" in value.lower():
         return False
     return _entropy(value) > 4.0
 

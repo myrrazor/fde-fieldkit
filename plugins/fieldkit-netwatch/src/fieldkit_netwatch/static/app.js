@@ -45,7 +45,8 @@ async function bootstrap() {
   ]);
   const readable = [jobs[1], jobs[4], jobs[5]].some((job) => job.status === "fulfilled");
   if (!readable) {
-    setFreshness("Local API unavailable", true);
+    setFreshness("can't reach the local server — is `fieldkit serve` still running?", true);
+    schedulePoll();
     return;
   }
   await loadSelectedReport(false);
@@ -69,8 +70,14 @@ async function refreshAll(announced) {
 
 function schedulePoll() {
   clearTimeout(state.pollTimer);
-  if (!["starting", "running"].includes(state.report?.session.status)) return;
+  const running = ["starting", "running"].includes(state.report?.session.status);
+  if (!running && !freshnessNeedsRetry()) return;
   state.pollTimer = window.setTimeout(() => refreshAll(false), 2000);
+}
+
+function freshnessNeedsRetry() {
+  const text = $("#freshness")?.textContent || "";
+  return text.startsWith("can't reach") || text === "Local API unavailable";
 }
 
 async function loadControl() {
@@ -904,17 +911,32 @@ function updateTerminalCommand() {
   $("#terminal-command").textContent = parts.map(shellQuote).join(" ");
 }
 
-async function mutate(url, { method, body }) {
+async function mutate(url, { method, body }, retried = false) {
+  if (!state.token) await loadControl();
   if (!state.token) throw new Error("Local controls are locked. Open Fieldkit directly on localhost or 127.0.0.1.");
-  return api(url, {
-    method,
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-      "X-Fieldkit-Control": state.token,
-    },
-  });
+  try {
+    return await api(url, {
+      method,
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Fieldkit-Control": state.token,
+      },
+    });
+  } catch (error) {
+    if (!retried && /local control token/i.test(error.message || "")) {
+      await loadControl();
+      return mutate(url, { method, body }, true);
+    }
+    throw error;
+  }
 }
+
+window.addEventListener("beforeunload", (event) => {
+  if (!state.policyDirty) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
 
 function syncSessionUrl() {
   const url = new URL(window.location.href);

@@ -78,7 +78,7 @@ def test_supervisor_runs_child_through_proxy_and_closes_session(
     asyncio.run(scenario())
 
 
-def test_supervisor_records_a_missing_command_as_failed(tmp_path: Path) -> None:
+def test_supervisor_discards_a_missing_command(tmp_path: Path) -> None:
     db = tmp_path / "missing.db"
     missing = f"definitely-not-a-command-{os.getpid()}"
     with pytest.raises(ValueError, match="command not found"):
@@ -92,10 +92,7 @@ def test_supervisor_records_a_missing_command_as_failed(tmp_path: Path) -> None:
                 agent=AgentKind.GENERIC,
             )
         )
-    sessions = Store(db).list_sessions()
-    assert len(sessions) == 1
-    assert sessions[0].status == "failed"
-    assert sessions[0].note == "supervisor failed (ValueError)"
+    assert Store(db).list_sessions() == []
 
 
 def test_supervisor_kills_child_when_post_spawn_setup_fails(

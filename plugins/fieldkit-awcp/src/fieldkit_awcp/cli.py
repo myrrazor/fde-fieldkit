@@ -19,6 +19,7 @@ from fieldkit_awcp.render import (
     render_eval_html,
     render_eval_terminal,
 )
+from fieldkit.core.io import require_regular_file
 from fieldkit_awcp.spec import WorkloadSpecError, load_workload_spec
 
 app = typer.Typer(
@@ -41,6 +42,7 @@ def check_command(
     """Validate a workload spec, fingerprint it, and flag high-risk tools."""
 
     try:
+        require_regular_file(spec)
         loaded = load_workload_spec(spec)
         result = check_spec(loaded, source=spec.name, base_dir=spec.parent)
     except (OSError, WorkloadSpecError, ValueError) as exc:
@@ -73,6 +75,8 @@ def diff_command(
     """Show what changed between two workload specs."""
 
     try:
+        require_regular_file(before)
+        require_regular_file(after)
         left = load_workload_spec(before)
         right = load_workload_spec(after)
         changes = diff_workload_specs(left, right)
@@ -96,11 +100,11 @@ def eval_command(
     suite: Path = typer.Option(
         ..., "--suite", dir_okay=False, help="Golden eval suite YAML or JSON file."
     ),
-    artifact_dir: Path = typer.Option(
-        Path(".awcp-artifacts"),
+    artifact_dir: Path | None = typer.Option(
+        None,
         "--artifact-dir",
         file_okay=False,
-        help="Where the local result.json is written.",
+        help="Where the local result.json is written. Default: ~/.fieldkit/awcp-artifacts.",
     ),
     json_path: Path | None = typer.Option(
         None, "--json", metavar="PATH", help="Also write the eval run as JSON."
@@ -112,12 +116,14 @@ def eval_command(
     """Score a recorded golden suite against the spec's gates. No model runs."""
 
     try:
+        require_regular_file(spec)
+        require_regular_file(suite)
         workload = load_workload_spec(spec)
         suite_payload = load_eval_suite(suite)
         run = run_eval(
             workload,
             suite_payload,
-            artifact_dir=artifact_dir,
+            artifact_dir=artifact_dir or (Path.home() / ".fieldkit" / "awcp-artifacts"),
             source=spec.name,
         )
     except (OSError, WorkloadSpecError, EvalError, EvalSafetyMeasurementError, ValueError) as exc:

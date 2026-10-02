@@ -18,8 +18,9 @@ default. Remote text classifiers, model downloads, package installation, and
 supervised network relays require the explicit actions described below.
 
 **Not on PyPI yet.** The PyPI project named `fieldkit` is unrelated.
-Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). From a checkout of this
-repo, or the `v0.2.0` tag:
+Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The current
+GitHub release is [v0.2.1](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.1).
+`fieldkit --version` prints 0.2.1. From a checkout of this repo or the v0.2.1 tag:
 
 ```
 uv sync
@@ -32,12 +33,12 @@ command below is `uv run fieldkit ...`; activate `.venv` if you would rather
 drop the prefix. Sample data lives in `examples/`. The included examples are
 synthetic.
 
-GitHub wheels: download
-[fieldkit-0.2.0-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.0/fieldkit-0.2.0-wheels.tar.gz)
+GitHub release wheels: download
+[fieldkit-0.2.1-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.1/fieldkit-0.2.1-wheels.tar.gz)
 and, in that directory:
 
 ```
-tar -xzf fieldkit-0.2.0-wheels.tar.gz
+tar -xzf fieldkit-0.2.1-wheels.tar.gz
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python wheels/*.whl
 fresh/bin/fieldkit --version
@@ -93,6 +94,11 @@ ignore proxies; awcp never calls a model. Analysis stays local except explicit
 `tell check --remote`, Netwatch's supervised relay, package installs, and optional
 `--ml` model download.
 
+YAML anchors are allowed. Aliases are rejected when expansion produces more
+than 20,000 nodes and that expanded count is also more than four times the
+number of unique nodes. A spec that does not use aliases is not subject to
+that cap.
+
 | tool | what it does |
 |---|---|
 | **xray** | Profile a file: schema, types, nulls, PII flags |
@@ -110,7 +116,7 @@ ignore proxies; awcp never calls a model. Analysis stays local except explicit
 ```
 uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
-uv pip install --python fresh/bin/python dist/fieldkit-0.2.0-py3-none-any.whl
+uv pip install --python fresh/bin/python dist/fieldkit-0.2.1-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 
@@ -531,6 +537,11 @@ config and prompt files, and lists declared tools with approval and risk.
 against the spec's gates; it compares stored actual/expected values or explicit
 scores. It does not call a model, run promptfoo, or talk to a control plane.
 `--json PATH` and `--html PATH` write the same result for tickets and scripts.
+`eval` also writes `result.json` under `~/.fieldkit/awcp-artifacts` (override
+with `--artifact-dir`). Older builds wrote `./.awcp-artifacts` in the working
+directory and left those files where they were. Copy them into
+`~/.fieldkit/awcp-artifacts`, or pass that old directory as `--artifact-dir`,
+if you still need them.
 
 ## The plugin manager
 
@@ -624,7 +635,7 @@ Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reprodu
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).
 
-This is early development software. GitHub release 0.2.0 is the current tagged
-source. It is not a PyPI publication, a hosted account service, or
-whole-machine network enforcement. The included examples are synthetic.
+This is early development software. Source and the current tagged GitHub release are 0.2.1. It is not
+a PyPI publication, a hosted account service, or whole-machine network
+enforcement. The included examples are synthetic.
 Read the [fixture notes](tests/fixtures/README.md) before substituting real data.

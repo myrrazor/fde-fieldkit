@@ -12,7 +12,7 @@ from anyio import from_thread
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import JSONResponse
 
-from fieldkit.web.routes import read_upload, safe_filename
+from fieldkit.web.routes import HEAVY_REQUEST_BYTES, read_upload, run_job, safe_filename
 from fieldkit_tell.adapters import (
     ADAPTERS,
     active_remote_adapters,
@@ -118,7 +118,7 @@ def create_egress_intent(
 
 
 @router.post("/check")
-def check_text(
+async def check_text(
     request: Request,
     text: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File()] = None,
@@ -130,7 +130,7 @@ def check_text(
 ) -> dict[str, object]:
     """Check pasted or uploaded text and return every local and remote row."""
 
-    source, _filename = _resolve_text(text, file)
+    source, _filename = await _resolve_text_async(text, file)
     active = active_remote_adapters(source, offline=offline)
     if active:
         session = request.cookies.get(_SESSION_COOKIE, "")
@@ -147,6 +147,31 @@ def check_text(
                 detail="remote checker confirmation required for this text and vendor set",
             )
 
+    # Bytes, not characters: a 1 MB accented file can be under a million chars.
+    # A request that already holds an admission place is heavy even when the
+    # text itself was padded out by another field.
+    weight = len(source.encode("utf-8"))
+    if getattr(request.state, "heavy_admitted", False):
+        weight = max(weight, HEAVY_REQUEST_BYTES)
+    return await run_job(
+        request,
+        _check_payload,
+        source,
+        offline,
+        ml,
+        timeout,
+        output,
+        weight=weight,
+    )
+
+
+def _check_payload(
+    source: str,
+    offline: bool,
+    ml: bool,
+    timeout: float,
+    output: str,
+) -> dict[str, object]:
     report = analyze(source)
     detectors = run_detectors(
         source,
@@ -162,14 +187,28 @@ def check_text(
 
 
 @router.post("/unslop")
-def unslop_text(
+async def unslop_text(
+    request: Request,
     text: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File()] = None,
     max_iterations: Annotated[int, Form(ge=1, le=10)] = 3,
 ) -> dict[str, object]:
     """Rewrite deterministic patterns and return provenance plus a text download."""
 
-    source, filename = _resolve_text(text, file)
+    source, filename = await _resolve_text_async(text, file)
+    # Long drafts are the super-linear case. Isolate them so a disconnect or
+    # a server shutdown can stop the process instead of waiting it out.
+    return await run_job(
+        request,
+        _unslop_payload,
+        source,
+        filename,
+        max_iterations,
+        isolate=len(source) >= 20_000,
+    )
+
+
+def _unslop_payload(source: str, filename: str, max_iterations: int) -> dict[str, object]:
     result = unslop(source, max_iterations=max_iterations)
     payload = asdict(result)
     payload["diff"] = [asdict(operation) for operation in word_diff(source, result.final)]
@@ -179,6 +218,23 @@ def unslop_text(
         "content_b64": base64.b64encode(result.final.encode("utf-8")).decode("ascii"),
     }
     return payload
+
+
+async def _resolve_text_async(text: str | None, file: UploadFile | None) -> tuple[str, str]:
+    if (text is None) == (file is None):
+        raise ValueError("provide exactly one of text or file")
+    if text is not None:
+        return text, "text.txt"
+    if file is None:
+        raise ValueError("provide exactly one of text or file")
+    filename = safe_filename(file.filename, fallback="upload.txt")
+    if Path(filename).suffix.lower() not in {".txt", ".md"}:
+        raise ValueError("tell uploads must be .txt or .md")
+    try:
+        content = await read_upload(file)
+        return content.decode("utf-8-sig"), filename
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"invalid text encoding: {exc}") from exc
 
 
 def _resolve_text(text: str | None, file: UploadFile | None) -> tuple[str, str]:

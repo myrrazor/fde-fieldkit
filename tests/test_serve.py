@@ -145,7 +145,18 @@ def test_serve_explicit_busy_port_exits_without_picking_another(
         blocker.close()
 
 
-def test_bound_socket_answers_health() -> None:
+def test_bound_socket_answers_health(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "NO_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+        "no_proxy",
+    ):
+        monkeypatch.delenv(name, raising=False)
     sock, port = bind_loopback(port=0)
     config = uvicorn.Config(create_app(), host="127.0.0.1", port=port, log_level="warning")
     server = uvicorn.Server(config)

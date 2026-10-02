@@ -1,4 +1,4 @@
-import { api, dropzone, esc, renderTable, downloadB64, toast, withBusy } from "/fieldkit.js";
+import { api, dropzone, esc, renderTable, downloadB64, toast, withBusy, latestRequest } from "/fieldkit.js";
 
 const drop = document.getElementById("drop");
 const result = document.getElementById("result");
@@ -6,8 +6,13 @@ const specSection = document.getElementById("spec-section");
 const spec = document.getElementById("spec");
 const chip = drop.parentElement.querySelector(".file-chip");
 
+const learnJobs = latestRequest();
+const generateJobs = latestRequest();
+
 dropzone(drop, learn);
 chip.querySelector("button").addEventListener("click", () => {
+  learnJobs.invalidate();
+  generateJobs.invalidate();
   chip.hidden = true;
   drop.file = null;
   specSection.hidden = true;
@@ -16,16 +21,19 @@ chip.querySelector("button").addEventListener("click", () => {
 document.getElementById("go").addEventListener("click", generate);
 
 async function learn(file) {
+  const job = learnJobs.start();
   result.innerHTML = "";
   try {
     await withBusy(result, `learning from ${file.name}…`, async () => {
       const fd = new FormData();
       fd.append("file", file);
-      const r = await api("/api/mimic/learn", { body: fd });
+      const r = await api("/api/mimic/learn", { body: fd, signal: job.signal });
+      if (!job.current()) return;
       spec.value = r.spec_yaml;
       specSection.hidden = false;
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }
@@ -39,6 +47,7 @@ async function generate() {
   }
   if (!spec.value.trim()) return toast("the spec is empty — drop a sample file first");
 
+  const job = generateJobs.start();
   result.innerHTML = "";
   try {
     await withBusy(result, `generating ${n.toLocaleString()} rows…`, async () => {
@@ -47,10 +56,12 @@ async function generate() {
       fd.append("n", String(n));
       fd.append("seed", String(seed));
       fd.append("fmt", fmt);
-      const r = await api("/api/mimic/generate", { body: fd });
+      const r = await api("/api/mimic/generate", { body: fd, signal: job.signal });
+      if (!job.current()) return;
       render(r, n, seed, fmt);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }

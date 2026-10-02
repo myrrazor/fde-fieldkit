@@ -60,6 +60,46 @@ def test_loads_every_table_fixture(fixture_dir: Path, filename: str, fmt: str, r
     assert all(dtype.name == "string" for dtype in loaded.df.dtypes)
 
 
+def test_ragged_delimited_text_has_a_clean_parse_error(tmp_path: Path) -> None:
+    csv_path = tmp_path / "x.csv"
+    csv_path.write_text("a\n1\n2,3\n", encoding="utf-8")
+    with pytest.raises(
+        ValueError,
+        match="can't parse 'x.csv' as CSV — check the delimiter/quoting",
+    ) as caught:
+        load_table(csv_path)
+    assert "tokenizing" not in str(caught.value)
+    assert "C error" not in str(caught.value)
+
+    tsv_path = tmp_path / "x.tsv"
+    tsv_path.write_bytes(b"a\n1\n2\t3\n")
+    with pytest.raises(
+        ValueError,
+        match="can't parse 'x.tsv' as TSV — check the delimiter/quoting",
+    ):
+        load_table(tsv_path)
+
+    empty = tmp_path / "empty.csv"
+    empty.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="can't parse 'empty.csv' as CSV — the file has no rows"):
+        load_table(empty)
+
+
+def test_sheet_applies_only_to_excel(tmp_path: Path, fixture_dir: Path) -> None:
+    path = tmp_path / "rows.csv"
+    path.write_text("a,b\n1,2\n", encoding="utf-8")
+    with pytest.raises(
+        ValueError,
+        match="sheet 'Inventory' applies to Excel workbooks — 'rows.csv' is csv",
+    ):
+        load_table(path, sheet="Inventory")
+    assert list(load_table(path).df.columns) == ["a", "b"]
+
+    loaded = load_table(fixture_dir / "inventory.xlsx", sheet="inventory")
+    assert loaded.fmt == "xlsx"
+    assert len(loaded.df) == 60
+
+
 def test_messy_literals_become_missing(fixture_dir: Path) -> None:
     df = load_table(fixture_dir / "messy.tsv").df
 
@@ -237,6 +277,15 @@ def test_xlsx_rejects_overstated_zipinfo_file_size() -> None:
         load_table(BytesIO(raw), filename="lied.xlsx")
 
 
+def test_xlsx_without_a_workbook_is_invalid_input() -> None:
+    raw = BytesIO()
+    with zipfile.ZipFile(raw, "w") as archive:
+        archive.writestr("hello.txt", "not a workbook")
+
+    with pytest.raises(ValueError, match="invalid XLSX archive"):
+        load_table(BytesIO(raw.getvalue()), filename="plain.xlsx")
+
+
 def test_xlsx_uncompressed_size_counts_inflated_bytes_instead_of_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -284,6 +333,14 @@ def test_private_regular_file_rejects_symlinks(tmp_path: Path) -> None:
         ensure_private_regular_file(link)
 
     assert target.read_text(encoding="utf-8") == "do not touch"
+
+
+def test_json_document_forced_as_csv_is_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "rows.json"
+    path.write_text('[{"customer": "ada"}]\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="looks like JSON"):
+        load_table(path, fmt="csv")
 
 
 def test_base_report_escapes_context() -> None:

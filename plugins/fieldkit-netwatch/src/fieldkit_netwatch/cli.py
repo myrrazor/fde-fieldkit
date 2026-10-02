@@ -7,6 +7,7 @@ import shutil
 import socket
 import sqlite3
 import time
+from datetime import datetime
 from pathlib import Path
 
 import typer
@@ -229,7 +230,14 @@ def sessions_command(
     table.add_column("status")
     table.add_column("pid", justify="right")
     for row in rows:
-        table.add_row(row.id, row.started_at, row.agent, row.mode.value, row.status, str(row.root_pid or ""))
+        table.add_row(
+            row.id,
+            _local_stamp(row.started_at),
+            row.agent,
+            row.mode.value,
+            row.status,
+            str(row.root_pid or ""),
+        )
     console.print(table)
     if not rows:
         console.print("[dim]no sessions yet; run: fieldkit netwatch run -- codex[/dim]")
@@ -423,6 +431,18 @@ def _print_report(report: object) -> None:
     console.print(
         "[dim]HTTPS paths and bodies remain encrypted. Attach rows are socket snapshots, not request counts.[/dim]"
     )
+
+
+def _local_stamp(value: str) -> str:
+    """Show a stored UTC timestamp in the machine's local zone. JSON stays UTC."""
+
+    try:
+        stamp = datetime.fromisoformat(value)
+    except ValueError:
+        return value
+    if stamp.tzinfo is None:
+        return value
+    return stamp.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def _bytes(value: int) -> str:

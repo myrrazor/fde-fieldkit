@@ -8,7 +8,7 @@ from typer.testing import CliRunner
 
 from fieldkit.cli import app
 from fieldkit_tell.sentences import segment
-from fieldkit_tell.signals import SIGNALS, Severity, analyze
+from fieldkit_tell.signals import SIGNALS, Severity, _longest_uniform_run, analyze
 
 
 def _by_name(text: str):
@@ -203,3 +203,30 @@ def test_cli_accepts_stdin_and_reports_missing_files(tmp_path: Path) -> None:
     assert missing.exit_code == 1
     assert "error: file not found" in missing.output
     assert "Traceback" not in missing.output
+
+
+def test_longest_uniform_run_matches_the_leftmost_longest_window() -> None:
+    import random
+    import statistics
+
+    def brute(lengths: list[int]) -> tuple[int, int]:
+        best = (0, min(1, len(lengths)))
+        for start in range(len(lengths)):
+            for end in range(start + 3, len(lengths) + 1):
+                window = lengths[start:end]
+                tolerance = max(3.0, statistics.fmean(window) * 0.25)
+                if max(window) - min(window) <= tolerance and end - start > best[1] - best[0]:
+                    best = (start, end)
+        return best
+
+    rng = random.Random(7)
+    samples = [
+        [],
+        [4],
+        [4, 4, 4],
+        [76, 100, 100, 100, 100],
+        [rng.randint(1, 40) for _ in range(24)],
+        [10, 10, 80, 10, 10, 10, 10],
+    ]
+    for lengths in samples:
+        assert _longest_uniform_run(lengths) == brute(lengths)

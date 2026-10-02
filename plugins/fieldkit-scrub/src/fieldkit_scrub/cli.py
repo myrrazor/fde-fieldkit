@@ -6,8 +6,10 @@ from pathlib import Path
 import typer
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 
-from fieldkit.core.io import SUPPORTED_FORMATS, load_table, write_table
+from fieldkit.cli import SingleCommandGroup
+from fieldkit.core.io import SUPPORTED_FORMATS, load_table, require_regular_file, write_table
 from fieldkit.core.pii import PIIKind
 from fieldkit.core.private_files import atomic_write_private
 from fieldkit_scrub.engine import Scrubber, ScrubSummary
@@ -16,6 +18,7 @@ from fieldkit_scrub.salt import load_or_create_salt
 _TABULAR_SUFFIXES = {".csv", ".tsv", ".xlsx", ".json", ".jsonl", ".ndjson"}
 
 app = typer.Typer(
+    cls=SingleCommandGroup,
     help="Deterministically pseudonymize PII in a data file",
     context_settings={"allow_interspersed_args": True},
 )
@@ -23,7 +26,7 @@ app = typer.Typer(
 
 @app.callback(invoke_without_command=True)
 def main(
-    file: Path = typer.Argument(..., dir_okay=False, help="Data file to scrub."),
+    file: Path = typer.Argument(..., metavar="FILE", dir_okay=False, help="Data file to scrub."),
     out: Path | None = typer.Option(
         None, "-o", "--output", metavar="PATH", help="Required output path."
     ),
@@ -55,15 +58,22 @@ def main(
     if out is None:
         typer.echo("error: -o/--output is required; scrub never overwrites in place", err=True)
         raise typer.Exit(1)
-    if not file.is_file():
-        typer.echo(f"error: file not found: {file}", err=True)
-        raise typer.Exit(1)
+    try:
+        require_regular_file(file)
+    except ValueError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from exc
     if file.resolve() == out.resolve():
         typer.echo("error: input and output must be different files", err=True)
         raise typer.Exit(1)
 
     try:
         selected_kinds = _parse_kinds(kinds)
+        if PIIKind.NAME in selected_kinds:
+            typer.echo(
+                "warning: name matching uses a common-name list; uncommon names may remain",
+                err=True,
+            )
         salt = load_or_create_salt(salt_file) if salt_file is not None else load_or_create_salt()
         scrubber = Scrubber(salt, kinds=selected_kinds)
         line_mode = text or file.suffix.lower() not in _TABULAR_SUFFIXES
@@ -87,19 +97,29 @@ def main(
                 (json.dumps(scrubber.mapping, indent=2, sort_keys=True) + "\n").encode("utf-8"),
             )
         _render_summary(summary)
+    except _NoKindsSelected as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(2) from exc
     except (OSError, UnicodeError, ValueError) as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(1) from exc
+
+
+class _NoKindsSelected(ValueError):
+    pass
 
 
 def _parse_kinds(value: str | None) -> set[PIIKind]:
     if value is None:
         return set(PIIKind)
     try:
-        return {PIIKind(item.strip()) for item in value.split(",") if item.strip()}
+        selected = {PIIKind(item.strip()) for item in value.split(",") if item.strip()}
     except ValueError as exc:
         choices = ", ".join(kind.value for kind in PIIKind)
         raise ValueError(f"unknown PII kind; choose from: {choices}") from exc
+    if not selected:
+        raise _NoKindsSelected("no kinds selected")
+    return selected
 
 
 def _render_summary(summary: ScrubSummary) -> None:
@@ -119,5 +139,5 @@ def _render_summary(summary: ScrubSummary) -> None:
     columns.add_column("Count", justify="right")
     for column, counts in summary.by_column.items():
         for kind, count in counts.items():
-            columns.add_row(column, kind, str(count))
+            columns.add_row(Text(column), kind, str(count))
     console.print(columns)

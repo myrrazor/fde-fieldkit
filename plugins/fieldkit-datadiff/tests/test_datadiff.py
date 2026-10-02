@@ -210,6 +210,58 @@ def test_cli_writes_json_and_html_reports(fixture_dir: Path, tmp_path: Path) -> 
     assert "ssn" in html
 
 
+def test_cli_sheet_applies_to_excel_inputs_only(tmp_path: Path) -> None:
+    from openpyxl import Workbook
+
+    csv_path = tmp_path / "export.csv"
+    csv_path.write_text("id,qty\n1,2\n", encoding="utf-8")
+    book = tmp_path / "book.xlsx"
+    workbook = Workbook()
+    cover = workbook.active
+    cover.title = "Cover"
+    cover.append(["id", "qty"])
+    cover.append(["9", "9"])
+    orders = workbook.create_sheet("Orders")
+    orders.append(["id", "qty"])
+    orders.append(["1", "2"])
+    workbook.save(book)
+
+    report = tmp_path / "diff.json"
+    mixed = CliRunner().invoke(
+        app,
+        [
+            "datadiff",
+            str(csv_path),
+            str(book),
+            "--sheet",
+            "Orders",
+            "--key",
+            "id",
+            "--json",
+            str(report),
+        ],
+    )
+
+    assert mixed.exit_code == 0, mixed.output
+    payload = json.loads(report.read_text(encoding="utf-8"))
+    assert payload["rows"]["unchanged"] == 1
+    assert payload["rows"]["added"] == 0
+    assert payload["rows"]["removed"] == 0
+    assert payload["rows"]["changed"] == 0
+
+    other = tmp_path / "notes.csv"
+    other.write_text("id,qty\n1,9\n", encoding="utf-8")
+    neither = CliRunner().invoke(
+        app, ["datadiff", str(csv_path), str(other), "--sheet", "Orders"]
+    )
+    assert neither.exit_code == 1
+    assert (
+        "sheet 'Orders' applies to Excel workbooks — "
+        "neither 'export.csv' (csv) nor 'notes.csv' (csv) is Excel"
+    ) in neither.output
+    assert "Traceback" not in neither.output
+
+
 def test_cli_load_error_is_clean(tmp_path: Path) -> None:
     missing = tmp_path / "missing.csv"
 

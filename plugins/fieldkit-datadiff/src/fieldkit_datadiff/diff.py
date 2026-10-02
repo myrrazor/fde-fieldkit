@@ -4,6 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from fieldkit.core.io import LoadedTable
@@ -283,20 +284,36 @@ def _row_diff(
     common_tokens = [token for token in tokens_a if token in positions_b]
     compared_columns = [column for column in shared if column not in keys]
 
-    changed = 0
-    unchanged = 0
-    changed_by_column: dict[str, int] = {}
+    index_a = np.fromiter(
+        (positions_a[token] for token in common_tokens), dtype=np.intp, count=len(common_tokens)
+    )
+    index_b = np.fromiter(
+        (positions_b[token] for token in common_tokens), dtype=np.intp, count=len(common_tokens)
+    )
+    changed_masks = [
+        _column_not_equal(prepared_a[column], prepared_b[column], index_a, index_b)
+        for column in compared_columns
+    ]
+    changed_by_column = {
+        column: int(mask.sum())
+        for column, mask in zip(compared_columns, changed_masks, strict=True)
+        if mask.any()
+    }
+    any_changed = np.zeros(len(common_tokens), dtype=bool)
+    for mask in changed_masks:
+        any_changed |= mask
+    changed = int(any_changed.sum())
+    unchanged = len(common_tokens) - changed
     changed_samples: list[dict[str, Any]] = []
-    for token in common_tokens:
-        position_a = positions_a[token]
-        position_b = positions_b[token]
-        row_changed = False
-        for column in compared_columns:
-            if _values_equal(prepared_a[column], position_a, prepared_b[column], position_b):
-                continue
-            row_changed = True
-            changed_by_column[column] = changed_by_column.get(column, 0) + 1
-            if include_values and len(changed_samples) < sample_limit:
+    if include_values and sample_limit:
+        for row in np.flatnonzero(any_changed):
+            if len(changed_samples) >= sample_limit:
+                break
+            position_a = int(index_a[row])
+            position_b = int(index_b[row])
+            for column, mask in zip(compared_columns, changed_masks, strict=True):
+                if not mask[row]:
+                    continue
                 changed_samples.append(
                     {
                         "key": _key_sample(raw_b, position_b, keys),
@@ -305,10 +322,8 @@ def _row_diff(
                         "new": _sample_value(raw_b.at[position_b, column]),
                     }
                 )
-        if row_changed:
-            changed += 1
-        else:
-            unchanged += 1
+                if len(changed_samples) >= sample_limit:
+                    break
 
     samples = {
         "added": [_row_sample(raw_b, positions_b[token]) for token in added_tokens[:sample_limit]]
@@ -350,19 +365,32 @@ def _value_token(column: _PreparedColumn, position: int) -> tuple[str, Any]:
     return ("typed", _sample_value(column.typed.iat[position]))
 
 
-def _values_equal(a: _PreparedColumn, position_a: int, b: _PreparedColumn, position_b: int) -> bool:
-    raw_a = a.raw.iat[position_a]
-    raw_b = b.raw.iat[position_b]
-    missing_a = _is_missing(raw_a)
-    missing_b = _is_missing(raw_b)
-    if missing_a or missing_b:
-        return missing_a and missing_b
+def _column_not_equal(
+    a: _PreparedColumn,
+    b: _PreparedColumn,
+    index_a: np.ndarray,
+    index_b: np.ndarray,
+) -> np.ndarray:
+    """Row inequality using the same missing / failed-raw / typed rules as scalar compares."""
 
-    failed_a = bool(a.failed.iat[position_a])
-    failed_b = bool(b.failed.iat[position_b])
-    if failed_a or failed_b:
-        return failed_a and failed_b and str(raw_a) == str(raw_b)
-    return bool(a.typed.iat[position_a] == b.typed.iat[position_b])
+    raw_a = a.raw.to_numpy(copy=False)[index_a]
+    raw_b = b.raw.to_numpy(copy=False)[index_b]
+    missing_a = np.asarray(pd.isna(raw_a), dtype=bool)
+    missing_b = np.asarray(pd.isna(raw_b), dtype=bool)
+    equal = missing_a & missing_b
+    active = ~(missing_a | missing_b)
+    failed_a = np.asarray(a.failed.to_numpy(copy=False)[index_a], dtype=bool) & active
+    failed_b = np.asarray(b.failed.to_numpy(copy=False)[index_b], dtype=bool) & active
+    both_failed = failed_a & failed_b
+    if both_failed.any():
+        for position in np.flatnonzero(both_failed):
+            equal[position] = str(raw_a[position]) == str(raw_b[position])
+    typed = active & ~(failed_a | failed_b)
+    if typed.any():
+        left = a.typed.to_numpy(copy=False)[index_a]
+        right = b.typed.to_numpy(copy=False)[index_b]
+        equal[typed] = np.asarray(left[typed] == right[typed], dtype=bool)
+    return ~equal
 
 
 def _drift_report(

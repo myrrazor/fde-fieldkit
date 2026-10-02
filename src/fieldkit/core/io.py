@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO, IO
+from xml.etree.ElementTree import ParseError as XmlParseError
 from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, ZipFile, ZipInfo
 
 import pandas as pd
@@ -108,6 +109,10 @@ def load_table(
 
     raw, source = _read_source(src, filename)
     table_fmt = _clean_format(fmt) if fmt else detect_format(filename or source, raw)
+    if sheet is not None and table_fmt != "xlsx":
+        raise ValueError(
+            f"sheet {sheet!r} applies to Excel workbooks — {source!r} is {table_fmt}"
+        )
     warnings: list[str] = []
 
     try:
@@ -125,6 +130,8 @@ def load_table(
         raise ValueError(
             f"can't decode {source!r} as UTF-8 — re-save as UTF-8 before loading"
         ) from exc
+    except (XmlParseError, IndexError, RecursionError) as exc:
+        raise ValueError(f"could not read {source}") from exc
 
     return LoadedTable(_as_nullable_strings(df), table_fmt, source, warnings)
 
@@ -179,27 +186,60 @@ def _clean_format(fmt: str) -> str:
     return cleaned
 
 
+def require_regular_file(path: Path) -> None:
+    """Reject missing paths and non-files such as devices."""
+
+    if path.is_file():
+        return
+    if path.exists():
+        raise ValueError(f"not a regular file: {path}")
+    raise ValueError(f"file not found: {path}")
+
+
 def _read_delimited(raw: bytes, table_fmt: str, source: str) -> pd.DataFrame:
     # Fail loudly on Latin-1/etc instead of letting pandas guess an encoding.
     try:
-        raw.decode("utf-8-sig")
+        text = raw.decode("utf-8-sig")
     except UnicodeDecodeError as exc:
         raise ValueError(
             f"can't decode {source!r} as UTF-8 — re-save as UTF-8 before loading"
         ) from exc
-    return pd.read_csv(
-        BytesIO(raw),
-        sep="\t" if table_fmt == "tsv" else ",",
-        dtype=str,
-        keep_default_na=False,
-        na_filter=False,
-        encoding="utf-8-sig",
-    )
+    stripped = text.lstrip()
+    if stripped[:1] in "{[":
+        try:
+            json.loads(stripped)
+        except json.JSONDecodeError:
+            pass
+        else:
+            raise ValueError(
+                f"{source} looks like JSON, not {table_fmt} — omit --fmt or pass --fmt json"
+            )
+    label = "TSV" if table_fmt == "tsv" else "CSV"
+    try:
+        return pd.read_csv(
+            BytesIO(raw),
+            sep="\t" if table_fmt == "tsv" else ",",
+            dtype=str,
+            keep_default_na=False,
+            na_filter=False,
+            encoding="utf-8-sig",
+        )
+    except pd.errors.EmptyDataError as exc:
+        raise ValueError(f"can't parse {source!r} as {label} — the file has no rows") from exc
+    except pd.errors.ParserError as exc:
+        raise ValueError(
+            f"can't parse {source!r} as {label} — check the delimiter/quoting"
+        ) from exc
 
 
 def _read_xlsx(raw: bytes, sheet: str | None) -> tuple[pd.DataFrame, list[str]]:
     _validate_xlsx_archive(raw)
-    workbook = load_workbook(BytesIO(raw), data_only=True, read_only=False)
+    try:
+        workbook = load_workbook(BytesIO(raw), data_only=True, read_only=False)
+    except (KeyError, OSError, BadZipFile, ValueError) as exc:
+        # A zip that is not a workbook raises KeyError from inside openpyxl.
+        # That is bad input, on a small file and a large one alike.
+        raise ValueError("invalid XLSX archive") from exc
     if sheet is not None and sheet not in workbook.sheetnames:
         available = ", ".join(workbook.sheetnames)
         raise ValueError(f"sheet {sheet!r} not found; available sheets: {available}")

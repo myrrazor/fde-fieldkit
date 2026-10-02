@@ -23,6 +23,7 @@ from faker.providers.lorem.en_US import Provider as LoremProvider
 from faker.providers.person.en_US import Provider as PersonProvider
 from faker.providers.phone_number.en_US import Provider as PhoneProvider
 
+from fieldkit.core.faker_fast import install_fast_faker
 from fieldkit.core.io import MAX_DATASET_BYTES, formula_safe_value
 from fieldkit.core.pii import scan_text
 from fieldkit_mimic.learn import ColumnSpec, MimicSpec
@@ -51,6 +52,7 @@ def generate(spec: MimicSpec, n: int, seed: int = 0, *, fmt: str = "csv") -> pd.
 def _iter_prepared_rows(
     columns: list[_PreparedColumn], n: int, seed: int
 ) -> Iterator[dict[str, Any]]:
+    install_fast_faker()
     rng = random.Random(seed)
     faker = Faker("en_US")
     faker.seed_instance(seed)
@@ -457,12 +459,9 @@ def _provider_attribute(placeholder: str) -> str:
 
 
 def _fake_words(faker: Faker, count: int) -> str:
-    output = StringIO()
-    for index in range(count):
-        if index:
-            output.write(" ")
-        output.write(faker.word())
-    return output.getvalue()
+    # word() draws with Random._randbelow. words(n) draws with Random.random,
+    # so the calls stay one word at a time or the seed stream moves.
+    return " ".join(faker.word() for _ in range(count))
 
 
 def _strftime_bound(fmt: str, minimum: datetime, maximum: datetime) -> int:

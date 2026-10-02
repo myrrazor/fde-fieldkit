@@ -1,26 +1,32 @@
-import { api, dropzone, esc, renderTable, downloadText, toast, withBusy } from "/fieldkit.js";
+import { api, dropzone, esc, renderTable, downloadText, toast, withBusy, latestRequest } from "/fieldkit.js";
 
 const drop = document.getElementById("drop");
 const result = document.getElementById("result");
 const chip = drop.parentElement.querySelector(".file-chip");
 
+const jobs = latestRequest();
+
 dropzone(drop, profile);
 chip.querySelector("button").addEventListener("click", () => {
+  jobs.invalidate();
   chip.hidden = true;
   drop.file = null;
   result.innerHTML = "";
 });
 
 async function profile(file) {
+  const job = jobs.start();
   result.innerHTML = "";
   try {
     await withBusy(result, `profiling ${file.name}…`, async () => {
       const fd = new FormData();
       fd.append("file", file);
-      const r = await api("/api/xray", { body: fd });
+      const r = await api("/api/xray", { body: fd, signal: job.signal });
+      if (!job.current()) return;
       render(r, file);
     });
   } catch (err) {
+    if (!job.current() || err.name === "AbortError") return;
     toast(err.message);
   }
 }
