@@ -5,6 +5,8 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+## 0.2.1 — 2026-10-02
+
 - Unknown commands suggest a close match again (`fieldkit xra` names `xray`).
 - A CSV or TSV that cannot be parsed says so in one line, instead of quoting
   the pandas parser. `xray --sheet` on a non-Excel file is an error.
@@ -17,8 +19,7 @@ project named `fieldkit` is unrelated.
 - YAML aliases are rejected when expansion produces more than 20,000 nodes and
   that count is also more than four times the unique nodes. Specs with no
   aliases are not subject to that cap.
-- Package version is 0.2.1. The newest GitHub release is still v0.2.0 and is
-  older than this tree. No 0.2.1 wheels have been published.
+- All nine packages ship as 0.2.1 GitHub release wheels and source archives.
 - Heavy profiling, scrubbing, diffs, generation, and workload checks run off
   the hub's event loop. Column typing and tell scoring stay the same and
   finish faster on large inputs.

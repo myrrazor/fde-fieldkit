@@ -1,0 +1,8 @@
+# Exact historical synthetic PII masking fixtures; triage: docs/releases/v0.2.1.md
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:generic-api-key:149
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:generic-api-key:150
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:generic-api-key:151
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:generic-api-key:154
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:github-app-token:158
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:github-app-token:168
+1a696e33cd72ce60bb92c1820e6f0c80cdeb0460:tests/test_core_pii.py:jwt:152

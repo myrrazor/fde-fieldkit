@@ -5,7 +5,7 @@ Check AI workload specs, diff two versions, and score recorded golden suites.
 This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
-`fieldkit plugin add awcp --wheelhouse <wheels-dir>`. A checkout of this repo installs 0.2.1. The v0.2.0 GitHub wheels are older:
+`fieldkit plugin add awcp --wheelhouse <wheels-dir>`. Use the v0.2.1 GitHub wheels or a pinned v0.2.1 checkout:
 
 ```bash
 uv sync --locked --all-packages

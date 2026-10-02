@@ -18,11 +18,9 @@ default. Remote text classifiers, model downloads, package installation, and
 supervised network relays require the explicit actions described below.
 
 **Not on PyPI yet.** The PyPI project named `fieldkit` is unrelated.
-Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). This
-checkout is package **0.2.1**. `fieldkit --version` prints that. The newest
-tagged GitHub release is still [v0.2.0](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.0),
-and those wheels predate later fixes in this tree. There is no 0.2.1 wheel
-tarball yet. From a checkout of this repo:
+Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The current
+GitHub release is [v0.2.1](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.1).
+`fieldkit --version` prints 0.2.1. From a checkout of this repo or the v0.2.1 tag:
 
 ```
 uv sync
@@ -35,12 +33,12 @@ command below is `uv run fieldkit ...`; activate `.venv` if you would rather
 drop the prefix. Sample data lives in `examples/`. The included examples are
 synthetic.
 
-The older v0.2.0 wheels, if you need that exact tag: download
-[fieldkit-0.2.0-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.0/fieldkit-0.2.0-wheels.tar.gz)
+GitHub release wheels: download
+[fieldkit-0.2.1-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.1/fieldkit-0.2.1-wheels.tar.gz)
 and, in that directory:
 
 ```
-tar -xzf fieldkit-0.2.0-wheels.tar.gz
+tar -xzf fieldkit-0.2.1-wheels.tar.gz
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python wheels/*.whl
 fresh/bin/fieldkit --version
@@ -637,8 +635,7 @@ Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reprodu
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).
 
-This is early development software. Source in this repo is 0.2.1. The newest
-tagged GitHub release is still 0.2.0 and is older than that source. It is not
+This is early development software. Source and the current tagged GitHub release are 0.2.1. It is not
 a PyPI publication, a hosted account service, or whole-machine network
 enforcement. The included examples are synthetic.
 Read the [fixture notes](tests/fixtures/README.md) before substituting real data.
