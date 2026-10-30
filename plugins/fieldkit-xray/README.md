@@ -5,7 +5,7 @@ Profile tabular files and highlight schema, missing values, and possible PII.
 This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
-`fieldkit plugin add xray --wheelhouse <wheels-dir>`. Use the v0.2.1 GitHub wheels or a pinned v0.2.1 checkout:
+`fieldkit plugin add xray --wheelhouse <wheels-dir>`. Use the v0.2.2 GitHub wheels or a pinned v0.2.2 checkout:
 
 ```bash
 uv sync --locked --all-packages

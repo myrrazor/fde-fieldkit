@@ -19,8 +19,8 @@ supervised network relays require the explicit actions described below.
 
 **Not on PyPI yet.** The PyPI project named `fieldkit` is unrelated.
 Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The current
-GitHub release is [v0.2.1](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.1).
-`fieldkit --version` prints 0.2.1. From a checkout of this repo or the v0.2.1 tag:
+GitHub release is [v0.2.2](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.2).
+`fieldkit --version` prints 0.2.2. From a checkout of this repo or the v0.2.2 tag:
 
 ```
 uv sync
@@ -34,11 +34,11 @@ drop the prefix. Sample data lives in `examples/`. The included examples are
 synthetic.
 
 GitHub release wheels: download
-[fieldkit-0.2.1-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.1/fieldkit-0.2.1-wheels.tar.gz)
+[fieldkit-0.2.2-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.2/fieldkit-0.2.2-wheels.tar.gz)
 and, in that directory:
 
 ```
-tar -xzf fieldkit-0.2.1-wheels.tar.gz
+tar -xzf fieldkit-0.2.2-wheels.tar.gz
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python wheels/*.whl
 fresh/bin/fieldkit --version
@@ -116,7 +116,7 @@ that cap.
 ```
 uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
-uv pip install --python fresh/bin/python dist/fieldkit-0.2.1-py3-none-any.whl
+uv pip install --python fresh/bin/python dist/fieldkit-0.2.2-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 
@@ -635,7 +635,7 @@ Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reprodu
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).
 
-This is early development software. Source and the current tagged GitHub release are 0.2.1. It is not
+This is early development software. Source and the current tagged GitHub release are 0.2.2. It is not
 a PyPI publication, a hosted account service, or whole-machine network
 enforcement. The included examples are synthetic.
 Read the [fixture notes](tests/fixtures/README.md) before substituting real data.

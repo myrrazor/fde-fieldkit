@@ -5,6 +5,18 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+## 0.2.2 — 2026-10-29
+
+Dependency-only security release. No code or behavior changes.
+
+- Lockfile bumps filelock 3.32.0 to 4.2.1 (#13), fixing CVE-2026-112908,
+  CVE-2026-112909, CVE-2026-112910, CVE-2026-112911, CVE-2026-112915,
+  CVE-2026-112935, and CVE-2026-112939.
+- Lockfile bumps certifi 2026.6.17 to 2026.10.19 (#12), fixing
+  PYSEC-2026-4320 (removes the distrusted `emSign ECC Root CA - G3` root).
+- Lockfile bumps setuptools 83.0.0 to 84.2.1 (#15), fixing GHSA-xmj3-9gf7-h52w.
+- All nine packages ship as 0.2.2 GitHub release wheels and source archives.
+
 ## 0.2.1 — 2026-10-02
 
 - Unknown commands suggest a close match again (`fieldkit xra` names `xray`).

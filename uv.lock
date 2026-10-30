@@ -198,7 +198,7 @@ wheels = [
 
 [[package]]
 name = "fieldkit"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
@@ -253,7 +253,7 @@ dev = [
 
 [[package]]
 name = "fieldkit-awcp"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-awcp" }
 dependencies = [
     { name = "fieldkit" },
@@ -268,7 +268,7 @@ requires-dist = [
 
 [[package]]
 name = "fieldkit-datadiff"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-datadiff" }
 dependencies = [
     { name = "fieldkit" },
@@ -279,7 +279,7 @@ requires-dist = [{ name = "fieldkit", editable = "." }]
 
 [[package]]
 name = "fieldkit-debrief"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-debrief" }
 dependencies = [
     { name = "fieldkit" },
@@ -294,7 +294,7 @@ requires-dist = [
 
 [[package]]
 name = "fieldkit-mimic"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-mimic" }
 dependencies = [
     { name = "faker" },
@@ -311,7 +311,7 @@ requires-dist = [
 
 [[package]]
 name = "fieldkit-netwatch"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-netwatch" }
 dependencies = [
     { name = "fieldkit" },
@@ -322,7 +322,7 @@ requires-dist = [{ name = "fieldkit", editable = "." }]
 
 [[package]]
 name = "fieldkit-scrub"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-scrub" }
 dependencies = [
     { name = "faker" },
@@ -337,7 +337,7 @@ requires-dist = [
 
 [[package]]
 name = "fieldkit-tell"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-tell" }
 dependencies = [
     { name = "anyio" },
@@ -363,7 +363,7 @@ provides-extras = ["ml"]
 
 [[package]]
 name = "fieldkit-xray"
-version = "0.2.1"
+version = "0.2.2"
 source = { editable = "plugins/fieldkit-xray" }
 dependencies = [
     { name = "fieldkit" },
