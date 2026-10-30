@@ -24,8 +24,8 @@ Must exit 0 before tagging. The script does not recurse into `.venv`, `.git`,
 ## Repo
 
 - [ ] `LICENSE` present (MIT)
-- [ ] `CHANGELOG.md` has a dated 0.2.1 section and a fresh Unreleased heading
-- [ ] `SECURITY.md` describes GitHub 0.2.1 plus current `main`, with no LTS promise
+- [ ] `CHANGELOG.md` has a dated 0.2.2 section and a fresh Unreleased heading
+- [ ] `SECURITY.md` describes GitHub 0.2.2 plus current `main`, with no LTS promise
 - [ ] Public identity is the project GitHub links and `myrrazor` noreply only
 
 ## README and site
@@ -40,18 +40,18 @@ Must exit 0 before tagging. The script does not recurse into `.venv`, `.git`,
 ## Release packaging
 
 - [ ] `python3 scripts/build_release.py dist` on the intended commit
-- [ ] 9 wheels + 9 underscore sdists + `fieldkit-0.2.1-wheels.tar.gz` + manifest + `SHA256SUMS` (20 checksummed assets)
+- [ ] 9 wheels + 9 underscore sdists + `fieldkit-0.2.2-wheels.tar.gz` + manifest + `SHA256SUMS` (20 checksummed assets)
 - [ ] Fresh venv install uses `wheels/*.whl` only (no `pip install fieldkit`)
-- [ ] `fieldkit --version` prints `0.2.1`
+- [ ] `fieldkit --version` prints `0.2.2`
 - [ ] `(cd dist && shasum -a 256 -c SHA256SUMS)` passes
 
 ## Publication
 
 - [ ] Full suite, Ruff, JS syntax, privacy, secrets, dep-audit recorded
 - [ ] Hosted CI and CodeQL on the final main commit
-- [ ] `v0.2.1` tag on public `main`
+- [ ] `v0.2.2` tag on public `main`
 - [ ] GitHub Release published with the named assets above (not `dist/*`)
-- [ ] `releases/latest/download/fieldkit-0.2.1-wheels.tar.gz` returns 200
+- [ ] `releases/latest/download/fieldkit-0.2.2-wheels.tar.gz` returns 200
 - [ ] https://fde-fieldkit.vercel.app is the public site
 - [ ] Downloaded assets match `SHA256SUMS`
 
