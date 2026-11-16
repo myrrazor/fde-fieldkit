@@ -1,7 +1,8 @@
 # Releasing Field Kit
 
-Manual GitHub Release for the current workspace versions. There is no publish
-workflow. Do this from a clean, reviewed `main` after the repository checks
+Historical GitHub Release procedure for the original v0.2.2 assets.
+For the renamed distribution and gated PyPI workflow, see [PyPI publishing](PYPI_PUBLISHING.md).
+Do not rerun or overwrite the original release assets. Do this from a clean, reviewed `main` after the repository checks
 below have passed.
 
 Field Kit is **not** uploaded to PyPI. The PyPI project named `fieldkit` is
