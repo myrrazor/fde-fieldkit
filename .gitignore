@@ -28,3 +28,5 @@ TEST_STDOUT*.log
 .vercel/
 site/.vercel/
 requirements-audit.txt
+
+pypi-dist/

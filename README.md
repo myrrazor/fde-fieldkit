@@ -17,7 +17,9 @@ a Friday status deadline. Eight tools ship today as plugins. They run locally by
 default. Remote text classifiers, model downloads, package installation, and
 supervised network relays require the explicit actions described below.
 
-**Not on PyPI yet.** The PyPI project named `fieldkit` is unrelated.
+**Not on PyPI yet.** The planned distribution is `fde-fieldkit`; the CLI and Python
+import remain `fieldkit`. The PyPI project named `fieldkit` is unrelated.
+See [PyPI publishing setup](docs/PYPI_PUBLISHING.md) for the release gate.
 Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The current
 GitHub release is [v0.2.2](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.2).
 `fieldkit --version` prints 0.2.2. From a checkout of this repo or the v0.2.2 tag:
@@ -116,7 +118,7 @@ that cap.
 ```
 uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
-uv pip install --python fresh/bin/python dist/fieldkit-0.2.2-py3-none-any.whl
+uv pip install --python fresh/bin/python dist/fde_fieldkit-0.2.2-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 

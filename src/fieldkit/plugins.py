@@ -148,7 +148,7 @@ def run_installer(requirements: list[str], *, upgrade: bool = False, find_links:
         argv = [*argv, "--find-links", find_links]
     constraint = _core_constraint(requirements)
     if constraint is not None:
-        # git installs see [tool.uv.sources] fieldkit = { workspace = true } and
+        # git installs see [tool.uv.sources] fde-fieldkit = { workspace = true } and
         # would replace the already-installed core with that checkout. Pin it.
         if Path(argv[0]).name == "uv":
             argv = [*argv, "--no-sources"]
@@ -166,14 +166,14 @@ def _core_constraint(requirements: list[str]) -> Path | None:
     if not any("git+" in requirement for requirement in requirements):
         return None
     try:
-        pinned = metadata.version("fieldkit")
+        pinned = metadata.version("fde-fieldkit")
     except metadata.PackageNotFoundError:
         return None
     handle = tempfile.NamedTemporaryFile(
         "w", prefix="fk-pin-", suffix=".txt", delete=False, encoding="utf-8"
     )
     with handle:
-        handle.write(f"fieldkit=={pinned}\n")
+        handle.write(f"fde-fieldkit=={pinned}\n")
     return Path(handle.name)
 
 

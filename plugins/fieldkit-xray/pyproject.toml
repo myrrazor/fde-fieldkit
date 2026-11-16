@@ -13,7 +13,7 @@ description = "Profile any table in seconds"
 requires-python = ">=3.12"
 dependencies = [
     # pandas/jinja2/rich/typer all ride along with core
-    "fieldkit",
+    "fde-fieldkit>=0.2.2",
 ]
 
 [project.urls]
@@ -30,7 +30,7 @@ xray = "fieldkit_xray.cli:app"
 xray = "fieldkit_xray.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_xray"]
