@@ -13,7 +13,7 @@ description = "Explain why two tables disagree"
 requires-python = ">=3.12"
 dependencies = [
     # everything datadiff needs (pandas, jinja2, rich) comes with core
-    "fieldkit",
+    "fde-fieldkit>=0.2.2",
 ]
 
 [project.urls]
@@ -30,7 +30,7 @@ datadiff = "fieldkit_datadiff.cli:app"
 datadiff = "fieldkit_datadiff.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_datadiff"]
