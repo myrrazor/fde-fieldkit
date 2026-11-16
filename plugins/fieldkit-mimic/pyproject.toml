@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 description = "Generate realistic fake datasets"
 requires-python = ">=3.12"
 dependencies = [
-    "fieldkit",
+    "fde-fieldkit>=0.2.2",
     "faker>=37,<38",
     "pyyaml>=6",
 ]
@@ -31,7 +31,7 @@ mimic = "fieldkit_mimic.cli:app"
 mimic = "fieldkit_mimic.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_mimic"]
