@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 description = "Check AI workload specs, diff versions, and score golden eval suites locally"
 requires-python = ">=3.12"
 dependencies = [
-    "fieldkit",
+    "fde-fieldkit>=0.2.2",
     "pyyaml>=6",
 ]
 
@@ -30,7 +30,7 @@ awcp = "fieldkit_awcp.cli:app"
 awcp = "fieldkit_awcp.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_awcp"]
