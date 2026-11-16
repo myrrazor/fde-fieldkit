@@ -1,4 +1,4 @@
-# Announcement drafts for Field Kit 0.2.0
+# Announcement drafts for Field Kit 0.3.0
 
 These are drafts, not posts. Before publishing, read each community's rules
 (Show HN guidelines, subreddit self-promotion policy, and X norms). Do not
@@ -32,7 +32,7 @@ where an agent connects (netwatch), and check an AI workload spec (awcp).
 
 It is MIT-licensed, Python 3.12+, and not on PyPI — the PyPI project named
 fieldkit is unrelated. Install the GitHub Release wheels by explicit path, or
-`uv sync` from the v0.2.0 tag.
+`uv sync` from the v0.3.0 tag.
 
 Repo: https://github.com/myrrazor/fde-fieldkit
 Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
@@ -53,7 +53,7 @@ Friday status notes, draft checks, agent connection traces, and AI workload
 spec checks.
 
 Python 3.12+. MIT. Not on PyPI (that name is a different project). GitHub
-Release wheels or a pinned v0.2.0 checkout.
+Release wheels or a pinned v0.3.0 checkout.
 
 https://github.com/myrrazor/fde-fieldkit
 https://github.com/myrrazor/fde-fieldkit/releases/latest
@@ -64,7 +64,7 @@ Happy to answer command questions.
 
 ## r/opensource
 
-Title: `Field Kit 0.2.0 — MIT-licensed local toolkit (CLI + plugins) for FDE data work`
+Title: `Field Kit 0.3.0 — MIT-licensed local toolkit (CLI + plugins) for FDE data work`
 
 ```
 Open-source (MIT) local toolkit aimed at forward-deployed engineers. Core
@@ -85,6 +85,6 @@ Draft thread. Link on the last post, not the first.
 
 1. Mystery CSV, locked-down laptop, Friday status. Field Kit runs that work on your machine — no telemetry, no hosted upload.
 2. Eight plugins: xray, scrub, mimic, datadiff, debrief, tell, netwatch, awcp. Local by default. Tell remote and Netwatch relay only after you ask.
-3. MIT, Python 3.12+. Not on PyPI (that name is taken by a different project). GitHub wheels or `uv sync` from the v0.2.0 tag.
+3. MIT, Python 3.12+. Not on PyPI (that name is taken by a different project). GitHub wheels or `uv sync` from the v0.3.0 tag.
 4. First public GitHub release is 0.2.0. Early software. Limits are in the README: 50 MB inputs, detectors miss things, Netwatch is not a firewall.
 5. Repo https://github.com/myrrazor/fde-fieldkit — release https://github.com/myrrazor/fde-fieldkit/releases/latest — site https://fde-fieldkit.vercel.app

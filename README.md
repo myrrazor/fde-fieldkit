@@ -38,9 +38,12 @@ synthetic.
 
 GitHub release wheels: download
 [fieldkit-0.3.0-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.3.0/fieldkit-0.3.0-wheels.tar.gz)
-and, in that directory:
+and [SHA256SUMS](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.3.0/SHA256SUMS)
+from this release. Verify the bundle, extract it, and install every wheel by
+explicit local path:
 
 ```
+shasum -a 256 --ignore-missing --strict -c SHA256SUMS
 tar -xzf fieldkit-0.3.0-wheels.tar.gz
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python wheels/*.whl
