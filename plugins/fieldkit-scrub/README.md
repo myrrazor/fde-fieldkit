@@ -5,7 +5,10 @@ Replace detected PII with deterministic, joinable fakes.
 This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
-`fieldkit plugin add scrub --wheelhouse <wheels-dir>`. Use the v0.2.2 GitHub wheels or a pinned v0.2.2 checkout:
+`fieldkit plugin add scrub --wheelhouse <wheels-dir>`. Use the v0.3.0 GitHub
+bundle `fieldkit-0.3.0-wheels.tar.gz` (core distribution `fde-fieldkit`, wheel
+`fde_fieldkit-0.3.0-py3-none-any.whl`) or a pinned v0.3.0 checkout. v0.3.0 is
+not on PyPI:
 
 ```bash
 uv sync --locked --all-packages

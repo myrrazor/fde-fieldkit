@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fieldkit-debrief"
-version = "0.2.2"
+version = "0.3.0"
 readme = "README.md"
 authors = [{ name = "FDE Fieldkit contributors" }]
 license = "MIT"
@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 description = "Turn field notes into reports"
 requires-python = ">=3.12"
 dependencies = [
-    "fde-fieldkit>=0.2.2",
+    "fde-fieldkit>=0.3.0",
     # web.py declares its request body with a BaseModel; fastapi pulls pydantic
     # in anyway, but the direct import deserves a direct declaration
     "pydantic>=2",

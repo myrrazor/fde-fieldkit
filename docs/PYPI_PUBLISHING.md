@@ -4,8 +4,9 @@ Preparation only: this workflow does not publish on a push, tag, or pull request
 Do not upload until the owner approves the release and all nine publisher records
 are configured. The distribution is `fde-fieldkit`; the import and CLI remain
 `fieldkit`. Never install the unrelated PyPI distribution named `fieldkit`.
-Version 0.2.2 is preserved here. Existing GitHub v0.2.2 assets are historical and
-must not be overwritten: build the renamed packages from the reviewed new commit.
+Package version in this tree is 0.3.0. v0.3.0 is not on PyPI yet; installs stay
+on the GitHub release (`fieldkit-0.3.0-wheels.tar.gz`). Previously published
+GitHub release assets must not be overwritten. Build from the reviewed commit.
 
 ## One-time setup (owner)
 
@@ -63,10 +64,12 @@ The default publisher keeps attestations enabled. Upload is not atomic across
 nine projects: on a partial failure inspect which files arrived before retrying;
 do not silently skip mismatched existing versions. PyPI filenames cannot be reused.
 
-After successful upload, verify each project, install `fde-fieldkit==0.2.2` plus
-the eight plugins into a fresh environment from PyPI, then update user-facing
-installation guidance. The existing CLI's explicit PyPI plugin-install guard
-remains unchanged until publication is verified; source/wheelhouse installs work.
+After a later approved upload, verify each project. Only then install
+`fde-fieldkit==0.3.0` plus the eight plugins into a fresh environment from PyPI,
+and update user-facing installation guidance. Until that upload is approved and
+verified, v0.3.0 is not on PyPI and installs stay on the GitHub release. The
+existing CLI's explicit PyPI plugin-install guard remains unchanged until
+publication is verified; source and wheelhouse installs work.
 
 ## Manual fallback if Actions cannot run
 

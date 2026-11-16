@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fieldkit-mimic"
-version = "0.2.2"
+version = "0.3.0"
 readme = "README.md"
 authors = [{ name = "FDE Fieldkit contributors" }]
 license = "MIT"
@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 description = "Generate realistic fake datasets"
 requires-python = ">=3.12"
 dependencies = [
-    "fde-fieldkit>=0.2.2",
+    "fde-fieldkit>=0.3.0",
     "faker>=37,<38",
     "pyyaml>=6",
 ]
