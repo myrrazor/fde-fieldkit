@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 description = "Turn field notes into reports"
 requires-python = ">=3.12"
 dependencies = [
-    "fieldkit",
+    "fde-fieldkit>=0.2.2",
     # web.py declares its request body with a BaseModel; fastapi pulls pydantic
     # in anyway, but the direct import deserves a direct declaration
     "pydantic>=2",
@@ -32,7 +32,7 @@ debrief = "fieldkit_debrief.cli:app"
 debrief = "fieldkit_debrief.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_debrief"]
