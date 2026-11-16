@@ -1,6 +1,6 @@
 # Netwatch product and behavior specification
 
-This document describes the behavior shipped by `fieldkit-netwatch` 0.2.0. Anything in
+This document describes the behavior shipped by `fieldkit-netwatch` 0.3.0. Anything in
 the final **Future work** section is deliberately not presented as a current capability.
 
 ## Product contract
