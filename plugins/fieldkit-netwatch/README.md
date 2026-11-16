@@ -6,7 +6,10 @@ This plugin is part of [Field Kit](https://github.com/myrrazor/fde-fieldkit).
 It is not on PyPI; the PyPI project named `fieldkit` is unrelated. Install the
 GitHub Release wheels by explicit path (see the repository README), then
 `fieldkit plugin add netwatch --wheelhouse <wheels-dir>`. A checkout of this
-repo or the v0.2.2 tag installs 0.2.2 (`uv sync --locked --all-packages`). GitHub release wheels are also 0.2.2.
+repo or the v0.3.0 tag installs 0.3.0 (`uv sync --locked --all-packages`).
+The v0.3.0 GitHub bundle is `fieldkit-0.3.0-wheels.tar.gz`; the core wheel is
+`fde_fieldkit-0.3.0-py3-none-any.whl` (distribution `fde-fieldkit`). v0.3.0 is
+not on PyPI.
 
 Netwatch starts loopback HTTP and SOCKS5 proxies, launches a command through them, and
 stores metadata-only evidence in SQLite. It strengthens coverage for supported Codex and

@@ -17,12 +17,13 @@ a Friday status deadline. Eight tools ship today as plugins. They run locally by
 default. Remote text classifiers, model downloads, package installation, and
 supervised network relays require the explicit actions described below.
 
-**Not on PyPI yet.** The planned distribution is `fde-fieldkit`; the CLI and Python
-import remain `fieldkit`. The PyPI project named `fieldkit` is unrelated.
-See [PyPI publishing setup](docs/PYPI_PUBLISHING.md) for the release gate.
-Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The current
-GitHub release is [v0.2.2](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.2).
-`fieldkit --version` prints 0.2.2. From a checkout of this repo or the v0.2.2 tag:
+**Not on PyPI yet.** v0.3.0 is not published there. Install from the GitHub
+release. The distribution is `fde-fieldkit`; the CLI and Python import remain
+`fieldkit`. The PyPI project named `fieldkit` is unrelated.
+See [PyPI publishing setup](docs/PYPI_PUBLISHING.md) for the gated workflow.
+Requires Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). The GitHub
+release for this version is [v0.3.0](https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.3.0).
+`fieldkit --version` prints 0.3.0. From a checkout of this repo or the v0.3.0 tag:
 
 ```
 uv sync
@@ -36,19 +37,20 @@ drop the prefix. Sample data lives in `examples/`. The included examples are
 synthetic.
 
 GitHub release wheels: download
-[fieldkit-0.2.2-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.2.2/fieldkit-0.2.2-wheels.tar.gz)
+[fieldkit-0.3.0-wheels.tar.gz](https://github.com/myrrazor/fde-fieldkit/releases/download/v0.3.0/fieldkit-0.3.0-wheels.tar.gz)
 and, in that directory:
 
 ```
-tar -xzf fieldkit-0.2.2-wheels.tar.gz
+tar -xzf fieldkit-0.3.0-wheels.tar.gz
 uv venv --seed --python 3.12 fresh
 uv pip install --python fresh/bin/python wheels/*.whl
 fresh/bin/fieldkit --version
 ```
 
-`wheels/*.whl` selects every Field Kit wheel by path, including the core. Later
-plugin adds use `fresh/bin/fieldkit plugin add xray --wheelhouse wheels`. Do
-not `pip install fieldkit` from a package index.
+`wheels/*.whl` selects every Field Kit wheel by path, including the core
+wheel `fde_fieldkit-0.3.0-py3-none-any.whl` from the `fde-fieldkit` distribution.
+Later plugin adds use `fresh/bin/fieldkit plugin add xray --wheelhouse wheels`.
+Do not `pip install fieldkit` or `pip install fde-fieldkit`. v0.3.0 is not on PyPI.
 
 Prefer a browser? Start the local hub:
 
@@ -118,7 +120,7 @@ that cap.
 ```
 uv run --locked python scripts/build_release.py dist
 uv venv --seed --python 3.12 fresh
-uv pip install --python fresh/bin/python dist/fde_fieldkit-0.2.2-py3-none-any.whl
+uv pip install --python fresh/bin/python dist/fde_fieldkit-0.3.0-py3-none-any.whl
 fresh/bin/fieldkit plugin add xray --wheelhouse dist
 ```
 
@@ -637,7 +639,7 @@ Use [GitHub issues](https://github.com/myrrazor/fde-fieldkit/issues) for reprodu
 bugs and feature requests. Report vulnerabilities privately through
 [GitHub Security Advisories](https://github.com/myrrazor/fde-fieldkit/security/advisories/new).
 
-This is early development software. Source and the current tagged GitHub release are 0.2.2. It is not
-a PyPI publication, a hosted account service, or whole-machine network
-enforcement. The included examples are synthetic.
+This is early development software. This tree is 0.3.0. v0.3.0 is not on PyPI
+yet; installs stay on the GitHub release. It is not a hosted account service
+or whole-machine network enforcement. The included examples are synthetic.
 Read the [fixture notes](tests/fixtures/README.md) before substituting real data.

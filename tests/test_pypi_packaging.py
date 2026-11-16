@@ -15,7 +15,7 @@ def test_distribution_rename_preserves_entry_points():
     assert config["project"]["scripts"] == {"fieldkit": "fieldkit.cli:main"}
     for path in (ROOT / "plugins").glob("*/pyproject.toml"):
         plugin = tomllib.loads(path.read_text())
-        assert "fde-fieldkit>=0.2.2" in plugin["project"]["dependencies"]
+        assert "fde-fieldkit>=0.3.0" in plugin["project"]["dependencies"]
         assert "fieldkit" not in plugin["project"]["dependencies"]
         assert plugin["tool"]["uv"]["sources"]["fde-fieldkit"] == {"workspace": True}
 
@@ -25,13 +25,13 @@ def test_git_install_pins_renamed_core(monkeypatch):
 
     def version(name):
         seen.append(name)
-        return "0.2.2"
+        return "0.3.0"
 
     monkeypatch.setattr(plugins.metadata, "version", version)
     path = plugins._core_constraint(["x @ git+https://example.invalid/repo"])
     try:
         assert seen == ["fde-fieldkit"]
-        assert path.read_text() == "fde-fieldkit==0.2.2\n"
+        assert path.read_text() == "fde-fieldkit==0.3.0\n"
     finally:
         path.unlink()
 
@@ -48,7 +48,7 @@ def test_pypi_upload_rejects_bundle_and_missing_files(tmp_path, monkeypatch):
     for name in module.expected_distribution_names(projects):
         (tmp_path / name).touch()
     assert module.check(tmp_path) == []
-    (tmp_path / "fieldkit-0.2.2-wheels.tar.gz").touch()
+    (tmp_path / "fieldkit-0.3.0-wheels.tar.gz").touch()
     assert "extra=" in module.check(tmp_path)[0]
-    (tmp_path / "fde_fieldkit-0.2.2.tar.gz").unlink()
-    assert "fde_fieldkit-0.2.2.tar.gz" in module.check(tmp_path)[0]
+    (tmp_path / "fde_fieldkit-0.3.0.tar.gz").unlink()
+    assert "fde_fieldkit-0.3.0.tar.gz" in module.check(tmp_path)[0]

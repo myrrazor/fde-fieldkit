@@ -7,13 +7,16 @@
 Source of truth: the `site/` tree in https://github.com/myrrazor/fde-fieldkit
 Public site: https://fde-fieldkit.vercel.app/ (public production domain).
 In-repo `site/` is the fallback copy if the hosted site is unreachable.
-Release: https://github.com/myrrazor/fde-fieldkit/releases/latest
+Release: https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.3.0
 
-Toolkit model: install the GitHub Release wheels by explicit local path, or
-`uv sync` from a pinned v0.2.2 checkout. Each of the eight shipped tools is a
-plugin package. Not on PyPI yet (the PyPI name `fieldkit` is an unrelated
-project). After a wheel core install, `fieldkit plugin add <tool> --wheelhouse DIR`
-resolves Field Kit packages from that directory — not from PyPI.
+Toolkit model: install the v0.3.0 GitHub release bundle
+`fieldkit-0.3.0-wheels.tar.gz` by explicit local path. The core distribution is
+`fde-fieldkit`; its wheel in that bundle is `fde_fieldkit-0.3.0-py3-none-any.whl`.
+The CLI and import remain `fieldkit`. Or `uv sync` from a pinned v0.3.0 checkout.
+Each of the eight shipped tools is a plugin package. v0.3.0 is not on PyPI yet
+(the PyPI name `fieldkit` is an unrelated project). After a wheel core install,
+`fieldkit plugin add <tool> --wheelhouse DIR` resolves Field Kit packages from
+that directory — not from PyPI.
 
 ## Eight shipped Field Kit plugins
 

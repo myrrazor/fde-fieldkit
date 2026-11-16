@@ -102,7 +102,7 @@ ALLOWED_EXTERNAL_LINKS = {
     "https://github.com/myrrazor/fde-fieldkit",
     "https://github.com/myrrazor/fde-fieldkit/issues",
     "https://github.com/myrrazor/fde-fieldkit/releases/latest",
-    "https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.2.2",
+    "https://github.com/myrrazor/fde-fieldkit/releases/tag/v0.3.0",
     "https://docs.astral.sh/uv/",
 }
 

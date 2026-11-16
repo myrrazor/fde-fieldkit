@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fieldkit-datadiff"
-version = "0.2.2"
+version = "0.3.0"
 readme = "README.md"
 authors = [{ name = "FDE Fieldkit contributors" }]
 license = "MIT"
@@ -13,7 +13,7 @@ description = "Explain why two tables disagree"
 requires-python = ">=3.12"
 dependencies = [
     # everything datadiff needs (pandas, jinja2, rich) comes with core
-    "fde-fieldkit>=0.2.2",
+    "fde-fieldkit>=0.3.0",
 ]
 
 [project.urls]

@@ -5,6 +5,22 @@ project named `fieldkit` is unrelated.
 
 ## Unreleased
 
+## 0.3.0 — 2026-11-16
+
+Minor release. The core distribution is `fde-fieldkit`. The `fieldkit` command
+and the `fieldkit` Python import are unchanged.
+
+- The core package name is `fde-fieldkit` (#17). Plugin packages stay
+  `fieldkit-<tool>`. Built core files are `fde_fieldkit-0.3.0-py3-none-any.whl`
+  and `fde_fieldkit-0.3.0.tar.gz`. Each plugin keeps `fieldkit_<tool>-0.3.0`.
+  The GitHub wheel bundle is `fieldkit-0.3.0-wheels.tar.gz`.
+- PyPI upload is a manually triggered, gated Trusted Publishing workflow
+  (`.github/workflows/publish-pypi.yml`). It does not run on push, tag, or
+  pull request. Owner steps are in `docs/PYPI_PUBLISHING.md`.
+- v0.3.0 is not on PyPI yet. Install from the GitHub release. Do not
+  `pip install` Field Kit from a package index. The PyPI project named
+  `fieldkit` is unrelated.
+
 ## 0.2.2 — 2026-10-29
 
 Dependency-only security release. No code or behavior changes.
