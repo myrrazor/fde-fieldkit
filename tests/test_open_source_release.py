@@ -108,4 +108,4 @@ def test_distribution_cli_rejects_an_incomplete_workspace_build(tmp_path: Path) 
         cwd=tmp_path, capture_output=True, text=True, check=False,
     )
     assert result.returncode == 1
-    assert "expected one current distribution matching fieldkit-" in result.stdout
+    assert "expected one current distribution matching fde_fieldkit-" in result.stdout
