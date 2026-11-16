@@ -11,7 +11,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 description = "Observe and control network access from AI coding agents"
 requires-python = ">=3.12"
-dependencies = ["fieldkit"]
+dependencies = ["fde-fieldkit>=0.2.2"]
 
 [project.urls]
 Homepage = "https://fde-fieldkit.vercel.app"
@@ -27,7 +27,7 @@ netwatch = "fieldkit_netwatch.cli:app"
 netwatch = "fieldkit_netwatch.web"
 
 [tool.uv.sources]
-fieldkit = { workspace = true }
+fde-fieldkit = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fieldkit_netwatch"]
