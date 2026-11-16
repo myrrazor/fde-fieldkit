@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONSTRAINTS = ROOT / "build-constraints.txt"
 WHEEL_PACKAGES = (
-    "fieldkit",
+    "fde-fieldkit",
     "fieldkit-xray",
     "fieldkit-scrub",
     "fieldkit-mimic",
@@ -130,7 +130,7 @@ def write_manifest(
 ) -> None:
     assets = [{"filename": path.name, "sha256": sha256_file(path)} for path in paths]
     payload = {
-        "name": "fieldkit",
+        "name": "fde-fieldkit",
         "version": version,
         "source_commit": commit,
         "assets": assets,
